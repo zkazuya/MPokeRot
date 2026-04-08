@@ -1,0 +1,487 @@
+4/6/26 -> wrote the basis Main class and GamePanel class -> Carl
+
+    package Main;
+    import javax.swing.JFrame;
+    public class Main {
+        public static void main (String[] args) {
+            JFrame gameWindow = new JFrame();
+            gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            gameWindow.setResizable(false);
+            gameWindow.setTitle("PokeRot");
+            gameWindow.setLocationRelativeTo(null);
+            gameWindow.setVisible(true);
+        }
+    }
+
+    package Main;
+    import javax.swing.JPanel;
+    import java.awt.Dimension;
+    import java.awt.Color;
+    public class GamePanel extends JPanel {
+        final int originalTileSize = 16;
+        final int tileScale = 3;
+        public final int tileSize = originalTileSize * tileScale;
+        final int maxScreenColumn = 16;
+        final int maxScreenRow = 12;
+        final int screenWidth = tileSize * maxScreenColumn;
+        final int screenHeight = tileSize * maxScreenRow;
+        public GamePanel () {
+            this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+            this.setBackground(Color.BLACK);
+            this.setDoubleBuffered(true);
+        }   
+    }
+
+
+
+4/6/26 -> wrote this on main.java before setting gameWindow.setVisible(true). 
+Also the method .setLocationRelativeTo(null) is after .pack() method -> Carl
+
+    GamePanel gamePanel = new GamePanel();
+    gameWindow.add(gamePanel);
+    gameWindow.pack();
+
+
+
+4/6/26 -> updated the class definition to implement Runnable interface -> Carl
+
+    public class GamePanel extends JPanel implements Runnable { no changes inside }
+
+
+
+4/6/26 -> added these two methods on GamePanel class -> Carl
+
+    public void startGameThread () {
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
+    @Override
+    public void run () {    
+        System.out.println("60 FPS");
+    }
+
+
+
+4/6/26 -> added these two imports on GamePanel class -> Carl
+
+    import java.awt.Graphics
+    import java.awt.Graphics2D
+
+
+
+4/6/26 -> added this instance variable on GamePanel and declare a thread object -> Carl
+
+    private static final int FPS = 60;
+    Thread gameThread
+
+
+
+4/6/26 -> changed the .run() to calculate the fps & added .update() and .paintComponent()
+
+    @Override
+    public void run () {
+        double drawInterval = 1000000000 / FPS;
+        double delta = 0;
+        long lastTime = System.nanoTime();
+        long currentTime;
+        while (gameThread != null) {
+            currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / drawInterval;
+            lastTime = currentTime;
+            if (delta >= 1) {
+                update();
+                repaint();
+                delta--;
+            }
+        }
+    }
+    public void update () {}
+    public void paintComponent (Graphics graphics) {
+        super.paintComponent(graphics);
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.fillRect(100, 100, tileSize, tileSize);
+        graphics2D.dispose();
+    }
+
+
+
+4/6/26 -> inside Source Main made a new class KeyHandler.java and put this there -> Carl
+
+    package Main;
+    import java.awt.event.KeyListener;
+    import java.awt.event.KeyEvent;
+    public class KeyHandler implements KeyListener {
+        public boolean upPressed, downPressed, leftPressed, rightPressed;
+        @Override
+        public void keyTyped (KeyEvent input) {}
+        @Override
+        public void keyPressed (KeyEvent input) {
+            int code = input.getKeyCode();
+            if (code == KeyEvent.VK_W) upPressed = true;
+            if (code == KeyEvent.VK_A) leftPressed = true;
+            if (code == KeyEvent.VK_S) downPressed = true;
+            if (code == KeyEvent.VK_D) rightPressed = true;
+        }
+        @Override
+        public void keyReleased (KeyEvent input) {
+            int code = input.getKeyCode();
+            if (code == KeyEvent.VK_W) upPressed = false;
+            if (code == KeyEvent.VK_S) downPressed = false;
+            if (code == KeyEvent.VK_A) leftPressed = false;
+            if (code == KeyEvent.VK_D) rightPressed = false;
+        }
+    }
+
+
+
+4/6/26 -> below Thread gameThread; instantiated a KeyHandler object -> Carl
+
+    KeyHandler keyHandler = new KeyHandler();
+
+
+
+4/6/26 -> inside GamePanel class constructor added these two below .setBackground(Color.BLACK); -> Carl
+
+    this.add(keyHandler);
+    this.setFocusable(true);
+
+
+
+4/7/26 -> added this line to the very bottom of the main method at Main class -> Carl
+
+    gamePanel.startGameThread();
+
+
+
+4/7/26 -> on the Entity package created an Entity class and wrote this inside -> Carl
+
+    package Entity;
+    public class Entity {
+        private int x, y;
+        private int speed;
+        public int getX () {
+            return this.x;
+        }
+        public int getY () {
+            return this.y;
+        }
+        public int getSpeed () {
+            return this.speed;
+        }
+        public void setX (int x) {
+        this.x = x;
+        }
+        public void setY (int y) {
+        this.y = y;
+        }
+        public void setSpeed (int speed) {
+        this.speed = speed;
+        }
+    }
+
+
+
+4/7/26 -> changed public instances to private on keyhandler and added getters at the bottom -> Carl
+
+    private boolean upPressed, downPressed, leftPressed, rightPressed;
+    public boolean getUpPressed () {
+    return this.upPressed;
+    }
+    public boolean getDownPressed () {
+    return this.downPressed;
+    }
+    public boolean getLeftPressed () {
+    return this.leftPressed;
+    }
+    public boolean getRightPressed () {
+    return this.rightPressed;
+    }
+
+
+
+4/7/26 -> inside Entity package added the class Player and filled this in -> Carl
+
+    package Entity;
+    import Main.GamePanel;
+    import Main.KeyHandler;
+    import java.awt.Graphics2D;
+    import java.awt.Color;
+    public class Player extends Entity {
+        GamePanel gamePanel;
+        KeyHandler keyHandler;
+        public Player (GamePanel gamePanel, KeyHandler keyHandler) {
+            this.gamePanel = gamePanel;
+            this.keyHandler = keyHandler;
+            setX(100);
+            setY(100);
+            setSpeed(4);
+        }
+        public void update () {
+            if (keyHandler.getUpPressed()) setY(getY() - getSpeed());
+            if (keyHandler.getDownPressed()) setY(getY() + getSpeed());
+            if (keyHandler.getLeftPressed()) setX(getX() - getSpeed());
+            if (keyHandler.getRightPressed()) setX(getX() + getSpeed());
+        }
+        public void draw (Graphics2D graphics2D) {
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.fillRect(getX(), getY(), gamePanel.tileSize, gamePanel.tileSize);
+        }
+    }
+
+
+
+4/7/26 -> below KeyHandler keyHandler = new KeyHandler(); instantiated player object -> Carl
+
+    Player player = new Player(this, keyHandler);
+
+
+
+4/7/26 -> updated .update() method of GamePanel into -> Carl
+
+    public void update () {
+    player.update();
+    }
+
+
+
+4/7/26 -> replaced GamePanel's .paintComponent() method into this -> Carl
+
+    public void paintComponent (Graphics graphics) {
+        super.paintComponent(graphics);
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        player.draw(graphics2D);
+        graphics2D.dispose();
+    }
+
+
+
+4/7/26 -> inside Source Tile made a Tile.java class and wrote this inside -> Carl
+
+    package Tile;
+    import java.awt.image.BufferedImage;
+    public class Tile {
+        private BufferedImage image;
+        private boolean collision = false;
+        public BufferedImage getImage() {
+            return this.image;
+        }
+        public boolean getCollision () {
+            return this.collision;
+        }
+        public void setImage (BufferedImage image) {
+            this.image = image;
+        }
+        public void setCollision (boolean collision) {
+            this.collision = collision;
+        }
+    }
+
+
+
+4/7/26 -> added getters on Game Panel class -> Carl
+
+    public int getMaxScreenColumn () {
+        return this.maxScreenColumn;
+    }
+    public int getMaxScreenRow () {
+        return this.maxScreenRow;
+    }
+    public int getTileSize () {
+        return this.tileSize;
+    }
+    public int getScreenHeight () {
+        return this.screenHeight;
+    }
+    public int getScreenWidth () {
+        return this.screenWidth;
+    }
+
+
+
+4/7/26 -> encapsulated every variable in Game Panel -> Carl
+
+    private final int originalTileSize = 16;
+    private final int tileScale = 3;
+    private final int tileSize = originalTileSize * tileScale;
+    private final int maxScreenColumn = 16;
+    private final int maxScreenRow = 12;
+    private final int screenWidth = tileSize * maxScreenColumn;
+    private final int screenHeight = tileSize * maxScreenRow;
+    private final int FPS = 60;
+
+
+
+4/7/26 -> updated Player class .draw() method into this -> Carl
+
+    public void draw (Graphics2D graphics2D) {
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.fillRect(getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize());
+    }
+
+
+
+4/7/26 -> changed game resolution to 32x32 -> Carl
+
+    private final int originalTileSize = 32;
+    private final int tileScale = 3;
+    private final int tileSize = originalTileSize * tileScale;
+    private final int maxScreenColumn = 16;
+    private final int maxScreenRow = 12;
+    private final int screenWidth = tileSize * maxScreenColumn;
+    private final int screenHeight = tileSize * maxScreenRow;
+    private final int FPS = 60;
+
+
+
+4/7/26 -> inside Source Tile made a TileManager.java class and wrote this inside -> Carl
+
+    package Tile;
+    import Main.GamePanel;
+    import java.awt.Graphics2D;
+    import java.io.BufferedReader;
+    import java.io.IOException;
+    import java.io.InputStream;
+    import java.io.InputStreamReader;
+    import javax.imageio.ImageIO;
+    public class TileManager {
+        private GamePanel gamePanel;
+        private Tile[] tile; 
+        private int[][] mapTileNumber; 
+        public TileManager (GamePanel gamePanel) {
+            this.gamePanel = gamePanel; 
+            tile = new Tile[10]; 
+            mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; 
+            getTileImage();
+            loadMap("Maps/map1.txt");
+        }
+        public void getTileImage () {
+            try {
+            tile[0] = new Tile();
+            tile[0].setImage(ImageIO.read(getClass().getResourceAsStream("/Tiles/floor01.png")));
+            tile[1] = new Tile();
+            tile[1].setImage(ImageIO.read(getClass().getResourceAsStream("/Tiles/grass01.png")));
+            tile[2] = new Tile();
+            tile[2].setImage(ImageIO.read(getClass().getResourceAsStream("/Tiles/water01.png")));
+            tile[2].setCollision(true);
+            } catch (IOException ioE) {
+            ioE.printStackTrace();
+            }
+        }
+        public void loadMap (String filePath) {
+            try {
+                InputStream inputStream = getClass().getResourceAsStream(filePath);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                int column = 0;
+                int row = 0;
+                while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) {
+                    String line = bufferedReader.readLine();
+                    while (column < gamePanel.getMaxScreenColumn()) {
+                        String[] numbers = line.split(" ");
+                        int currentNumber = Integer.parseInt(numbers[column]);
+                        mapTileNumber[column][row] = currentNumber;
+                        column++;
+                    }
+                    if (column == gamePanel.getMaxScreenColumn()) {
+                        column = 0;
+                        row++;
+                    }
+                }
+                bufferedReader.close();
+            } catch (Exception e) {
+                System.out.println("Error Loading Map Text File");
+                e.printStackTrace();
+            }
+        }
+        public void draw (Graphics2D graphics2D) {
+            int column = 0;
+            int row = 0;
+            int x = 0;
+            int y = 0;
+            while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) {
+                int tileNumber = mapTileNumber[column][row];
+                graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+                column++;
+                x += gamePanel.getTileSize();
+                if (column == gamePanel.getMaxScreenColumn()) {
+                    column = 0;
+                    x = 0;
+                    row++;
+                    y += gamePanel.getTileSize();
+                }
+            }
+        }
+    }
+
+
+
+4/7/26 -> below KeyHandler keyHandler = new KeyHandler(); added this line at GamePanel class -> Carl
+
+    TileManager tileManager = new TileManager(this);
+
+
+
+4/7/26 -> updated .paintComponent() to put this line below player.draw(graphics2D); -> Carl
+
+    tileManager.draw(graphics2D);
+
+
+
+4/7/26 -> refactored the entire Player.java class into this new class -> Carl
+
+    package Entity;
+    import Main.GamePanel;
+    import Main.KeyHandler;
+    import java.awt.Graphics2D;
+    import java.awt.Color;
+    public class Player extends Entity {
+        GamePanel gamePanel;
+        KeyHandler keyHandler;
+        private boolean isMoving = false;
+        private int pixelCounter = 0;
+        private String direction = "down";
+        public Player (GamePanel gamePanel, KeyHandler keyHandler) {
+            this.gamePanel = gamePanel;
+            this.keyHandler = keyHandler;
+            setX(0);
+            setY(0);
+            setSpeed(4);
+        }
+        public void update () {
+            if (isMoving == false) {
+                if (keyHandler.getUpPressed()) {
+                    direction = "up";
+                    isMoving = true;
+                } else if (keyHandler.getDownPressed()) {
+                    direction = "down";
+                    isMoving = true;
+                } else if (keyHandler.getLeftPressed()) {
+                    direction = "left";
+                    isMoving = true;
+                } else if (keyHandler.getRightPressed()) {
+                    direction = "right";
+                    isMoving = true;
+                }
+            }
+            if (isMoving) {
+                if (direction.equals("up")) setY(getY() - getSpeed());
+                if (direction.equals("down")) setY(getY() + getSpeed());
+                if (direction.equals("left")) setX(getX() - getSpeed());
+                if (direction.equals("right")) setX(getX() + getSpeed());
+                pixelCounter += getSpeed();
+                if (pixelCounter >= gamePanel.getTileSize()) {
+                    isMoving = false;
+                    pixelCounter = 0;
+                }
+            }
+        }
+        public void draw (Graphics2D graphics2D) {
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.fillRect(getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize());
+        }
+    }
+
+
+
+// follow the format REMOVE THIS IF SMT IS ADDED

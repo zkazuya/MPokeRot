@@ -4,7 +4,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
 public class KeyHandler implements KeyListener {
-    private boolean upPressed, downPressed, leftPressed, rightPressed; // input switches ENCAPSULATED
+    private boolean upPressed, downPressed, leftPressed, rightPressed; // input switches for aswd ENCAPSULATED
 
     @Override // override KeyEvent abstract method
     public void keyTyped (KeyEvent input) {} // this method is never used but has to be overridden
