@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 public class Entity { // instances are protected such that inheritinng classes can modify them
     protected int x, y; // entity coordinates x and y
     protected int speed; // movement speed
+    protected int animationSpeed; //Determines how fast the animation for an NPC walk would be
 
     protected BufferedImage[] upSprites = new BufferedImage[4];
     protected BufferedImage[] downSprites = new BufferedImage[4];
@@ -24,6 +25,10 @@ public class Entity { // instances are protected such that inheritinng classes c
         return this.speed; // getter for speed
     }
 
+    public int getAnimationSpeed(){
+        return this.animationSpeed;
+    }
+
     public void setX (int x) {
         this.x = x; // setter for x
     }
@@ -35,5 +40,11 @@ public class Entity { // instances are protected such that inheritinng classes c
     public void setSpeed (int speed) {
         this.speed = speed; // setter for speed
     }
+
+    public void setAnimationSpeed(int animSpeed){
+        this.animationSpeed = animSpeed;
+    }
+
+    
 
 }

@@ -1,8 +1,8 @@
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import java.io.FileInputStream;
 
 public class Player extends Entity {
     GamePanel gamePanel; // default access modifier we already have a gamepanel but we're overwriting it
@@ -17,6 +17,7 @@ public class Player extends Entity {
         setX(0); // this is the spawn point coordinate horizontally
         setY(0); // for vertical, these are arbitrary btw
         setSpeed(4); // this is the movement speed
+        setAnimationSpeed(9); //determines how fast the sprite animation will be
         getPlayerImage();
     }
 
@@ -45,7 +46,7 @@ public class Player extends Entity {
             pixelCounter += getSpeed(); // increase pixelCounter by speed until it is equal to one tile
 
             spriteCounter++;
-            if (spriteCounter > 4) {
+            if (spriteCounter > getAnimationSpeed()) {
                 spriteNumber++;
                 if (spriteNumber > 3) spriteNumber = 0;
                 spriteCounter = 0;
@@ -54,7 +55,7 @@ public class Player extends Entity {
             if (pixelCounter >= gamePanel.getTileSize()) { // if the pixel counter is exactly one tile
                 isMoving = false; // unlock the listener again
                 pixelCounter = 0; // reset it to count again
-                spriteNumber = 0;
+                //removed resetting the spriteNumber = 0 when going to a new tile size for more flowy animation
             }
         }
     }
