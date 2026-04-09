@@ -1,8 +1,4 @@
-package Main;
-
 import javax.swing.JPanel;
-import Entity.Player;
-import Tile.TileManager;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
