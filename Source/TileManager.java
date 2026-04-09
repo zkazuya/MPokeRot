@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import javax.imageio.ImageIO;
 
 public class TileManager {
@@ -15,19 +16,19 @@ public class TileManager {
         tile = new Tile[10]; // the array stores 10 tiles CHANGEABLE
         mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // the tile number's max size is just the whole map
         getTileImage(); // puts every tiles into tile array when tile manager is instantiated
-        loadMap("/Assets/Maps/map1.txt"); // tile manager is created once so this loads once! separate methods can call this method
+        loadMap("Assets/Maps/map1.txt"); // tile manager is created once so this loads once! separate methods can call this method
     }
 
     public void getTileImage () {
         try { // wrapped this in try catch so the program won't crash also to show the error
             tile[0] = new Tile(); // instantiate a new Tile object store it in array[0]
-            tile[0].setImage(ImageIO.read(getClass().getResourceAsStream("/Assets/Tiles/floor01.png"))); // folder path: Assets/Tiles/name
+            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); // folder path: Assets/Tiles/name
 
             tile[1] = new Tile(); // instantiate a new Tile object store it in array[1]
-            tile[1].setImage(ImageIO.read(getClass().getResourceAsStream("/Assets/Tiles/grass01.png"))); // folder path: Assets/Tiles/name
+            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); // folder path: Assets/Tiles/name
 
             tile[2] = new Tile(); // instantiate a new Tile object store it in array[2]
-            tile[2].setImage(ImageIO.read(getClass().getResourceAsStream("/Assets/Tiles/water01.png"))); // folder path: Assets/Tiles/name
+            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); // folder path: Assets/Tiles/name
             tile[2].setCollision(true); // now this makes water untouchable
         } catch (IOException ioE) {
             ioE.printStackTrace(); // prints what went wrong and the lines trace
@@ -36,7 +37,7 @@ public class TileManager {
 
     public void loadMap (String filePath) {
         try { // wrapped try catch so program won't crash when folders are missing
-            InputStream inputStream = getClass().getResourceAsStream(filePath); // notice this is to shorten code
+            InputStream inputStream = new FileInputStream(filePath);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)); // makes a file reader, pass a InputStreamReader object
             int column = 0; // these change, keep tracks of y coords
             int row = 0; // keep track of x coords (of the map)

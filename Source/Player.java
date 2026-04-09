@@ -2,6 +2,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.io.FileInputStream;
 
 public class Player extends Entity {
     GamePanel gamePanel; // default access modifier we already have a gamepanel but we're overwriting it
@@ -60,22 +61,22 @@ public class Player extends Entity {
 
     public void getPlayerImage () {
         try {
-        downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_0.png"));
-        downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_1.png"));
-        downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_2.png"));
-        downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_3.png"));
-        upSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_4.png"));
-        upSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_5.png"));
-        upSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_6.png"));
-        upSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_7.png"));
-        rightSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_0.png"));
-        rightSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_1.png"));
-        rightSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_2.png"));
-        rightSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_3.png"));
-        leftSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_4.png"));
-        leftSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_5.png"));
-        leftSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_6.png"));
-        leftSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_7.png"));
+        downSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/updown_0.png"));
+        downSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/updown_1.png"));
+        downSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/updown_2.png"));
+        downSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/updown_3.png"));
+        upSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/updown_4.png"));
+        upSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/updown_5.png"));
+        upSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/updown_6.png"));
+        upSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/updown_7.png"));
+        rightSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/leftright_0.png"));
+        rightSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/leftright_1.png"));
+        rightSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/leftright_2.png"));
+        rightSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/leftright_3.png"));
+        leftSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/leftright_4.png"));
+        leftSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/leftright_5.png"));
+        leftSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/leftright_6.png"));
+        leftSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/leftright_7.png"));
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
