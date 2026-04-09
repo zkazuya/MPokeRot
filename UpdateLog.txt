@@ -1,37 +1,10 @@
+*UPDATE LOG* (please update here any changes made thanks)
+*IMPORTANT: USE ON TERMINAL IF WANT START GAME*
+javac -d ClassFolders Source/*.java
+java -cp ClassFolders Main
+
+
 4/6/26 -> wrote the basis Main class and GamePanel class -> Carl
-
-    package Main;
-    import javax.swing.JFrame;
-    public class Main {
-        public static void main (String[] args) {
-            JFrame gameWindow = new JFrame();
-            gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            gameWindow.setResizable(false);
-            gameWindow.setTitle("PokeRot");
-            gameWindow.setLocationRelativeTo(null);
-            gameWindow.setVisible(true);
-        }
-    }
-
-    package Main;
-    import javax.swing.JPanel;
-    import java.awt.Dimension;
-    import java.awt.Color;
-    public class GamePanel extends JPanel {
-        final int originalTileSize = 16;
-        final int tileScale = 3;
-        public final int tileSize = originalTileSize * tileScale;
-        final int maxScreenColumn = 16;
-        final int maxScreenRow = 12;
-        final int screenWidth = tileSize * maxScreenColumn;
-        final int screenHeight = tileSize * maxScreenRow;
-        public GamePanel () {
-            this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-            this.setBackground(Color.BLACK);
-            this.setDoubleBuffered(true);
-        }   
-    }
-
 
 
 4/6/26 -> wrote this on main.java before setting gameWindow.setVisible(true). 
@@ -482,6 +455,16 @@ Also the method .setLocationRelativeTo(null) is after .pack() method -> Carl
         }
     }
 
+<4/8/2026> 
+    (PjaeXD)
+    -Added the Player Sprites to the Player folder inside Assets
+
+<4/9/2026>
+    (PjaeXD)
+    -Removed a line where the animation sprite number goes back to 0, I removed it so that it wont go back to 0 when it reaches a new tile leading to better        flow of animation
+    -Added a new variable in entity called "animationSpeed" and also adding its setters and getters, this is used when controlling the speed of the sprite          animation (The code for the animation sprite speed is at line 48-59 inside the Player class, it is located specifically at line 49)
+    -You can change the animation sprite speed by entering an integer value as an argument inside "setAnimationSpeed()" this is located inside the constructor      of the Player Class.
+    -Changed 2 player png, so that it will bob its head and have changes while walking upwards (it didnt before)
 
 
 // follow the format REMOVE THIS IF SMT IS ADDED
