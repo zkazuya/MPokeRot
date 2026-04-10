@@ -18,7 +18,7 @@ public class Player extends Entity {
         setY(0); // for vertical, these are arbitrary btw
         setSpeed(4); // this is the movement speed
         setAnimationSpeed(9); //determines how fast the sprite animation will be
-        getPlayerImage();
+        getPlayerImage(); // load all the sprites to the array
     }
 
     public void update () {
@@ -35,7 +35,7 @@ public class Player extends Entity {
             } else if (keyHandler.getRightPressed()) {
                 direction = "right";
                 isMoving = true;
-            }
+            } else spriteNumber = 0;
         }
 
         if (isMoving) { // if we ARE moving, ignore inputs and force player to finish the step (this disables the player being inside 1/2 of a tile or 1/3 of a tile)
