@@ -2,7 +2,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
 public class KeyHandler implements KeyListener {
-    private boolean upPressed, downPressed, leftPressed, rightPressed; // input switches for aswd ENCAPSULATED
+    private boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, escPressed; // input switches for aswd ENCAPSULATED
 
     @Override // override KeyEvent abstract method
     public void keyTyped (KeyEvent input) {} // this method is never used but has to be overridden
@@ -15,6 +15,8 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_A) leftPressed = true; // VK_A = 65
         if (code == KeyEvent.VK_S) downPressed = true; // VK_S = 83
         if (code == KeyEvent.VK_D) rightPressed = true; // VK_D = 68
+        if (code == KeyEvent.VK_ENTER) enterPressed = true; // VK_ENTER = 10
+        if (code == KeyEvent.VK_ESCAPE) escPressed = true; // VK_ESCAPE = 27
     }
 
     @Override // override another KeyEvent abstract method
@@ -24,22 +26,14 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_S) downPressed = false; // VK_W = 83
         if (code == KeyEvent.VK_A) leftPressed = false; // VK_A = 65
         if (code == KeyEvent.VK_D) rightPressed = false; // VK_D = 68
+        if (code == KeyEvent.VK_ENTER) enterPressed = false; //VK_ENTER = 10
+        if (code == KeyEvent.VK_ESCAPE) escPressed = false;
     }
 
-    public boolean getUpPressed () {
-        return this.upPressed; // returns true or false for w key
-    }
-
-    public boolean getDownPressed () {
-        return this.downPressed; // returns true or false for s key
-    }
-
-    public boolean getLeftPressed () {
-        return this.leftPressed; // returns true or false for a key
-    }
-
-    public boolean getRightPressed () {
-        return this.rightPressed; // returns true or false for d key
-    }
-
+    public boolean getUpPressed () { return this.upPressed; }
+    public boolean getDownPressed () { return this.downPressed; }
+    public boolean getLeftPressed () { return this.leftPressed; }
+    public boolean getRightPressed () { return this.rightPressed; }
+    public boolean getEnterPressed () { return this.enterPressed; }
+    public boolean getEscPressed() { return this.escPressed; }
 }

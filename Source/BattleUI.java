@@ -63,23 +63,40 @@ public class BattleUI {
         int textX = leftBoxX + (tileSize / 2); // pads text by half a tile
         int textY = boxY + tileSize; // pushed down by 1 full tile
 
-        graphics2D.drawString("What will", textX, textY);
-        graphics2D.drawString(gamePanel.playerParty[0].getName() + " do?", textX, textY + (tileSize / 2));
-
         int menuX = rightBoxX + tileSize;
         int menuY = boxY + tileSize;
+        int xSpace = tileSize * 2;
+        int ySpace = (int) (tileSize * 0.75);
 
-        int xSpace = tileSize * 2; // horizontal space between fight and bag
-        int ySpace = (int) (tileSize * 0.75); // vertical space between fight and pokerot
+        int subState = gamePanel.battleSystem.getBattleSubState();
+        int currentOption = gamePanel.battleSystem.getOptionSelected();
+        int cursorOffset = tileSize / 3;
 
-        graphics2D.drawString("FIGHT", menuX, menuY);
-        graphics2D.drawString("BAG", menuX + xSpace, menuY);
-        graphics2D.drawString("SWAP", menuX, menuY + ySpace);
-        graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
+        if (subState == 0) {
+            graphics2D.drawString("What will", textX, textY);
+            graphics2D.drawString(gamePanel.playerParty[0].getName() + " do?", textX, textY + (tileSize / 2));
 
-        int currentOption = gamePanel.battleSystem.getOptionSelected(); // shortcut variable
-        int cursorOffset = tileSize / 3; // cursor hovers 1/3 of a tile to the left
+            graphics2D.drawString("FIGHT", menuX, menuY);
+            graphics2D.drawString("BAG", menuX + xSpace, menuY);
+            graphics2D.drawString("SWAP", menuX, menuY + ySpace);
+            graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
+        } else if (subState == 1) {
+            graphics2D.drawString("Select a move!", textX, textY);
+            PokeRot activeRot = gamePanel.playerParty[0];
+            if (activeRot.getMove(0) != null) graphics2D.drawString(activeRot.getMove(0).getName(), menuX, menuY);
+            else graphics2D.drawString("-", menuX, menuY);
+            if (activeRot.getMove(1) != null) graphics2D.drawString(activeRot.getMove(1).getName(), menuX + xSpace, menuY);
+            else graphics2D.drawString("-", menuX + xSpace, menuY);
+            if (activeRot.getMove(2) != null) graphics2D.drawString(activeRot.getMove(2).getName(), menuX, menuY + ySpace);
+            else graphics2D.drawString("-", menuX, menuY + ySpace);
+            if (activeRot.getMove(3) != null) graphics2D.drawString(activeRot.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
+            else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
 
+        } else if (subState == 2) {
+            String currentMessage = gamePanel.battleSystem.getCurrentMessage();
+            graphics2D.drawString(currentMessage, textX, textY);
+            graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+        }
         if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
         if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
         if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
@@ -91,7 +108,7 @@ public class BattleUI {
         int arcSize = tileSize / 3; // I did not define archeight and arcwidth because it's a square so we use the same variable
         int borderThickness = Math.max(1, tileSize / 20);
 
-        Color blackBox = new Color(0, 0, 0, 210); // 210 makes it slightly see-through!
+        Color blackBox = new Color(0, 0, 0, 210); // 210 makes it slightly see-through
         graphics2D.setColor(blackBox);
         graphics2D.fillRoundRect(x, y, width, height, arcSize, arcSize);
 

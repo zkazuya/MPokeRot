@@ -34,15 +34,20 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        playerParty[0] = new PokeRot("Skibidi Toilet", 45, 49);
+        playerParty[0] = new PokeRot("Bananini Chimpanzini", 45, 49);
+        playerParty[0].addMove(new Move("Tackle", 7));
+        playerParty[0].addMove(new Move("Growl", 0));
+
         playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
         enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
+        enemyParty[0].addMove(new Move("Tackle", 7));
         gameState = GameState.BATTLESTATE; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {
         gameThread = new Thread(this); // make a new thread when this method is called
         gameThread.start(); // run that thread's .start() method
+
     }
 
     @Override // override the run abstract method of the Runnable interface
@@ -97,26 +102,9 @@ public class GamePanel extends JPanel implements Runnable {
         graphics2D.dispose(); // saves memory
     }
 
-    public int getMaxScreenColumn () {
-        return this.maxScreenColumn; // getter for maxScreenColumn
-    }
-
-    public int getMaxScreenRow () {
-        return this.maxScreenRow; // getter for maxScreenRow
-    }
-
-    public int getTileSize () {
-        return this.tileSize; // getter for tileSize
-    }
-
-    public int getScreenHeight () {
-        return this.screenHeight; // getter for screenHeight
-    }
-
-    public int getScreenWidth () {
-        return this.screenWidth; // getter for screenWidth
-    }
-
-    // no setters because these are final and we don't change them
-
+    public int getMaxScreenColumn () { return this.maxScreenColumn; }
+    public int getMaxScreenRow () { return this.maxScreenRow; }
+    public int getTileSize () { return this.tileSize; }
+    public int getScreenHeight () { return this.screenHeight; }
+    public int getScreenWidth () { return this.screenWidth; }
 }
