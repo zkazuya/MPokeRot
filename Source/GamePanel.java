@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     BattleUI battleUI = new BattleUI(this); // instantiate a UI object
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState; // declare a GameState enum
+    Dialogue dialogue = new Dialogue(this);
 
     //public PokeRot SkibidiToilet = new PokeRot("Skibidi Toilet", 45, 49); // bulbasaur
     //public PokeRot TralaleloTralala = new PokeRot("Tralalelo Tralala", 44, 48); // squirtle
@@ -37,7 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
         playerParty[0] = new PokeRot("Skibidi Toilet", 45, 49);
         playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
         enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
-        gameState = GameState.BATTLESTATE; // by default game state is on ROAMSTATE
+        gameState = GameState.TALKINGSTATE; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {
@@ -72,7 +73,7 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.PAUSESTATE) {
             //nothing yet
         } else if (gameState == GameState.TALKINGSTATE) {
-            //nothing yet
+            dialogue.update(keyHandler); //this passes keyhandler to dialogue
         } else if (gameState == GameState.TITLESCREEN) {
             //nothing yet
         }
@@ -90,7 +91,9 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.PAUSESTATE) {
             //nothing yet
         } else if (gameState == GameState.TALKINGSTATE) {
-            //nothing yet
+            tileManager.draw(graphics2D);
+            player.draw(graphics2D);
+            dialogue.draw(graphics2D);
         } else if (gameState == GameState.TITLESCREEN) {
             //nothing yet
         }

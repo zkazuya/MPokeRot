@@ -3,6 +3,7 @@ import java.awt.event.KeyEvent;
 
 public class KeyHandler implements KeyListener {
     private boolean upPressed, downPressed, leftPressed, rightPressed; // input switches for aswd ENCAPSULATED
+    private boolean fPressed, enterPressed; // this is for dialogue interaction
 
     @Override // override KeyEvent abstract method
     public void keyTyped (KeyEvent input) {} // this method is never used but has to be overridden
@@ -15,6 +16,9 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_A) leftPressed = true; // VK_A = 65
         if (code == KeyEvent.VK_S) downPressed = true; // VK_S = 83
         if (code == KeyEvent.VK_D) rightPressed = true; // VK_D = 68
+        if (code == KeyEvent.VK_F) fPressed = true; //VK_F = 70
+        if (code == KeyEvent.VK_ENTER) enterPressed = true; //VK_ENTER
+        
     }
 
     @Override // override another KeyEvent abstract method
@@ -24,6 +28,8 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_S) downPressed = false; // VK_W = 83
         if (code == KeyEvent.VK_A) leftPressed = false; // VK_A = 65
         if (code == KeyEvent.VK_D) rightPressed = false; // VK_D = 68
+        if (code == KeyEvent.VK_F) fPressed = false; //VK_F = 70
+        if (code == KeyEvent.VK_ENTER) enterPressed = false; //VK_ENTER
     }
 
     public boolean getUpPressed () {
@@ -40,6 +46,14 @@ public class KeyHandler implements KeyListener {
 
     public boolean getRightPressed () {
         return this.rightPressed; // returns true or false for d key
+    }
+
+    public boolean getFPressed(){
+        return this.fPressed; //returns true/false for pressing f key
+    }
+
+    public boolean getEnterPressed(){
+        return this.enterPressed; //returns true/false for pressing enter key
     }
 
 }
