@@ -6,10 +6,9 @@ public class PokeRot {
     private int maxHP;
     private int currentHP;
     private int attack;
+    private ArrayList<Move> moves;
 
-    private ArrayList <Move> moves;
-
-    public PokeRot (String name, int maxHP, int attack) {
+    public PokeRot(String name, int maxHP, int attack) {
         this.name = name;
         this.level = 1; // always start at level 1
         this.maxHP = maxHP;
@@ -18,23 +17,26 @@ public class PokeRot {
         this.moves = new ArrayList<>();
     }
 
-    public void addMove (Move move) {
-        if (this.moves.size() < 4) this.moves.add(move);
+    public void addMove(Move move) {
+        if (this.moves.size() < 4)
+            this.moves.add(move);
     }
 
-    public Move getMove (int index) {
-        if (index >= 0 && index < this.moves.size()) return this.moves.get(index);
+    public Move getMove(int index) {
+        if (index >= 0 && index < this.moves.size())
+            return this.moves.get(index);
         return null;
-    } 
-
-    public void takeDamage (int damage) {
-        this.currentHP -= damage;
-        if (this.currentHP < 0) this.currentHP = 0;
     }
 
-    public String getName () { return this.name; }
-    public int getLevel () { return this.level; }
-    public int getMaxHP () { return this.maxHP; }
-    public int getCurrentHP () { return this.currentHP; }
-    public int getAttack () { return this.attack; }
+    public void takeDamage(int damage) {
+        this.currentHP -= damage;
+        if (this.currentHP < 0)
+            this.currentHP = 0;
+    }
+
+    public String getName() { return this.name; }
+    public int getLevel() { return this.level;}
+    public int getMaxHP() { return this.maxHP; }
+    public int getCurrentHP() { return this.currentHP; }
+    public int getAttack() { return this.attack; }
 }
