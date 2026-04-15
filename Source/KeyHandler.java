@@ -29,7 +29,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_ENTER) enterPressed = false; //VK_ENTER = 10
         if (code == KeyEvent.VK_ESCAPE) escPressed = false;
     }
-
+    
     public boolean getUpPressed () { return this.upPressed; }
     public boolean getDownPressed () { return this.downPressed; }
     public boolean getLeftPressed () { return this.leftPressed; }

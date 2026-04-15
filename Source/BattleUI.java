@@ -1,3 +1,5 @@
+
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -97,11 +99,14 @@ public class BattleUI {
             graphics2D.drawString(currentMessage, textX, textY);
             graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
         }
-        if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
-        if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
-        if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
-        if (currentOption == 3) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        if (subState == 0 || subState == 1) {
+            if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
+            if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
+            if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        }
     }
+
 
     public void drawSubWindow(Graphics2D graphics2D, int x, int y, int width, int height) {
         int tileSize = gamePanel.getTileSize();
