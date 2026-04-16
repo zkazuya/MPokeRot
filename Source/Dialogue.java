@@ -8,7 +8,7 @@ public class Dialogue {
 
     private String[] IntroDialogue = {
         "Welcome to UP!",
-        "The CS building's servers just leaked—PokeRots are jumping out of the screens and onto the campus!",
+        "The CS building's servers just leaked—PokeRots are jumping out of the screens and unto the campus !",
         "Our sanity is at stake. Explore the map, stay woke and catch 'em all before the PokeRots go viral!",
         "Once you enter, you cannot go back..."
     };
@@ -41,14 +41,14 @@ public class Dialogue {
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 20));
        // g2.drawString("CONTROLS: Press 'X' to Talk | 'ENTER' to Advance", 180, 250);
-
         if (gameState == dialogueState) {
-            drawDialogueWindow(g2);
+            drawIntroDialogueWindow(g2);
         }
     }
 
-    private void drawDialogueWindow(Graphics2D g2) {
-        int x = 20, y = 180, width = 360, height = 100;
+    private void drawIntroDialogueWindow(Graphics2D g2) {
+        //int x = 20, y = 180, width = 360, height = 100;
+        int x = 10, y =550, width = 700, height = 100;
         g2.setColor(new Color(0, 0, 0, 210));
         g2.fillRoundRect(x, y, width, height, 35, 35);
         g2.setColor(Color.WHITE);
@@ -59,7 +59,7 @@ public class Dialogue {
         g2.drawString(IntroDialogue[dialogueIndex], x + 20, y + 40);
 
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        g2.drawString("Press F>", x + 250, y + 85);
+        g2.drawString("Press F>", x + 600, y + 85);
     }
 }
 
