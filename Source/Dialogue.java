@@ -5,6 +5,7 @@ public class Dialogue {
     private final int playState = 0;
     private final int dialogueState = 1;
     private int gameState = playState;
+    private boolean doneIntro = false; // checks if Intro has already been shown
 
     private String[] IntroDialogue = {
         "Welcome to UP!",
@@ -21,14 +22,16 @@ public class Dialogue {
     }
 
     public void update(KeyHandler keyHandler) {
-        if (keyHandler.getFPressed() && !fKeyHandled) {
-            if (gameState == playState && dialogueIndex == 0) {
+        if (keyHandler.getFPressed() && !fKeyHandled && !doneIntro) {
+            if (gameState == playState) {
                 gameState = dialogueState;
             } else if (gameState == dialogueState) {
                 dialogueIndex++;
                 if (dialogueIndex >= IntroDialogue.length) {
                     gameState = playState;
                     dialogueIndex = 0;
+                    gp.gameState = GameState.ROAMSTATE; // Exit dialogue and start roaming
+                    doneIntro = true;
                 }
             }
             fKeyHandled = true;
@@ -42,12 +45,13 @@ public class Dialogue {
         g2.setFont(new Font("Arial", Font.BOLD, 20));
        // g2.drawString("CONTROLS: Press 'X' to Talk | 'ENTER' to Advance", 180, 250);
         if (gameState == dialogueState) {
-            drawIntroDialogueWindow(g2);
+            if(!doneIntro){
+                drawIntroDialogueWindow(g2);
+            }  
         }
     }
 
     private void drawIntroDialogueWindow(Graphics2D g2) {
-        //int x = 20, y = 180, width = 360, height = 100;
         int x = 10, y =550, width = 700, height = 100;
         g2.setColor(new Color(0, 0, 0, 210));
         g2.fillRoundRect(x, y, width, height, 35, 35);

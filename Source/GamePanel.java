@@ -22,6 +22,7 @@ public class GamePanel extends JPanel implements Runnable {
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState; // declare a GameState enum
     Dialogue dialogue = new Dialogue(this);
+    TitlePanel titlePanel = new TitlePanel(this);
 
     //public PokeRot SkibidiToilet = new PokeRot("Skibidi Toilet", 45, 49); // bulbasaur
     //public PokeRot TralaleloTralala = new PokeRot("Tralalelo Tralala", 44, 48); // squirtle
@@ -38,7 +39,7 @@ public class GamePanel extends JPanel implements Runnable {
         playerParty[0] = new PokeRot("Skibidi Toilet", 45, 49);
         playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
         enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
-        gameState = GameState.TALKINGSTATE; // by default game state is on ROAMSTATE
+        gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {
@@ -75,7 +76,7 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.TALKINGSTATE) {
             dialogue.update(keyHandler); //this passes keyhandler to dialogue
         } else if (gameState == GameState.TITLESCREEN) {
-            //nothing yet
+            titlePanel.update(keyHandler);
         }
     }
 
@@ -95,7 +96,7 @@ public class GamePanel extends JPanel implements Runnable {
             player.draw(graphics2D);
             dialogue.draw(graphics2D);
         } else if (gameState == GameState.TITLESCREEN) {
-            //nothing yet
+            titlePanel.draw(graphics2D);
         }
         graphics2D.dispose(); // saves memory
     }
