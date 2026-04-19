@@ -7,6 +7,7 @@ public class PokeRot {
     private int currentHP;
     private int attack;
     private ArrayList<Move> moves;
+    private double drawnHP;
 
     public PokeRot(String name, int maxHP, int attack) {
         this.name = name;
@@ -15,6 +16,14 @@ public class PokeRot {
         this.currentHP = maxHP; // always start at full health
         this.attack = attack;
         this.moves = new ArrayList<>();
+        this.drawnHP = maxHP;
+    }
+
+    public void update () {
+        if (drawnHP > currentHP) {
+            drawnHP -= 0.3; // bawas bawasan kada frame para smooth it healthbar diri instant
+            if (drawnHP < currentHP) drawnHP = currentHP; // para diri lumapos it healthbar na actual
+        }
     }
 
     public void addMove(Move move) {
@@ -34,9 +43,10 @@ public class PokeRot {
             this.currentHP = 0;
     }
 
-    public String getName() { return this.name; }
-    public int getLevel() { return this.level;}
-    public int getMaxHP() { return this.maxHP; }
-    public int getCurrentHP() { return this.currentHP; }
-    public int getAttack() { return this.attack; }
+    public String getName () { return this.name; }
+    public int getLevel () { return this.level;}
+    public int getMaxHP () { return this.maxHP; }
+    public int getCurrentHP () { return this.currentHP; }
+    public int getAttack () { return this.attack; }
+    public double getDrawnHP () { return this.drawnHP; }
 }

@@ -38,5 +38,7 @@ java -cp ClassFolders Main
     -I put enterPressed on keyhandler pan confirm han moves, ngan esc for cancelling certain things
     -Binago ko tanan na getters into one line kay shongit hiya pramis
 
+<4/19/2026 (Carl)>
+    -improvements on BattleSystem, BattleUI, GamePanel, Player, PokeRot, Tile, TileManager
 
 // follow the format REMOVE THIS IF SMT IS ADDED

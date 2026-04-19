@@ -94,16 +94,22 @@ public class BattleUI {
             if (activeRot.getMove(3) != null) graphics2D.drawString(activeRot.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
             else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
 
-        } else if (subState == 2) {
+        } else if (subState >= 2) {
             String currentMessage = gamePanel.battleSystem.getCurrentMessage();
             graphics2D.drawString(currentMessage, textX, textY);
-            graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            if (subState == 2 || subState == 4 || subState == 6 || subState == 7) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            }
         }
         if (subState == 0 || subState == 1) {
-            if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
-            if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
-            if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
-            if (currentOption == 3) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+            if (currentOption == 0)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY);
+            if (currentOption == 1)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
+            if (currentOption == 2)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
         }
     }
 
@@ -141,7 +147,8 @@ public class BattleUI {
 
         graphics2D.setColor(new Color(50, 50, 50));
         graphics2D.fillRect(barX, barY, barWidth, barHeight);
-        double hpRatio = (double) pokerot.getCurrentHP() / pokerot.getMaxHP();
+
+        double hpRatio = (double) pokerot.getDrawnHP() / pokerot.getMaxHP();
         int currentBarWidth = (int) (barWidth * hpRatio);
         graphics2D.setColor(Color.GREEN);
         graphics2D.fillRect(barX, barY, currentBarWidth, barHeight);

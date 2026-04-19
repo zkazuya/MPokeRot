@@ -22,14 +22,17 @@ public class TileManager {
     public void getTileImage () {
         try { // wrapped this in try catch so the program won't crash also to show the error
             tile[0] = new Tile(); // instantiate a new Tile object store it in array[0]
-            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); // folder path: Assets/Tiles/name
-
+            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); 
             tile[1] = new Tile(); // instantiate a new Tile object store it in array[1]
-            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); // folder path: Assets/Tiles/name
+            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); 
 
             tile[2] = new Tile(); // instantiate a new Tile object store it in array[2]
-            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); // folder path: Assets/Tiles/name
+            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); 
             tile[2].setCollision(true); // now this makes water untouchable
+
+            tile[3] = new Tile();
+            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/tallgrass_01.png")));
+            tile[3].setEncounter(true);
         } catch (IOException ioE) {
             ioE.printStackTrace(); // prints what went wrong and the lines trace
         }
@@ -81,4 +84,6 @@ public class TileManager {
         }
     }
 
+    public int getTileNumber (int column, int row) { return this.mapTileNumber[column][row]; }
+    public Tile getTile (int index) { return this.tile[index]; }
 }

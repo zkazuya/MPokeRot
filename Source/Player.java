@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.util.Random;
 
 public class Player extends Entity {
     GamePanel gamePanel; // default access modifier we already have a gamepanel but we're overwriting it
@@ -57,6 +58,7 @@ public class Player extends Entity {
                 pixelCounter = 0; // reset it to count again
                 //removed resetting the spriteNumber = 0 when going to a new tile size for more flowy animation
             }
+            checkEncounter();
         }
     }
 
@@ -100,6 +102,28 @@ public class Player extends Entity {
                 break;
         }
         graphics2D.drawImage(image, getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+    }
+
+    public void checkEncounter () {
+        int tileSize = gamePanel.getTileSize(); // shortcut variable
+        int centerX = x + (tileSize / 2); // pan center la ini hit x
+        int centerY = y + (tileSize / 2); // pan center hit y
+        // kay hit nahinanabo kasi kun waray ito ada hiya ha butnga hit 2x2 nga grid which is diri sentro..
+
+        // ig coconvert ta hira into row and column nga coords
+        int column = centerX / tileSize;
+        int row = centerY / tileSize;
+        int tileNumber = gamePanel.tileManager.getTileNumber(column, row); // find what tile this is at
+        if (gamePanel.tileManager.getTile(tileNumber).getEncounter()) {
+            Random random = new Random();
+            int roll = random.nextInt(1000);
+            if (roll < 5) { // 0.5% chance to find a pokerot in grass
+                gamePanel.enemyParty[0] = new PokeRot("Tralalelo Tralala", 30, 40);
+                gamePanel.enemyParty[0].addMove(new Move("Scratch", 8));
+
+                gamePanel.gameState = GameState.BATTLESTATE;
+            }
+        }
     }
 
 }
