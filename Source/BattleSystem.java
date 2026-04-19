@@ -8,15 +8,29 @@ public class BattleSystem {
     private String dialogText = "";
     private Move playerMoveToUse;
 
+    private PokeRot activePlayer;
+    private PokeRot activeEnemy;
+
     public BattleSystem(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
     }
 
     public String getCurrentMessage () { return this.dialogText; }
 
+    public void startEncounter (PokeRot playerCurrentRot, PokeRot wildRot) {
+        this.activePlayer = playerCurrentRot;
+        this.activeEnemy = wildRot;
+        this.battleSubState = 0;
+        this.optionSelected = 0;
+    }
+
+    // Getters so the UI ccan draw the correct fighters
+    public PokeRot getActivePlayer () { return this.activePlayer; }
+    public PokeRot getActiveEnemy () { return this.activeEnemy; }
+
     public void update() {
-        gamePanel.playerParty[0].update();
-        gamePanel.enemyParty[0].update();
+        if (activePlayer != null) activePlayer.update();
+        if (activeEnemy != null) activeEnemy.update();
         if (keyCooldown > 0) {
             keyCooldown--;
         } else {
@@ -65,10 +79,9 @@ public class BattleSystem {
                     optionSelected = 0;
                     keyCooldown = 30;
                 } else if (gamePanel.keyHandler.getEnterPressed()) { // if naka pili na hin move ma execute na ini
-                    PokeRot player = gamePanel.playerParty[0]; 
-                    playerMoveToUse = player.getMove(optionSelected);
+                    playerMoveToUse = activePlayer.getMove(optionSelected);
                     if (playerMoveToUse != null) { // if naexist an move na napili meaning diri "-"
-                        dialogText = player.getName() + " used " + playerMoveToUse.getName() + "!"; // amo ini an "pokerot used tackle!"
+                        dialogText = activePlayer.getName() + " used " + playerMoveToUse.getName() + "!"; // amo ini an "pokerot used tackle!"
                         battleSubState = 2; // move to next battle state which is an damage calculation
                         optionSelected = 0; // reset cursor top left
                     }
@@ -79,24 +92,21 @@ public class BattleSystem {
             else if (battleSubState == 2) {
                 if (gamePanel.keyHandler.getEnterPressed()) {
                     // an mga dmg calculation la ito ha ubos hehe
-                    PokeRot player = gamePanel.playerParty[0];
-                    PokeRot enemy = gamePanel.enemyParty[0];
-                    int playerDamage = playerMoveToUse.getDamage() + (player.getAttack() / 5);
-                    enemy.takeDamage(playerDamage);
+                    int playerDamage = playerMoveToUse.getDamage() + (activePlayer.getAttack() / 5);
+                    activeEnemy.takeDamage(playerDamage);
                     battleSubState = 3; // sunod kay animation state (after ma damage an pokerot an kalaban)
                     keyCooldown = 30; // cooldown in the big 2026
                 }
             }
             // STATE 3 WAITING FOR ENEMY POKEROT HP TO DRAIN
             else if (battleSubState == 3) { // nag ddraw la ini nga state
-                PokeRot enemy = gamePanel.enemyParty[0];
-                if (enemy.getDrawnHP() == enemy.getCurrentHP()) {
-                    if (enemy.getCurrentHP() <= 0) { // if nag zero an hp an kalaban execute baba
-                        dialogText = enemy.getName() + " fainted";
+                if (activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) {
+                    if (activeEnemy.getCurrentHP() <= 0) { // if nag zero an hp an kalaban execute baba
+                        dialogText = activeEnemy.getName() + " fainted";
                         battleSubState = 6; // skip to victory state if namatay an kalaban
                     } else { // enemy survives and prepare their attack
-                        Move enemyMove = enemy.getMove(0); // 0 ngada kay diri man hira player nga nakakapili pero at some point ig rrandomize ko
-                        dialogText = enemy.getName() + " retaliated with " + enemyMove.getName() + "!"; // same shi kanina pero kanan enemy
+                        Move enemyMove = activeEnemy.getMove(0); // 0 ngada kay diri man hira player nga nakakapili pero at some point ig rrandomize ko
+                        dialogText = activeEnemy.getName() + " retaliated with " + enemyMove.getName() + "!"; // same shi kanina pero kanan enemy
                         battleSubState = 4; // jump to enemy turn state
                     }
                 } 
@@ -104,21 +114,18 @@ public class BattleSystem {
             // STATE 4 ENEMY'S TURN
             else if (battleSubState == 4) {
                 if (gamePanel.keyHandler.getEnterPressed()) { // if nag enter ka after nag drain an hp
-                    PokeRot player = gamePanel.playerParty[0]; // shortcut variables la ini
-                    PokeRot enemy = gamePanel.enemyParty[0]; // pati ini
-                    Move enemyMove = enemy.getMove(0); // pati ini
-                    int enemyDamage = enemyMove.getDamage() + (enemy.getAttack() / 5); // dmg is calculated like that
-                    player.takeDamage(enemyDamage); // call takeDamage method tas ofc ipapasa ta enemyDamage
+                    Move enemyMove = activeEnemy.getMove(0); // pati ini
+                    int enemyDamage = enemyMove.getDamage() + (activeEnemy.getAttack() / 5); // dmg is calculated like that
+                    activePlayer.takeDamage(enemyDamage); // call takeDamage method tas ofc ipapasa ta enemyDamage
                     battleSubState = 5; // animation state (our pokerot taking dmg naka drawing)
                     keyCooldown = 30;
                 }
             }
             // STATE 5 WAIT FOR OUR POKEROT'S HP TO DRAIN
             else if (battleSubState == 5) {
-                PokeRot player = gamePanel.playerParty[0];
-                if (player.getDrawnHP() == player.getCurrentHP()) {
-                    if (player.getCurrentHP() <= 0) {
-                        dialogText = player.getName() + " fainted...";
+                if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) {
+                    if (activePlayer.getCurrentHP() <= 0) {
+                        dialogText = activePlayer.getName() + " fainted...";
                         battleSubState = 7; // go to defeat state
                     } else {
                         // we died so battle is over and we go bac kto substate 0 which is main menu
@@ -133,9 +140,6 @@ public class BattleSystem {
                     battleSubState = 0;
                     optionSelected = 0;
 
-                    gamePanel.enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
-                    gamePanel.enemyParty[0].addMove(new Move("Scratch", 8));
-
                     gamePanel.gameState = GameState.ROAMSTATE;
                     keyCooldown = 30;
                 }
@@ -145,10 +149,6 @@ public class BattleSystem {
                 if (gamePanel.keyHandler.getEnterPressed()) {
                     battleSubState = 0;
                     optionSelected = 0;
-
-                    gamePanel.playerParty[0] = new PokeRot("Bananini Chimpanzini", 45, 49);
-                    gamePanel.playerParty[0].addMove(new Move("Tackle", 10));
-                    gamePanel.playerParty[0].addMove(new Move("Growl", 0));
 
                     gamePanel.gameState = GameState.ROAMSTATE;
                     keyCooldown = 30;

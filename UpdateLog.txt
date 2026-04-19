@@ -40,5 +40,6 @@ java -cp ClassFolders Main
 
 <4/19/2026 (Carl)>
     -improvements on BattleSystem, BattleUI, GamePanel, Player, PokeRot, Tile, TileManager
+    -Also battle system is now working properly
 
 // follow the format REMOVE THIS IF SMT IS ADDED

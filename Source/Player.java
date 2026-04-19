@@ -117,9 +117,12 @@ public class Player extends Entity {
         if (gamePanel.tileManager.getTile(tileNumber).getEncounter()) {
             Random random = new Random();
             int roll = random.nextInt(1000);
-            if (roll < 5) { // 0.5% chance to find a pokerot in grass
-                gamePanel.enemyParty[0] = new PokeRot("Tralalelo Tralala", 30, 40);
-                gamePanel.enemyParty[0].addMove(new Move("Scratch", 8));
+            if (roll < 10) { // 10% chance to find a pokerot in grass
+                PokeRot wildEnemy = new PokeRot("Tralalelo Tralala", 30, 40);
+                wildEnemy.addMove(new Move("Scratch", 8));
+
+                PokeRot playerLead = gamePanel.playerParty[0];
+                gamePanel.battleSystem.startEncounter(playerLead, wildEnemy);
 
                 gamePanel.gameState = GameState.BATTLESTATE;
             }

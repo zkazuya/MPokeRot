@@ -41,7 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
         playerParty[0].addMove(new Move("Tackle", 7));
         playerParty[0].addMove(new Move("Growl", 0));
         enemyParty[0].addMove(new Move("Tackle", 7));
-        gameState = GameState.BATTLESTATE; // by default game state is on ROAMSTATE
+        gameState = GameState.ROAMSTATE; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {

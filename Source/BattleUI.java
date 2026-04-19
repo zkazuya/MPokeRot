@@ -1,5 +1,3 @@
-
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
@@ -43,13 +41,18 @@ public class BattleUI {
         int enemyY = tileSize * 2; // 1 tile from the top ceiling
         graphics2D.drawImage(enemyRot, enemyX, enemyY, pokerotSize, pokerotSize, null);
 
+        PokeRot activePlayer = gamePanel.battleSystem.getActivePlayer();
+        PokeRot activeEnemy = gamePanel.battleSystem.getActiveEnemy();
+
         int enemyBoxX = tileSize / 2;
         int enemyBoxY = tileSize / 2;
-        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, gamePanel.enemyParty[0]);
+
+        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy);
 
         int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5);
         int playerBoxY = boxY - (int)(tileSize * 1.8);
-        drawHealthBar(graphics2D, playerBoxX, playerBoxY, gamePanel.playerParty[0]);
+
+        drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer);
 
         int rightBoxWidth = tileSize * 5; // right box width is 5 tiles long
         int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // it right box's x is kasunod it width it rightbox
@@ -76,7 +79,7 @@ public class BattleUI {
 
         if (subState == 0) {
             graphics2D.drawString("What will", textX, textY);
-            graphics2D.drawString(gamePanel.playerParty[0].getName() + " do?", textX, textY + (tileSize / 2));
+            graphics2D.drawString(activePlayer.getName() + " do?", textX, textY + (tileSize / 2));
 
             graphics2D.drawString("FIGHT", menuX, menuY);
             graphics2D.drawString("BAG", menuX + xSpace, menuY);
@@ -84,14 +87,14 @@ public class BattleUI {
             graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
         } else if (subState == 1) {
             graphics2D.drawString("Select a move!", textX, textY);
-            PokeRot activeRot = gamePanel.playerParty[0];
-            if (activeRot.getMove(0) != null) graphics2D.drawString(activeRot.getMove(0).getName(), menuX, menuY);
+
+            if (activePlayer.getMove(0) != null) graphics2D.drawString(activePlayer.getMove(0).getName(), menuX, menuY);
             else graphics2D.drawString("-", menuX, menuY);
-            if (activeRot.getMove(1) != null) graphics2D.drawString(activeRot.getMove(1).getName(), menuX + xSpace, menuY);
+            if (activePlayer.getMove(1) != null) graphics2D.drawString(activePlayer.getMove(1).getName(), menuX + xSpace, menuY);
             else graphics2D.drawString("-", menuX + xSpace, menuY);
-            if (activeRot.getMove(2) != null) graphics2D.drawString(activeRot.getMove(2).getName(), menuX, menuY + ySpace);
+            if (activePlayer.getMove(2) != null) graphics2D.drawString(activePlayer.getMove(2).getName(), menuX, menuY + ySpace);
             else graphics2D.drawString("-", menuX, menuY + ySpace);
-            if (activeRot.getMove(3) != null) graphics2D.drawString(activeRot.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
+            if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
             else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
 
         } else if (subState >= 2) {
