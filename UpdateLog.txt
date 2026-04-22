@@ -39,6 +39,7 @@ java -cp ClassFolders Main
     -Binago ko tanan na getters into one line kay shongit hiya pramis
 
 <4/19/2026 (Carl)>
+    -I removed the old battle system and replaced it with 7 phases see BattleSystem.java
     -improvements on BattleSystem, BattleUI, GamePanel, Player, PokeRot, Tile, TileManager
     -Also battle system is now working properly
 

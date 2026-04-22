@@ -2,7 +2,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
 public class KeyHandler implements KeyListener {
-    private boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, escPressed; // input switches for aswd ENCAPSULATED
+    private boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, escPressed; // input switches for aswd, esc, enter
+    private boolean fPressed; // dialogue interaction key
 
     @Override // override KeyEvent abstract method
     public void keyTyped (KeyEvent input) {} // this method is never used but has to be overridden
@@ -15,6 +16,7 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_A) leftPressed = true; // VK_A = 65
         if (code == KeyEvent.VK_S) downPressed = true; // VK_S = 83
         if (code == KeyEvent.VK_D) rightPressed = true; // VK_D = 68
+        if (code == KeyEvent.VK_F) fPressed = true; // VK_F = 70
         if (code == KeyEvent.VK_ENTER) enterPressed = true; // VK_ENTER = 10
         if (code == KeyEvent.VK_ESCAPE) escPressed = true; // VK_ESCAPE = 27
     }
@@ -22,10 +24,11 @@ public class KeyHandler implements KeyListener {
     @Override // override another KeyEvent abstract method
     public void keyReleased (KeyEvent input) { // this method disables the switches when they are not pressed or hold
         int code = input.getKeyCode(); // translates the keys like "awsd" into number
-        if (code == KeyEvent.VK_W) upPressed = false; // VK_W = 87
-        if (code == KeyEvent.VK_S) downPressed = false; // VK_W = 83
-        if (code == KeyEvent.VK_A) leftPressed = false; // VK_A = 65
-        if (code == KeyEvent.VK_D) rightPressed = false; // VK_D = 68
+        if (code == KeyEvent.VK_W) upPressed = false;
+        if (code == KeyEvent.VK_S) downPressed = false;
+        if (code == KeyEvent.VK_A) leftPressed = false;
+        if (code == KeyEvent.VK_D) rightPressed = false; 
+        if (code == KeyEvent.VK_F) fPressed = false;
         if (code == KeyEvent.VK_ENTER) enterPressed = false; //VK_ENTER = 10
         if (code == KeyEvent.VK_ESCAPE) escPressed = false;
     }
@@ -36,4 +39,5 @@ public class KeyHandler implements KeyListener {
     public boolean getRightPressed () { return this.rightPressed; }
     public boolean getEnterPressed () { return this.enterPressed; }
     public boolean getEscPressed() { return this.escPressed; }
+    public boolean getFPressed() { return this.fPressed; }
 }

@@ -7,6 +7,8 @@ public class BattleSystem {
     private int battleSubState = 0; // 0 = Main Menu, 1 = Move Menu, 2 = Message Queue
     private String dialogText = "";
     private Move playerMoveToUse;
+    private int expGainedThisBattle = 0; // temporarily stores this changing variable in each battle
+    private boolean leveledUpThisRound = false;
 
     private PokeRot activePlayer;
     private PokeRot activeEnemy;
@@ -137,10 +139,11 @@ public class BattleSystem {
             // SUBSTATE 6 VICTORY ENEMY DEFEATED
             else if (battleSubState == 6) {
                 if (gamePanel.keyHandler.getEnterPressed()) {
-                    battleSubState = 0;
-                    optionSelected = 0;
-
-                    gamePanel.gameState = GameState.ROAMSTATE;
+                    expGainedThisBattle = activeEnemy.getBaseExpYield();
+                    dialogText = activePlayer.getName() + " gained " + expGainedThisBattle + " EXP!";
+                    
+                    leveledUpThisRound = activePlayer.gainExp(expGainedThisBattle);
+                    battleSubState = 8;
                     keyCooldown = 30;
                 }
             }
@@ -150,6 +153,30 @@ public class BattleSystem {
                     battleSubState = 0;
                     optionSelected = 0;
 
+                    gamePanel.gameState = GameState.ROAMSTATE;
+                    keyCooldown = 30;
+                }
+            }
+            // SUBSTATE 8 EARNING XP
+            else if (battleSubState == 8) {
+                if (activePlayer.getDrawnExp() == activePlayer.getExp()) {
+                    if (gamePanel.keyHandler.getEnterPressed()) {
+                        if (leveledUpThisRound) {
+                            dialogText = activePlayer.getName() + " has lvled up to " + activePlayer.getLevel() + "!"; 
+                            battleSubState = 9;
+                        } else {
+                            battleSubState = 0;
+                            optionSelected = 0;
+                            gamePanel.gameState = GameState.ROAMSTATE;
+                        }
+                        keyCooldown = 30;
+                    }
+                }
+            }
+            else if (battleSubState == 9) {
+                if (gamePanel.keyHandler.getEnterPressed()) {
+                    battleSubState = 0;
+                    optionSelected = 0;
                     gamePanel.gameState = GameState.ROAMSTATE;
                     keyCooldown = 30;
                 }

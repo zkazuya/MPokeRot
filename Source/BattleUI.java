@@ -47,12 +47,12 @@ public class BattleUI {
         int enemyBoxX = tileSize / 2;
         int enemyBoxY = tileSize / 2;
 
-        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy);
+        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy, false);
 
         int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5);
         int playerBoxY = boxY - (int)(tileSize * 1.8);
 
-        drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer);
+        drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer, true);
 
         int rightBoxWidth = tileSize * 5; // right box width is 5 tiles long
         int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // it right box's x is kasunod it width it rightbox
@@ -100,7 +100,9 @@ public class BattleUI {
         } else if (subState >= 2) {
             String currentMessage = gamePanel.battleSystem.getCurrentMessage();
             graphics2D.drawString(currentMessage, textX, textY);
-            if (subState == 2 || subState == 4 || subState == 6 || subState == 7) {
+            if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            } else if (subState == 8 && activePlayer.getDrawnExp() == activePlayer.getExp()) {
                 graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
             }
         }
@@ -132,7 +134,7 @@ public class BattleUI {
         graphics2D.drawRoundRect(x + borderThickness, y + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2), arcSize - borderThickness, arcSize - borderThickness);
     }
 
-    public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot) {
+    public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot, boolean isPlayer) {
         int tileSize = gamePanel.getTileSize();
         int borderThickness = Math.max(1, tileSize / 20);
         int boxWidth = (int) (tileSize * 4.5);
@@ -159,5 +161,23 @@ public class BattleUI {
         graphics2D.setColor(Color.WHITE);
         graphics2D.setStroke(new java.awt.BasicStroke(borderThickness));
         graphics2D.drawRect(barX, barY, barWidth, barHeight);
+
+        if (isPlayer) {
+            int expBarY = barY + barHeight + (tileSize / 10);
+            int expBarHeight = tileSize / 8;
+
+            graphics2D.setColor(new Color(50, 50, 50));
+            graphics2D.fillRect(barX, expBarY, barWidth, expBarHeight);
+
+            double expRatio = pokerot.getDrawnExp() / pokerot.getExpNeeded();
+            int currentExpWidth = (int) (barWidth * expRatio);
+
+            graphics2D.setColor(Color.CYAN);
+            graphics2D.fillRect(barX, expBarY, currentExpWidth, expBarHeight);
+
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.setStroke(new java.awt.BasicStroke(1));
+            graphics2D.drawRect(barX, expBarY, barWidth, expBarHeight);
+        }
     }
 }

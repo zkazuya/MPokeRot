@@ -7,12 +7,12 @@ import java.io.FileInputStream;
 import javax.imageio.ImageIO;
 
 public class TileManager {
-    private GamePanel gamePanel; // only this class will access this gamepanel
+    private GamePanel gamePanel;
     private Tile[] tile; // the tiles instantiated from Tile class are stored in array
     private int[][] mapTileNumber; // this will scan what the tile is at specific row & column IT CHANGES
 
     public TileManager (GamePanel gamePanel) {
-        this.gamePanel = gamePanel; // when we make a tile manager it is its own game panel object
+        this.gamePanel = gamePanel;
         tile = new Tile[10]; // the array stores 10 tiles CHANGEABLE
         mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // the tile number's max size is just the whole map
         getTileImage(); // puts every tiles into tile array when tile manager is instantiated
@@ -21,20 +21,18 @@ public class TileManager {
 
     public void getTileImage () {
         try { // wrapped this in try catch so the program won't crash also to show the error
-            tile[0] = new Tile(); // instantiate a new Tile object store it in array[0]
+            tile[0] = new Tile();
             tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); 
-            tile[1] = new Tile(); // instantiate a new Tile object store it in array[1]
+            tile[1] = new Tile();
             tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); 
-
-            tile[2] = new Tile(); // instantiate a new Tile object store it in array[2]
+            tile[2] = new Tile();
             tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); 
-            tile[2].setCollision(true); // now this makes water untouchable
-
+            tile[2].setCollision(true);
             tile[3] = new Tile();
             tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/tallgrass_01.png")));
             tile[3].setEncounter(true);
         } catch (IOException ioE) {
-            ioE.printStackTrace(); // prints what went wrong and the lines trace
+            ioE.printStackTrace();
         }
     }
 
