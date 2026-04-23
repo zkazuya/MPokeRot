@@ -41,13 +41,18 @@ public class BattleUI {
         int enemyY = tileSize * 2; // 1 tile from the top ceiling
         graphics2D.drawImage(enemyRot, enemyX, enemyY, pokerotSize, pokerotSize, null);
 
+        PokeRot activePlayer = gamePanel.battleSystem.getActivePlayer();
+        PokeRot activeEnemy = gamePanel.battleSystem.getActiveEnemy();
+
         int enemyBoxX = tileSize / 2;
         int enemyBoxY = tileSize / 2;
-        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, gamePanel.enemyParty[0]);
+
+        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy, false);
 
         int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5);
         int playerBoxY = boxY - (int)(tileSize * 1.8);
-        drawHealthBar(graphics2D, playerBoxX, playerBoxY, gamePanel.playerParty[0]);
+
+        drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer, true);
 
         int rightBoxWidth = tileSize * 5; // right box width is 5 tiles long
         int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // it right box's x is kasunod it width it rightbox
@@ -63,35 +68,63 @@ public class BattleUI {
         int textX = leftBoxX + (tileSize / 2); // pads text by half a tile
         int textY = boxY + tileSize; // pushed down by 1 full tile
 
-        graphics2D.drawString("What will", textX, textY);
-        graphics2D.drawString(gamePanel.playerParty[0].getName() + " do?", textX, textY + (tileSize / 2));
-
         int menuX = rightBoxX + tileSize;
         int menuY = boxY + tileSize;
+        int xSpace = tileSize * 2;
+        int ySpace = (int) (tileSize * 0.75);
 
-        int xSpace = tileSize * 2; // horizontal space between fight and bag
-        int ySpace = (int) (tileSize * 0.75); // vertical space between fight and pokerot
+        int subState = gamePanel.battleSystem.getBattleSubState();
+        int currentOption = gamePanel.battleSystem.getOptionSelected();
+        int cursorOffset = tileSize / 3;
 
-        graphics2D.drawString("FIGHT", menuX, menuY);
-        graphics2D.drawString("BAG", menuX + xSpace, menuY);
-        graphics2D.drawString("SWAP", menuX, menuY + ySpace);
-        graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
+        if (subState == 0) {
+            graphics2D.drawString("What will", textX, textY);
+            graphics2D.drawString(activePlayer.getName() + " do?", textX, textY + (tileSize / 2));
 
-        int currentOption = gamePanel.battleSystem.getOptionSelected(); // shortcut variable
-        int cursorOffset = tileSize / 3; // cursor hovers 1/3 of a tile to the left
+            graphics2D.drawString("FIGHT", menuX, menuY);
+            graphics2D.drawString("BAG", menuX + xSpace, menuY);
+            graphics2D.drawString("SWAP", menuX, menuY + ySpace);
+            graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
+        } else if (subState == 1) {
+            graphics2D.drawString("Select a move!", textX, textY);
 
-        if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
-        if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
-        if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
-        if (currentOption == 3) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+            if (activePlayer.getMove(0) != null) graphics2D.drawString(activePlayer.getMove(0).getName(), menuX, menuY);
+            else graphics2D.drawString("-", menuX, menuY);
+            if (activePlayer.getMove(1) != null) graphics2D.drawString(activePlayer.getMove(1).getName(), menuX + xSpace, menuY);
+            else graphics2D.drawString("-", menuX + xSpace, menuY);
+            if (activePlayer.getMove(2) != null) graphics2D.drawString(activePlayer.getMove(2).getName(), menuX, menuY + ySpace);
+            else graphics2D.drawString("-", menuX, menuY + ySpace);
+            if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
+            else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
+
+        } else if (subState >= 2) {
+            String currentMessage = gamePanel.battleSystem.getCurrentMessage();
+            graphics2D.drawString(currentMessage, textX, textY);
+            if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            } else if (subState == 8 && activePlayer.getDrawnExp() == activePlayer.getExp()) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            }
+        }
+        if (subState == 0 || subState == 1) {
+            if (currentOption == 0)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY);
+            if (currentOption == 1)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
+            if (currentOption == 2)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        }
     }
+
 
     public void drawSubWindow(Graphics2D graphics2D, int x, int y, int width, int height) {
         int tileSize = gamePanel.getTileSize();
         int arcSize = tileSize / 3; // I did not define archeight and arcwidth because it's a square so we use the same variable
         int borderThickness = Math.max(1, tileSize / 20);
 
-        Color blackBox = new Color(0, 0, 0, 210); // 210 makes it slightly see-through!
+        Color blackBox = new Color(0, 0, 0, 210); // 210 makes it slightly see-through
         graphics2D.setColor(blackBox);
         graphics2D.fillRoundRect(x, y, width, height, arcSize, arcSize);
 
@@ -101,7 +134,7 @@ public class BattleUI {
         graphics2D.drawRoundRect(x + borderThickness, y + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2), arcSize - borderThickness, arcSize - borderThickness);
     }
 
-    public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot) {
+    public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot, boolean isPlayer) {
         int tileSize = gamePanel.getTileSize();
         int borderThickness = Math.max(1, tileSize / 20);
         int boxWidth = (int) (tileSize * 4.5);
@@ -119,7 +152,8 @@ public class BattleUI {
 
         graphics2D.setColor(new Color(50, 50, 50));
         graphics2D.fillRect(barX, barY, barWidth, barHeight);
-        double hpRatio = (double) pokerot.getCurrentHP() / pokerot.getMaxHP();
+
+        double hpRatio = (double) pokerot.getDrawnHP() / pokerot.getMaxHP();
         int currentBarWidth = (int) (barWidth * hpRatio);
         graphics2D.setColor(Color.GREEN);
         graphics2D.fillRect(barX, barY, currentBarWidth, barHeight);
@@ -127,5 +161,23 @@ public class BattleUI {
         graphics2D.setColor(Color.WHITE);
         graphics2D.setStroke(new java.awt.BasicStroke(borderThickness));
         graphics2D.drawRect(barX, barY, barWidth, barHeight);
+
+        if (isPlayer) {
+            int expBarY = barY + barHeight + (tileSize / 10);
+            int expBarHeight = tileSize / 8;
+
+            graphics2D.setColor(new Color(50, 50, 50));
+            graphics2D.fillRect(barX, expBarY, barWidth, expBarHeight);
+
+            double expRatio = pokerot.getDrawnExp() / pokerot.getExpNeeded();
+            int currentExpWidth = (int) (barWidth * expRatio);
+
+            graphics2D.setColor(Color.CYAN);
+            graphics2D.fillRect(barX, expBarY, currentExpWidth, expBarHeight);
+
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.setStroke(new java.awt.BasicStroke(1));
+            graphics2D.drawRect(barX, expBarY, barWidth, expBarHeight);
+        }
     }
 }

@@ -34,4 +34,13 @@ java -cp ClassFolders Main
     -Added BattleSystem class temporary but i'll also add more on this soon
     -Fixed all the math behind the positioning of the UI, it is responsive now, it relies on our game resolution
 
+<4/16/2026 (Carl)>
+    -I put enterPressed on keyhandler pan confirm han moves, ngan esc for cancelling certain things
+    -Binago ko tanan na getters into one line kay shongit hiya pramis
+
+<4/19/2026 (Carl)>
+    -I removed the old battle system and replaced it with 7 phases see BattleSystem.java
+    -improvements on BattleSystem, BattleUI, GamePanel, Player, PokeRot, Tile, TileManager
+    -Also battle system is now working properly
+
 // follow the format REMOVE THIS IF SMT IS ADDED

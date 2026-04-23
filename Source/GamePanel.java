@@ -14,17 +14,16 @@ public class GamePanel extends JPanel implements Runnable {
     private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
     private final int FPS = 60;
 
-    Thread gameThread; // declare a thread instance
-    KeyHandler keyHandler = new KeyHandler(); // instantiate a KeyHandler object
-    TileManager tileManager = new TileManager(this); // instantiate a tile manager object
-    Player player = new Player(this, keyHandler); // instantiate a player object
-    BattleUI battleUI = new BattleUI(this); // instantiate a UI object
+    Thread gameThread;
+    KeyHandler keyHandler = new KeyHandler();
+    TileManager tileManager = new TileManager(this);
+    Player player = new Player(this, keyHandler);
+    BattleUI battleUI = new BattleUI(this);
     BattleSystem battleSystem = new BattleSystem(this);
-    GameState gameState; // declare a GameState enum
+    GameState gameState;
+    Dialogue dialogue = new Dialogue(this);
+    TitlePanel titlePanel = new TitlePanel(this);
 
-    //public PokeRot SkibidiToilet = new PokeRot("Skibidi Toilet", 45, 49); // bulbasaur
-    //public PokeRot TralaleloTralala = new PokeRot("Tralalelo Tralala", 44, 48); // squirtle
-    //public PokeRot TungTungSahur = new PokeRot("Tung Tung Sahur", 39, 52); // charmander
     public PokeRot[] playerParty = new PokeRot[6];
     public PokeRot[] enemyParty = new PokeRot[6];
 
@@ -34,15 +33,20 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        playerParty[0] = new PokeRot("Skibidi Toilet", 45, 49);
-        playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
+        playerParty[0] = new PokeRot("Bananini Chimpanzini", 70, 49); // 45 it hp pero gin bago ko laanay to 70
         enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
-        gameState = GameState.BATTLESTATE; // by default game state is on ROAMSTATE
+        playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
+
+        playerParty[0].addMove(new Move("Tackle", 7));
+        playerParty[0].addMove(new Move("Growl", 0));
+        enemyParty[0].addMove(new Move("Tackle", 7));
+        gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {
         gameThread = new Thread(this); // make a new thread when this method is called
         gameThread.start(); // run that thread's .start() method
+
     }
 
     @Override // override the run abstract method of the Runnable interface
@@ -72,9 +76,9 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.PAUSESTATE) {
             //nothing yet
         } else if (gameState == GameState.TALKINGSTATE) {
-            //nothing yet
+            dialogue.update(keyHandler);
         } else if (gameState == GameState.TITLESCREEN) {
-            //nothing yet
+            titlePanel.update(keyHandler);
         }
     }
 
@@ -90,33 +94,18 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.PAUSESTATE) {
             //nothing yet
         } else if (gameState == GameState.TALKINGSTATE) {
-            //nothing yet
+            tileManager.draw(graphics2D);
+            player.draw(graphics2D);
+            dialogue.draw(graphics2D);
         } else if (gameState == GameState.TITLESCREEN) {
-            //nothing yet
+            titlePanel.draw(graphics2D);
         }
         graphics2D.dispose(); // saves memory
     }
 
-    public int getMaxScreenColumn () {
-        return this.maxScreenColumn; // getter for maxScreenColumn
-    }
-
-    public int getMaxScreenRow () {
-        return this.maxScreenRow; // getter for maxScreenRow
-    }
-
-    public int getTileSize () {
-        return this.tileSize; // getter for tileSize
-    }
-
-    public int getScreenHeight () {
-        return this.screenHeight; // getter for screenHeight
-    }
-
-    public int getScreenWidth () {
-        return this.screenWidth; // getter for screenWidth
-    }
-
-    // no setters because these are final and we don't change them
-
+    public int getMaxScreenColumn () { return this.maxScreenColumn; }
+    public int getMaxScreenRow () { return this.maxScreenRow; }
+    public int getTileSize () { return this.tileSize; }
+    public int getScreenHeight () { return this.screenHeight; }
+    public int getScreenWidth () { return this.screenWidth; }
 }
