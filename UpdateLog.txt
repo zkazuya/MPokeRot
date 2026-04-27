@@ -43,4 +43,10 @@ java -cp ClassFolders Main
     -improvements on BattleSystem, BattleUI, GamePanel, Player, PokeRot, Tile, TileManager
     -Also battle system is now working properly
 
+
+
+<4/27/2026 (Pj)>
+    -added running (gin iincrease la an speed han player)
+    -binutngan hin code an running mechanism han player
+
 // follow the format REMOVE THIS IF SMT IS ADDED
