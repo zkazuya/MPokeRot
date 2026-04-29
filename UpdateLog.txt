@@ -49,4 +49,10 @@ java -cp ClassFolders Main
     -added running (gin iincrease la an speed han player)
     -binutngan hin code an running mechanism han player
 
+<4/29/2026 (reese)>
+    - added jar file of mpokerot
+    - pag iclick mo an jar, diri maload tanan na assets (sprites,map), issue la ito han pagsearch ha aton files ha code
+    - if magkuha na assets next time, use:
+        ImageIO.read(getClass().getResourceAsStream("[PATH]"));
+
 // follow the format REMOVE THIS IF SMT IS ADDED

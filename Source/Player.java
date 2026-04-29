@@ -64,22 +64,24 @@ public class Player extends Entity {
 
     public void getPlayerImage () {
         try {
-        downSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/updown_0.png"));
-        downSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/updown_1.png"));
-        downSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/updown_2.png"));
-        downSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/updown_3.png"));
-        upSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/updown_4.png"));
-        upSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/updown_5.png"));
-        upSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/updown_6.png"));
-        upSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/updown_7.png"));
-        rightSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/leftright_0.png"));
-        rightSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/leftright_1.png"));
-        rightSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/leftright_2.png"));
-        rightSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/leftright_3.png"));
-        leftSprites[0] = ImageIO.read(new FileInputStream("Assets/Player/leftright_4.png"));
-        leftSprites[1] = ImageIO.read(new FileInputStream("Assets/Player/leftright_5.png"));
-        leftSprites[2] = ImageIO.read(new FileInputStream("Assets/Player/leftright_6.png"));
-        leftSprites[3] = ImageIO.read(new FileInputStream("Assets/Player/leftright_7.png"));
+        //using getClass().getResourceAsStream() so that it reaches ha sulod an JAR
+        //forward slash "/" at the start means that it would start searching at the root of the JAR
+        downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_0.png"));
+        downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_1.png"));
+        downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_2.png"));
+        downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_3.png"));
+        upSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_4.png"));
+        upSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_5.png"));
+        upSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_6.png"));
+        upSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_7.png"));  
+        rightSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_0.png"));
+        rightSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_1.png"));
+        rightSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_2.png"));
+        rightSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_3.png"));
+        leftSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_4.png"));
+        leftSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_5.png"));
+        leftSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_6.png"));
+        leftSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_7.png"));
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
