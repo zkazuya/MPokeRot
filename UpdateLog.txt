@@ -1,7 +1,13 @@
 *UPDATE LOG* (please update here any changes made thanks)
 *IMPORTANT: USE ON TERMINAL IF WANT START GAME*
 javac -d ClassFolders Source/*.java
+
+//di naadi nagana pagrun
 java -cp ClassFolders Main
+
+
+//adi na it pagrun
+java -cp "ClassFolders;Assets;." Main
 
 
 4/6/26 -> wrote the basis Main class and GamePanel class -> Carl
@@ -54,5 +60,10 @@ java -cp ClassFolders Main
     - pag iclick mo an jar, diri maload tanan na assets (sprites,map), issue la ito han pagsearch ha aton files ha code
     - if magkuha na assets next time, use:
         ImageIO.read(getClass().getResourceAsStream("[PATH]"));
+
+<5/2/2026 (Carl)>
+    -Revamped BattleSystem it's much cleaner now and uses a ton of helper methods to make it readable
+    -Bug fixes in terms of awsd selection keys (it now wraps around when it goes through an edge case)
+
 
 // follow the format REMOVE THIS IF SMT IS ADDED

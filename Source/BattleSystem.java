@@ -2,12 +2,12 @@
 
 public class BattleSystem {
     private GamePanel gamePanel;
-    private int optionSelected = 0;
-    private int keyCooldown = 0;
+    private int optionSelected = 0; // START SELECTION AT TOP LEFT
+    private int keyCooldown = 0; // GLOBAL COOLDOWN FROM SWITCHING KEYS
     private int battleSubState = 0; // 0 = Main Menu, 1 = Move Menu, 2 = Message Queue
-    private String dialogText = "";
+    private String dialogText = ""; // THIS CHANGES ACCORDING TO FLOW
     private Move playerMoveToUse;
-    private int expGainedThisBattle = 0; // temporarily stores this changing variable in each battle
+    private int expGainedThisBattle = 0; // TEMPORARILY STORE THIS VARIABLE ON EACH BATTLE
     private boolean leveledUpThisRound = false;
 
     private PokeRot activePlayer;
@@ -36,152 +36,160 @@ public class BattleSystem {
         if (keyCooldown > 0) {
             keyCooldown--;
         } else {
-            // STATE 0 MAIN MENU 
-            if (battleSubState == 0) { // it battlesubstate na 0 meaning ada kita ha "fight", "swap", "bag", "run" na menu
-                if (gamePanel.keyHandler.getUpPressed()) { // if w is pressed
-                    optionSelected -= 2; // we start at top left! which is "fight" so we just go down to "swap"
-                    if (optionSelected < 0) optionSelected += 4; // if we went down to swap already, just tp back to "fight"
-                    keyCooldown = 12; // becuz we paint many times per second we add this so the cursor won't go to mars
-                } else if (gamePanel.keyHandler.getDownPressed()) { // if s is pressed
-                    optionSelected += 2; // we're at "swap" so just move up to "fight"
-                    if (optionSelected > 3) optionSelected -= 4; // if we're already at "fight" tp back to "swap" 
-                    keyCooldown = 12; // cooldown ako
-                }  else if (gamePanel.keyHandler.getLeftPressed()) { // if a is pressed
-                    if (optionSelected == 1 || optionSelected == 3) optionSelected --; // if nasa left or right it cursor bawasan la para na alternate
-                    keyCooldown = 12; // cooldown ako
-                } else if (gamePanel.keyHandler.getRightPressed()) { // if d is pressed
-                    if (optionSelected == 0 || optionSelected == 2) optionSelected++; // if nasa left or right pero "d" an pinindot dugngan la
-                    keyCooldown = 12; // cooldown
-                } else if (gamePanel.keyHandler.getEnterPressed()) { // if nag enter na, makadto next substate tapos mareset it selection ha top left
-                    if (optionSelected == 0) {
-                        battleSubState = 1; // move to attack selection state
-                        optionSelected = 0; // reset it cursor ha top left
-                    }
-                    keyCooldown = 30; // kabug-usan na cooldown after mag switch it substates
-                }
-            } // SUBSTATE 1 MOVE SELECTION STATE
-            else if (battleSubState == 1) { // move selection state ini it 1: example "tackle"
-            // actually similar la ha igbaw ini na mga keyhandler, except now we're checking han moves na
-                if (gamePanel.keyHandler.getUpPressed()) {  
-                    optionSelected -= 2;
-                    if (optionSelected < 0) optionSelected += 4;
-                    keyCooldown = 12;
-                } else if (gamePanel.keyHandler.getDownPressed()) {
-                    optionSelected += 2;
-                    if (optionSelected > 3) optionSelected -= 4;
-                    keyCooldown = 12;
-                } else if (gamePanel.keyHandler.getLeftPressed()) {
-                    if (optionSelected == 1 || optionSelected == 3) optionSelected--;
-                    keyCooldown = 12;
-                } else if (gamePanel.keyHandler.getRightPressed()) {
-                    if (optionSelected == 0 || optionSelected == 2) optionSelected++;
-                    keyCooldown = 12;
-                } else if (gamePanel.keyHandler.getEscPressed()) {
-                    battleSubState = 0;
-                    optionSelected = 0;
-                    keyCooldown = 30;
-                } else if (gamePanel.keyHandler.getEnterPressed()) { // if naka pili na hin move ma execute na ini
-                    playerMoveToUse = activePlayer.getMove(optionSelected);
-                    if (playerMoveToUse != null) { // if naexist an move na napili meaning diri "-"
-                        dialogText = activePlayer.getName() + " used " + playerMoveToUse.getName() + "!"; // amo ini an "pokerot used tackle!"
-                        battleSubState = 2; // move to next battle state which is an damage calculation
-                        optionSelected = 0; // reset cursor top left
-                    }
-                    keyCooldown = 30; // kabug-usan na cooldown para bawal mag spam ha pagswittch hin substate
-                }
-            }
-            // STATE 2 PLAYER AND ENEMY CALCULATION STATE
-            else if (battleSubState == 2) {
-                if (gamePanel.keyHandler.getEnterPressed()) {
-                    // an mga dmg calculation la ito ha ubos hehe
-                    int playerDamage = playerMoveToUse.getDamage() + (activePlayer.getAttack() / 5);
-                    activeEnemy.takeDamage(playerDamage);
-                    battleSubState = 3; // sunod kay animation state (after ma damage an pokerot an kalaban)
-                    keyCooldown = 30; // cooldown in the big 2026
-                }
-            }
-            // STATE 3 WAITING FOR ENEMY POKEROT HP TO DRAIN
-            else if (battleSubState == 3) { // nag ddraw la ini nga state
-                if (activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) {
-                    if (activeEnemy.getCurrentHP() <= 0) { // if nag zero an hp an kalaban execute baba
-                        dialogText = activeEnemy.getName() + " fainted";
-                        battleSubState = 6; // skip to victory state if namatay an kalaban
-                    } else { // enemy survives and prepare their attack
-                        Move enemyMove = activeEnemy.getMove(0); // 0 ngada kay diri man hira player nga nakakapili pero at some point ig rrandomize ko
-                        dialogText = activeEnemy.getName() + " retaliated with " + enemyMove.getName() + "!"; // same shi kanina pero kanan enemy
-                        battleSubState = 4; // jump to enemy turn state
-                    }
-                } 
-            }
-            // STATE 4 ENEMY'S TURN
-            else if (battleSubState == 4) {
-                if (gamePanel.keyHandler.getEnterPressed()) { // if nag enter ka after nag drain an hp
-                    Move enemyMove = activeEnemy.getMove(0); // pati ini
-                    int enemyDamage = enemyMove.getDamage() + (activeEnemy.getAttack() / 5); // dmg is calculated like that
-                    activePlayer.takeDamage(enemyDamage); // call takeDamage method tas ofc ipapasa ta enemyDamage
-                    battleSubState = 5; // animation state (our pokerot taking dmg naka drawing)
-                    keyCooldown = 30;
-                }
-            }
-            // STATE 5 WAIT FOR OUR POKEROT'S HP TO DRAIN
-            else if (battleSubState == 5) {
-                if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) {
-                    if (activePlayer.getCurrentHP() <= 0) {
-                        dialogText = activePlayer.getName() + " fainted...";
-                        battleSubState = 7; // go to defeat state
-                    } else {
-                        // we died so battle is over and we go bac kto substate 0 which is main menu
-                        battleSubState = 0; // main menu
-                        optionSelected = 0; // reset cursor top left
-                    }
-                }
-            }
-            // SUBSTATE 6 VICTORY ENEMY DEFEATED
-            else if (battleSubState == 6) {
-                if (gamePanel.keyHandler.getEnterPressed()) {
-                    expGainedThisBattle = activeEnemy.getBaseExpYield();
-                    dialogText = activePlayer.getName() + " gained " + expGainedThisBattle + " EXP!";
-                    
-                    leveledUpThisRound = activePlayer.gainExp(expGainedThisBattle);
-                    battleSubState = 8;
-                    keyCooldown = 30;
-                }
-            }
-            // SUBSTATE 7 DEFEAT WE GOT COOKED
-            else if (battleSubState == 7) {
-                if (gamePanel.keyHandler.getEnterPressed()) {
-                    battleSubState = 0;
-                    optionSelected = 0;
-
-                    gamePanel.gameState = GameState.ROAMSTATE;
-                    keyCooldown = 30;
-                }
-            }
-            // SUBSTATE 8 EARNING XP
-            else if (battleSubState == 8) {
-                if (activePlayer.getDrawnExp() == activePlayer.getExp()) {
-                    if (gamePanel.keyHandler.getEnterPressed()) {
-                        if (leveledUpThisRound) {
-                            dialogText = activePlayer.getName() + " has lvled up to " + activePlayer.getLevel() + "!"; 
-                            battleSubState = 9;
-                        } else {
-                            battleSubState = 0;
-                            optionSelected = 0;
-                            gamePanel.gameState = GameState.ROAMSTATE;
-                        }
-                        keyCooldown = 30;
-                    }
-                }
-            }
-            else if (battleSubState == 9) {
-                if (gamePanel.keyHandler.getEnterPressed()) {
-                    battleSubState = 0;
-                    optionSelected = 0;
-                    gamePanel.gameState = GameState.ROAMSTATE;
-                    keyCooldown = 30;
-                }
+            // UTILIZE OOP AND MADE THE WHOLE LOGIC USE ENHANCED SWITCH
+            switch (battleSubState){
+                case 0 -> initiateActionSelectionState();
+                case 1 -> initiateMoveSelectionState();
+                case 2 -> initiateCalculateEnemyDamageReceivedState();
+                case 3 -> initiateEnemyTakingDamageAnimationState();
+                case 4 -> initiateEnemyTurnToAttackState();
+                case 5 -> initiateOurPokerotTakingDamageAnimationState();
+                case 6 -> initiateVictoryState();
+                case 7 -> initiateWeGotCookedState();
+                case 8 -> initiateEarningExpAnimationState();
+                case 9 -> initiateExitBattleState();
             }
         }
+    }
+
+    public void twoByTwoSelectionHelper () { // SELECTION FUNCTION
+        if (gamePanel.keyHandler.getUpPressed()) { // THIS IS FOR THE "W" KEY
+            optionSelected -= 2; // MOVE UP IF W IS PRESSED (REMEMBER Y IS DECREASING AS WE GO UP)
+            if (optionSelected < 0) optionSelected += 4; // IF WE'RE ALREADY BELOW, GO UP (SUBTRACTING BY -2 & -2 GETS US BACK TO 0, SO ADDING 4 RESETS IT BACK TO UP)
+            keyCooldown = 8; // IF WE DO NOT ADD KEYCOOLDOWN SOMETIMES WHEN WE PRESS W ONCE IT GLITCHES AND IT EXECUTES TWICE
+        } else if (gamePanel.keyHandler.getDownPressed()) { // THIS IS FOR THE "S" KEY
+            optionSelected += 2; // MOVE DOWN IF S IS PRESSED (ADDING TO Y ACTUALLY PULLS US DOWN)
+            if (optionSelected > 3) optionSelected -= 4; // IF WE CROSS Y > 3 WE GO BACK TO 0 (ADDING BY +2 & +2 GETS US BACK TO 0)
+            keyCooldown = 8;
+        } else if (gamePanel.keyHandler.getLeftPressed()) { // THIS IS FOR "A" KEY
+            if (optionSelected % 2 == 0) optionSelected += 1; // IF WE ARE AT EVEN OPTIONSELECTED (0 OR 4) MOVE TO RIGHT (1 OR 3)
+            else optionSelected -= 1; // BY MOVE WE MEAN SUBTRACT ONE
+            keyCooldown = 8;
+        } else if (gamePanel.keyHandler.getRightPressed()) { // THIS IS FOR "D" KEY
+            if (optionSelected % 2 == 0) optionSelected += 1; // THE SAME LOGIC APPLIES FOR THE "D" KEY BECAUSE WE ARE WRAPPING AROUND 0-3
+            else optionSelected -= 1;
+            keyCooldown = 8;
+        }
+    }
+
+    public void initiateActionSelectionState () { // FIRST STATE IN BATTLE "RUN", "FIGHT", "SWAP", "BAG"
+        twoByTwoSelectionHelper(); // CALL THE SELECTION FUNCTION
+        if (gamePanel.keyHandler.getEnterPressed()) { // MEANING FINALLY CHOSEN SOMETHING
+            if (optionSelected == 0) { // MEANING CHOSEN "FIGHT" CUZ 0 REPRESENTS TOP LEFT
+                battleSubState = 1; // MOVE TO MOVE SELECTION STATE
+                optionSelected = 0; // RESET CURSOR TO TOP LEFT
+            } else if (optionSelected == 1) {
+                // waray pa
+            } else if (optionSelected == 2) {
+                //  waray pa
+            } else if (optionSelected == 3) { // IF RUN OPTION IS SELECTED
+                battleSubState = 0; // TO AVOID BUGS CHANGE SUBSTATE TO 0 EFFECTIVELY RESETTING EVERYTHING
+                optionSelected = 0; // RESET CURSOR TO TOP LEFT
+                gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
+            }
+            keyCooldown = 16; // GLOBAL COOLDOWN IF THIS IS GONE WE PRESS ENTER ONCE AND SKIP TWO SELECTION STATES
+        }
+    }
+
+    public void initiateMoveSelectionState () { // THIS STATE IS WHEN WE'RE INSIDE MOVE SELECTION
+        twoByTwoSelectionHelper(); // CALL THE SELECTION FUNCTION
+        if (gamePanel.keyHandler.getEnterPressed()) { // IF PLAYER MADE A CHOICE, CAPTURE HIS CHOICE
+            playerMoveToUse = activePlayer.getMove(optionSelected);
+            if (playerMoveToUse != null) { // IF SELECTED MOVE EXISTS (PLAYER DID NOT CHOOSE "-")
+                dialogText = activePlayer.getName() + " used " + playerMoveToUse.getName() + "!"; // EX: TRALALALEO USED TACKLE
+                battleSubState = 2; // MOVE TO NEXT BATTLE SUBSTATE WHICH IS DMG CALCULATION
+                optionSelected = 0; // RESET CURSOR TOP LEFT
+            }
+            keyCooldown = 16;
+        }
+    }
+
+    public void initiateCalculateEnemyDamageReceivedState () { // THIS STATE IS WHEN WE CALCULATE DAMAGE RECEIVED ON ENEMY POKEROT
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE DOING THE CALCULATION
+            int playerDamage = playerMoveToUse.getDamage() + (activePlayer.getAttack() / 5); // CALCULATE PLAYER DAMAGE BASED ON POKEROT STATS
+            activeEnemy.takeDamage(playerDamage); // RUN POKEROT CLASS TAKE DAMAGE METHOD ON ACTIVENEMY OBJECT
+            battleSubState = 3; // INITIATE ENEMY TAKING DAMAGE ANIMATION STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEnemyTakingDamageAnimationState () { // THIS STATE IS JUST RENDERING THE HP BAR OF ENEMY POKEROT DRAINING
+        if (activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) { // THIS CONDITION MEANS IF THE DRAWN HP MATCHES THEIR CURRENT HP
+            if (activeEnemy.getCurrentHP() <= 0) { // IF THE ENEMY DIED OR HP IS 0
+                dialogText = activeEnemy.getName() + " fainted!"; // EX: TRALALELO FAINTED!
+                battleSubState = 6; // SKIP TO SUBSTATE 6 WHICH IS VICTORY STATE
+            } else { // IF THE ENEMY IS ALIVE OR HP > 0
+                Move enemyMove = activeEnemy.getMove(0); // PREPARE A REFERENCE TO THEIR MOVE
+                dialogText = activeEnemy.getName() + " retaliated with " + enemyMove.getName() + "!"; // USE THAT REFERENCE HERE TO CHANGE DIALOG
+                battleSubState = 4; // JUMP TO ENEMY TURN STATE CUZ THEY SURVIVED
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEnemyTurnToAttackState () { // THIS STATE IS WHEN WE CALCULATE DAMAGE RECEIVED ON OUR OWN POKEROT
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE GETTING ATTACKED
+            Move enemyMove = activeEnemy.getMove(0); // GET A REFERENCE TO THE ENEMY BRAINROT MOVE
+            int enemyDamage = enemyMove.getDamage() + (activeEnemy.getAttack() / 5); // CALCULATE THEIR DAMAGE
+            activePlayer.takeDamage(enemyDamage); // RUN POKEROT TAKEDAMAGE METHOD ON OUR POKEROT OBJECT
+            battleSubState = 5; // INITIATE OUR POKEROT TAKING DAMAGE ANIMATION STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateOurPokerotTakingDamageAnimationState () { // THIS STATE IS RENDERING OUR POKEROT LOSING HP BAR ANIMATION
+        if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) { // THIS CONDITION MEANS IF OUR DRAWNHP MATCHES OUR CURRENT HP
+            if (activePlayer.getCurrentHP() <= 0) { // IF OUR POKEROT DIED
+                dialogText = activePlayer.getName() + " fainted!"; // EX: TRALALELO FAINTED!
+                battleSubState = 7; // SKIP TO WE GOT DEFEATED STATE
+            } else { // IF WE DIDN'T DIE
+                battleSubState = 0; // GO BACK TO MAIN MENU TO ACTION STATE AGAIN FOR ANOTHER ATTACK
+                optionSelected = 0; // RESET CURSOR TOP LEFT
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateVictoryState () { // THIS STATE IS POKEROT GAINING EXP AND DETECTING IF LVL UP
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE GETTING ATTACKED
+            expGainedThisBattle = activeEnemy.getBaseExpYield(); // CALCULATE EXP GAINED DEPENDING ON ENEMY DEFEATED
+            dialogText = activePlayer.getName() + " gained " + expGainedThisBattle + " EXP!"; // UPDATE DIALOG
+            leveledUpThisRound = activePlayer.gainExp(expGainedThisBattle); // REMEMBER gainExp() METHOD RETURNS TRUE IF WE LVLED UP WHILE GIVING XP
+            battleSubState = 8; // JUMP TO EARNING EXP STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateWeGotCookedState () { // THIS STATE IS WHEN WE COMPLETELY LOST
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER TO PROCEED
+            battleSubState = 0; // GO BACK TO MAIN MENU
+            optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEarningExpAnimationState () { // THIS STATE IS JUST RENDERING PLAYER GETTING EXP ANIMATION
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE ANIMATION STARTS
+            if (leveledUpThisRound) { // IF THIS VARIABLE BECOMES TRUE
+                dialogText = activePlayer.getName() + " has leveled up to " + activePlayer.getLevel() + "!";
+                battleSubState = 9; // GO TO EXIT BATTLE STATE
+            } else {
+                battleSubState = 0; // REFRESH AND RESET THESE VARIABLES FOR WHEN WE ENCOUNTER NEW ENEMIES AGAIN
+                optionSelected = 0; // THESE ARE IMPORTANT SO THAT WE START FROM SCRATCH ON A NEW ENEMY
+                gamePanel.gameState = GameState.ROAMSTATE;
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateExitBattleState () { // THIS STATE IS CONVENIENCE FOR EXITING FROM BATTLE OR COMPLETING BATTLE
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRES PLAYER TO PRESS ENTER BEFORE THIS IS DONE
+            battleSubState = 0; // RESET MAIN OPTION TO VERY START
+            optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.gameState = GameState.ROAMSTATE; // GO TO OVERWORLD
+        }
+        keyCooldown = 16; // GLOBAL COOLDOWN
     }
 
     public int getOptionSelected() { return this.optionSelected; }
