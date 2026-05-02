@@ -64,6 +64,9 @@ java -cp "ClassFolders;Assets;." Main
 <5/2/2026 (Carl)>
     -Revamped BattleSystem it's much cleaner now and uses a ton of helper methods to make it readable
     -Bug fixes in terms of awsd selection keys (it now wraps around when it goes through an edge case)
-
+    -Bug fixes on the ordering of battlesystem it would sometimes go to a wrong state because the cooldown was too short
+    -Created EncounterManager class for pokerot encounters and removed that logic from the player class
+    -Bug fix on after completing a battle another one immediately starts (2 battles yung nangyayari)
+    -Replaced the long if else on Player.java of loading directions into a enhanced switch statement
 
 // follow the format REMOVE THIS IF SMT IS ADDED

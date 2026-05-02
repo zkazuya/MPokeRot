@@ -23,6 +23,7 @@ public class GamePanel extends JPanel implements Runnable {
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
+    EncounterManager encounterManager = new EncounterManager(this);
 
     public PokeRot[] playerParty = new PokeRot[6];
     public PokeRot[] enemyParty = new PokeRot[6];
@@ -71,6 +72,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void update () { // this method is responsible for updating all the entity coords
         if (gameState == GameState.ROAMSTATE) { // if current state is in roaming state keep calling these
             player.update(); // update player movement and draw
+            encounterManager.update();
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
         } else if (gameState == GameState.PAUSESTATE) {
