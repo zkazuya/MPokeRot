@@ -8,19 +8,19 @@ import javax.imageio.ImageIO;
 
 public class TileManager {
     private GamePanel gamePanel;
-    private Tile[] tile; // the tiles instantiated from Tile class are stored in array
-    private int[][] mapTileNumber; // this will scan what the tile is at specific row & column IT CHANGES
+    private Tile[] tile; // THE TILES INSTANTIATED IN TILE IS STORED IN AN ARRAY
+    private int[][] mapTileNumber; // THIS WILL SCAN WHAT THE TILE IS AT SPECIFIC ROW & COLUMN IT CHANGES
 
     public TileManager (GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        tile = new Tile[10]; // the array stores 10 tiles CHANGEABLE
-        mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // the tile number's max size is just the whole map
-        getTileImage(); // puts every tiles into tile array when tile manager is instantiated
-        loadMap("Assets/Maps/map1.txt"); // tile manager is created once so this loads once! separate methods can call this method
+        tile = new Tile[10]; // THE ARRAY STORES 10 TILES CHANGEABLE
+        mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // TILE NUMBER'S MAX SIZE IS JUST THE WHOLE MAP
+        getTileImage(); // PUTS EVERY TILE INTO THE ARRAY
+        loadMap("Assets/Maps/map1.txt"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS COULD CALL THIS METHOD
     }
 
     public void getTileImage () {
-        try { // wrapped this in try catch so the program won't crash also to show the error
+        try {
             tile[0] = new Tile();
             tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); 
             tile[1] = new Tile();
@@ -55,7 +55,7 @@ public class TileManager {
                     row++; // but this time we analyze the next row of columns
                 }
             }
-            bufferedReader.close(); // save resource
+            bufferedReader.close();
         } catch (Exception e) {
             System.out.println("Error Loading Map Text File");
             e.printStackTrace(); // prints what went wrong and the lines trace

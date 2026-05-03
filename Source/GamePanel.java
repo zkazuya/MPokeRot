@@ -24,6 +24,7 @@ public class GamePanel extends JPanel implements Runnable {
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
     EncounterManager encounterManager = new EncounterManager(this);
+    PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
 
     public PokeRot[] playerParty = new PokeRot[6];
     public PokeRot[] enemyParty = new PokeRot[6];

@@ -2,7 +2,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import java.util.Random;
 
 public class Player extends Entity {
     GamePanel gamePanel;
@@ -56,9 +55,10 @@ public class Player extends Entity {
                 isMoving = false; // UNLOCK LISTENER AGAIN
                 pixelCounter = 0; // RESET IT TO COUNT AGAIN
 
-                //if (steppingOnTallGrass) {
-                    //gamePanel.encounterManager.checkEncounter();
-                //}
+                int playerColumn = getX() / gamePanel.getTileSize(); // CALCULATE THE COLUMN THE PLAYER FULLY STEPPED ON
+                int playerRow = getY() / gamePanel.getTileSize(); // CALCULATE THE ROW THE PLAYER FULLY STEPPED ON
+                int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow); // GET THE CURRENT TILE NUMBER OF THAT STEPPED TILE
+                if (currentTileID == 3) gamePanel.encounterManager.checkEncounter(); // IF STEPPING ON THAT TILE CALL CHECKENCOUNTER()
             }
         }
     }

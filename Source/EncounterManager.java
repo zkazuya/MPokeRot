@@ -20,6 +20,9 @@ public class EncounterManager {
         if (randomChance < 10) {
             gamePanel.gameState = GameState.BATTLESTATE;
 
+            PokeRot playerRot = gamePanel.playerParty[0];
+            PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
+            gamePanel.battleSystem.startEncounter(playerRot, wildRot);
         }
     }
 }
