@@ -5,14 +5,17 @@ import java.util.ArrayList;
 
 public class MapLoader {
 
-    public static String[][] loadMap(String filepath) {
+    private static final String filepath = "Assets/Maps/Map-save-updated-final.txt";
+
+    public static String[][] loadMap() {
+
         ArrayList<String[]> rows = new ArrayList<>();
 
         try (BufferedReader BR = new BufferedReader(new FileReader(filepath))) {
             String line;
 
             while ((line = BR.readLine()) != null) {
-                String[] values = line.split(","); // splitting the csv
+                String[] values = line.split(",");
                 rows.add(values);
             }
 
