@@ -2,7 +2,7 @@ import javax.swing.JFrame;
 
 public class Main {
     public static void main(String[] args) {
-        JFrame gameWindow = new JFrame(); // only one JFrame object
+        JFrame gameWindow = new JFrame();
         gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameWindow.setResizable(false);
         gameWindow.setTitle("PokeRot");
