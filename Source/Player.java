@@ -24,17 +24,35 @@ public class Player extends Entity {
         if (isMoving == false) { // IF WE ARE NOT MOVING, DECIDE OUR CURRENT DIRECTION
             if (keyHandler.getUpPressed()) {
                 direction = "up";
-                isMoving = true;
             } else if (keyHandler.getDownPressed()) {
                 direction = "down";
-                isMoving = true;
             } else if (keyHandler.getLeftPressed()) {
                 direction = "left";
-                isMoving = true;
             } else if (keyHandler.getRightPressed()) {
                 direction = "right";
-                isMoving = true;
             } else spriteNumber = 0;
+        }
+
+        boolean upDownRightLeft = keyHandler.getUpPressed() || keyHandler.getDownPressed() || keyHandler.getLeftPressed() || keyHandler.getRightPressed();
+        if (upDownRightLeft) {
+            // FIGURE OUT WHICH COORDINATE WE'RE STANDING ON
+            int targetColumn = getX() / gamePanel.getTileSize();
+            int targetRow = getY() / gamePanel.getTileSize();
+            // PREDICT WHERE WE ARE GOING TO STEP NEXT BASED ON DIRECTION
+            switch (direction) {
+                case "up" -> targetRow--;
+                case "down" -> targetRow++;
+                case "left" -> targetColumn--;
+                case "right" -> targetColumn++;
+            }
+
+            // BOUNDARY CHECK, IF WE'RE GOING OUTSIDE THE MAP
+            if (targetColumn >= 0 && targetColumn < gamePanel.getMaxScreenColumn() &&
+                targetRow >= 0 && targetRow < gamePanel.getMaxScreenRow()) {
+                    // COLLISION CHECK, ARE WE STEPPING ON A TILE WITH COLLISION = FALSE?
+                    int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
+                    if (gamePanel.tileManager.getTile(targetTileID).getCollision() == false) isMoving = true;
+                }
         }
 
         if (isMoving) { // IF WE ARE MOVING IGNORE INPUT UNTIL WE WALK EXACTLY ONE TILE (THIS DISABLES BEING 1/2 OR 1/3 INSIDE A TILE)
