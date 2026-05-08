@@ -14,7 +14,8 @@ public class PokeRotRegistry {
 
     public PokeRot generateRandomPokeRot () {
         int randomIndex = (int) (Math.random() * 14);
-        return pokeRotList.get(randomIndex);
+        PokeRot sendThisRot = new PokeRot(pokeRotList.get(randomIndex));
+        return sendThisRot;
     }
 
     public void registerPokeRot () {
@@ -32,7 +33,7 @@ public class PokeRotRegistry {
         pokeRotList.add(new PokeRot("Tung Tung Sahur", 95, 80));
         pokeRotList.add(new PokeRot("Skibidi Toilet", 80, 85));
         pokeRotList.add(new PokeRot("Tralalelo Tralala", 73, 100));
-        pokeRotList.add(new PokeRot("Udin din din dun", 99, 68));
+        pokeRotList.add(new PokeRot("Udin Dinn Din Dun", 99, 68));
     }
 
     public void registerPokeRotMoves () {
@@ -55,7 +56,7 @@ public class PokeRotRegistry {
     public void setPokeRotMovesOnEach () {
         for (PokeRot eachPokeRot : pokeRotList) {
             for (int i = 1; i <= 4; i++) {
-                int randomMove = (int) (Math.random() * 14);
+                int randomMove = (int) (Math.random() * pokeRotMoves.size());
                 eachPokeRot.addMove(pokeRotMoves.get(randomMove));
             }
         }

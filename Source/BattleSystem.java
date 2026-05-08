@@ -24,11 +24,9 @@ public class BattleSystem {
         this.activeEnemy = wildRot;
         this.battleSubState = 0;
         this.optionSelected = 0;
-    }
 
-    // Getters so the UI ccan draw the correct fighters
-    public PokeRot getActivePlayer () { return this.activePlayer; }
-    public PokeRot getActiveEnemy () { return this.activeEnemy; }
+        gamePanel.battleUI.loadFighterImages(playerCurrentRot, wildRot);
+    }
 
     public void update() {
         if (activePlayer != null) activePlayer.update();
@@ -85,6 +83,7 @@ public class BattleSystem {
             } else if (optionSelected == 3) { // IF RUN OPTION IS SELECTED
                 battleSubState = 0; // TO AVOID BUGS CHANGE SUBSTATE TO 0 EFFECTIVELY RESETTING EVERYTHING
                 optionSelected = 0; // RESET CURSOR TO TOP LEFT
+                gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBILITY
                 gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
             }
             keyCooldown = 16; // GLOBAL COOLDOWN IF THIS IS GONE WE PRESS ENTER ONCE AND SKIP TWO SELECTION STATES
@@ -129,7 +128,8 @@ public class BattleSystem {
 
     public void initiateEnemyTurnToAttackState () { // THIS STATE IS WHEN WE CALCULATE DAMAGE RECEIVED ON OUR OWN POKEROT
         if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE GETTING ATTACKED
-            Move enemyMove = activeEnemy.getMove(0); // GET A REFERENCE TO THE ENEMY BRAINROT MOVE
+            int randomMoveIndex = (int) (Math.random() * activeEnemy.getHowManyMoves());
+            Move enemyMove = activeEnemy.getMove(randomMoveIndex); // GET A REFERENCE TO THE ENEMY BRAINROT MOVE
             int enemyDamage = enemyMove.getDamage() + (activeEnemy.getAttack() / 5); // CALCULATE THEIR DAMAGE
             activePlayer.takeDamage(enemyDamage); // RUN POKEROT TAKEDAMAGE METHOD ON OUR POKEROT OBJECT
             battleSubState = 5; // INITIATE OUR POKEROT TAKING DAMAGE ANIMATION STATE
@@ -164,6 +164,7 @@ public class BattleSystem {
         if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER TO PROCEED
             battleSubState = 0; // GO BACK TO MAIN MENU
             optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.encounterManager.startCooldown(120);
             gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
         }
         keyCooldown = 16;
@@ -177,6 +178,7 @@ public class BattleSystem {
             } else {
                 battleSubState = 0; // REFRESH AND RESET THESE VARIABLES FOR WHEN WE ENCOUNTER NEW ENEMIES AGAIN
                 optionSelected = 0; // THESE ARE IMPORTANT SO THAT WE START FROM SCRATCH ON A NEW ENEMY
+                gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBLITY
                 gamePanel.gameState = GameState.ROAMSTATE;
             }
         }
@@ -187,6 +189,7 @@ public class BattleSystem {
         if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRES PLAYER TO PRESS ENTER BEFORE THIS IS DONE
             battleSubState = 0; // RESET MAIN OPTION TO VERY START
             optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBILITY
             gamePanel.gameState = GameState.ROAMSTATE; // GO TO OVERWORLD
         }
         keyCooldown = 16; // GLOBAL COOLDOWN
@@ -194,4 +197,7 @@ public class BattleSystem {
 
     public int getOptionSelected() { return this.optionSelected; }
     public int getBattleSubState() { return this.battleSubState; }
+    public PokeRot getActivePlayer() { return this.activePlayer; }
+    public PokeRot getActiveEnemy() { return this.activeEnemy; }
+
 }

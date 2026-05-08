@@ -14,9 +14,9 @@ public class PokeRot {
 
     public PokeRot(String name, int maxHP, int attack) {
         this.name = name;
-        this.level = 1; // always start at level 1
+        this.level = 1; // ALWAYS START AT LVL 1
         this.maxHP = maxHP;
-        this.currentHP = maxHP; // always start at full health
+        this.currentHP = maxHP; // ALWAYS START AT FULL HEALTHH
         this.attack = attack;
         this.moves = new ArrayList<>();
         this.drawnHP = maxHP;
@@ -24,19 +24,31 @@ public class PokeRot {
         this.expNeeded = 100;
     }
 
+    public PokeRot (PokeRot other) {
+        this.name = other.name;
+        this.level = other.level;
+        this.maxHP = other.maxHP;
+        this.currentHP = other.maxHP;
+        this.attack = other.attack;
+        this.moves = new ArrayList<>(other.moves);
+        this.drawnHP = other.maxHP;
+        this.exp = other.exp;
+        this.expNeeded = other.expNeeded;
+    }
+
     public void update () {
-        if (drawnHP > currentHP) {
-            drawnHP -= 0.3; // bawas bawasan kada frame para smooth it healthbar diri instant
-            if (drawnHP < currentHP) drawnHP = currentHP; // para diri lumapos it healthbar na actual
+        if (drawnHP > currentHP) { // FOR HP VISUAL BAR
+            drawnHP -= 0.3; // KEEP REDUCING VISUAL HP BAR
+            if (drawnHP < currentHP) drawnHP = currentHP; // PREVENT VISUAL BAR FROM OVERSHOOTING HP
         }
 
-        if (drawnExp < exp) {
-            drawnExp += 1.0;
-            if (drawnExp > exp) {
+        if (drawnExp < exp) { // FOR EXP VISUAL BAR
+            drawnExp += 1.0; // KEEP INCREASING EXP BAR
+            if (drawnExp > exp) { // PREVENT VISUAL BAR FROM OVERSHOOTING ACTUAL XP
                 drawnExp = exp;
-            } else if (drawnExp > exp) {
-                drawnExp = 0; // means we leveled up so reset the drawing back to 0
             }
+        } else if (drawnExp > exp) {
+            drawnExp = 0; // MEANS WE LEVELED UP SO RESET BACK TO 0
         }
     }
 
@@ -44,6 +56,8 @@ public class PokeRot {
         if (this.moves.size() < 4)
             this.moves.add(move);
     }
+
+    public int getHowManyMoves () { return this.moves.size(); }
 
     public Move getMove(int index) {
         if (index >= 0 && index < this.moves.size())
@@ -58,23 +72,23 @@ public class PokeRot {
     }
 
     public int getBaseExpYield () {
-        return this.level * 35; // level 1 gives 35 xp, level 2 gives 70 xp etc
+        return this.level * 35; // LEVEL 1 GIVES 35 XP, LEVEL 2 GIVES 70 XP ETC
     } 
 
     public void levelUp () {
         this.level++;
-        this.exp -= this.expNeeded; // keep left over exp
-        this.expNeeded = (int) (this.expNeeded * 1.5); // next lvl requires 50% more xp
-        // stat boost below
-        this.maxHP += 5; // increase maxhp
-        this.attack += 2; // increase atk
+        this.exp -= this.expNeeded; // KEEP LEFTOVER XP
+        this.expNeeded = (int) (this.expNeeded * 1.5); // NEXT LVL REQUIRES 50% MORE XP
+        // STAT BOOST EACH LVL UP BELOW
+        this.maxHP += 5; // PERMANENT INCREASE MAX HP
+        this.attack += 2; // PERMANENT INCREASE ATK
     }
 
-    public boolean gainExp (int amount) { // give exp to this pokerot, return true if nag level up (important)
+    public boolean gainExp (int amount) { // GIVE XP TO POKEROT & RETURN TRUE IF IT LVLED UP
         this.exp += amount;
-        if (this.exp >= this.expNeeded) {
-            levelUp();
-            return true;
+        if (this.exp >= this.expNeeded) { // IF CURRENT XP HIT XP TRESHOLD
+            levelUp(); // CALL LVLUP METHOD
+            return true; // RETURNS TRUE, IMPORTANT FOR LVL TRIGGER EVENTS
         }
         return false;
     }

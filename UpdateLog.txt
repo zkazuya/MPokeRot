@@ -69,4 +69,13 @@ java -cp "ClassFolders;Assets;." Main
     -Bug fix on after completing a battle another one immediately starts (2 battles yung nangyayari)
     -Replaced the long if else on Player.java of loading directions into a enhanced switch statement
 
+<5/3/2026 (Carl)>
+    -Added PokeRotRegistry.java which initializes all the brainrots in the game as well as their moves (4 moves each rot)
+    
+<5/8/2026 (Carl)>
+    -Bug fix on when a player gets massive xp enough to lvl up twice, it now runs twice instead of lvling up once
+    -Refactored a lot of unnecessary code with tons of helper methods, also comments are now Caps for readability
+    -Added loadFighterImages() in the ui now player pokerot and enemy are matching whatever is fighting
+    
+
 // follow the format REMOVE THIS IF SMT IS ADDED

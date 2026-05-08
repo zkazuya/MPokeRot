@@ -35,13 +35,11 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        playerParty[0] = new PokeRot("Bananini Chimpanzini", 70, 49); // 45 it hp pero gin bago ko laanay to 70
-        enemyParty[0] = new PokeRot("Tung Tung Sahur", 39, 52);
+        playerParty[0] = new PokeRot("Tung Tung Sahur", 70, 49); // 45 it hp pero gin bago ko laanay to 70
         playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
 
         playerParty[0].addMove(new Move("Tackle", 7));
         playerParty[0].addMove(new Move("Growl", 0));
-        enemyParty[0].addMove(new Move("Tackle", 7));
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
