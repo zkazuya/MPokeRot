@@ -27,7 +27,7 @@ public class PokeRotRegistry {
         pokeRotList.add(new PokeRot("Cappuccino Assassino", 90, 85));
         pokeRotList.add(new PokeRot("Chimpanzini Bananini", 90, 90));
         pokeRotList.add(new PokeRot("Frulli Frulla", 90, 90));
-        pokeRotList.add(new PokeRot("holeee", 106, 110));
+        pokeRotList.add(new PokeRot("Holeee", 106, 110));
         pokeRotList.add(new PokeRot("La Vaca Saturno Saturnita", 80, 125));
         pokeRotList.add(new PokeRot("Lirili Larila", 65, 80));
         pokeRotList.add(new PokeRot("Tung Tung Sahur", 95, 80));
