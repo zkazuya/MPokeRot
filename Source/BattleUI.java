@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -15,11 +16,9 @@ public class BattleUI {
 
     public BattleUI (GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        int fontSize = gamePanel.getTileSize() / 3;
+        int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
-        try {
-            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRots/Chimpanzini_Bananini.png"));
-            enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/Tralalelo_Tralala.png"));
+        try { // LOAD BATTLE BACKGROUND  
             battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
         } catch (IOException ioE) {
             ioE.printStackTrace();
@@ -27,67 +26,71 @@ public class BattleUI {
     }
 
     public void drawBattleScreen (Graphics2D graphics2D) {
-        int tileSize = gamePanel.getTileSize(); // shortcut variable
-        int boxHeight = tileSize * 3; // box height is 3 tiles tall
-        int boxY = gamePanel.getScreenHeight() - boxHeight; // the box's y is pinned at the bottom
-        graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), gamePanel.getScreenHeight() - boxHeight, null); // this makes it so the background is not full screen, it's sliced by box height to leave for a room for the box at bottom
+        int tileSize = gamePanel.getTileSize(); // SHORTCUT VARIABLE
+        int boxHeight = tileSize * 3; // BOX HEIGHT IS 3 TILES TALL
+        int boxY = gamePanel.getScreenHeight() - boxHeight; // BOX'S Y IS THE SPACE LEFTOVER FROM BOXHEIGHT
+        // DRAW BATTLE BACKGROUND ACCORDING TO CONFIGURATIONS ABOVE
+        graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
         
-        int pokerotSize = tileSize * 4; // size of pokerot is 4 tiles
-        int playerX = tileSize * 2; // coords X for pokerot
-        int playerY = boxY - pokerotSize + (tileSize / 2); // coords Y for pokerot
-        graphics2D.drawImage(playerRot, playerX, playerY, pokerotSize, pokerotSize, null); // draw on bottom left
+        int pokerotSize = tileSize * 4; // SIZE OF POKEROT IS 4 TILES
+        int playerX = tileSize * 2; // COORDS X FOR POKEROT
+        int playerY = boxY - pokerotSize + (tileSize / 2); // COORDS Y FOR POKEROT
+        // DRAW PLAYER'S POKEROT DEPENDING ON CONFIGURATION ABOVE (BOTTOM LEFT)
+        graphics2D.drawImage(playerRot, playerX, playerY, pokerotSize, pokerotSize, null);
 
-        int enemyX = gamePanel.getScreenWidth() - (tileSize * 7); // 7 tiles from the right edge
-        int enemyY = tileSize * 2; // 1 tile from the top ceiling
+        int enemyX = gamePanel.getScreenWidth() - (tileSize * 7); // COORDS X FOR ENEMY
+        int enemyY = tileSize * 2; // COORDS Y FOR ENEMY
+        // DRAW PLAYER'S POKEROT DEPENDING ON CONFIGURATION ABOVE (TOP RIGHT)
         graphics2D.drawImage(enemyRot, enemyX, enemyY, pokerotSize, pokerotSize, null);
 
         PokeRot activePlayer = gamePanel.battleSystem.getActivePlayer();
         PokeRot activeEnemy = gamePanel.battleSystem.getActiveEnemy();
 
-        int enemyBoxX = tileSize / 2;
-        int enemyBoxY = tileSize / 2;
-
+        int enemyBoxX = tileSize / 2; // COORDS X FOR HEALTHBAR ENEMY
+        int enemyBoxY = tileSize / 2; // COORDS Y FOR HEALTHBAR ENEMY
+        // DRAW HEALTH BAR FOR ENEMY (SEE drawHealthBar() METHOD BELOW)
         drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy, false);
 
-        int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5);
-        int playerBoxY = boxY - (int)(tileSize * 1.8);
+        int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5); // COORDS X FOR HEALTHBAR PLAYER
+        int playerBoxY = boxY - (int)(tileSize * 1.8); // COORDS Y FOR HEALTHBAR PLAYER
 
+        // DRAW HEALTH BAR FOR PLAYER (SEE drawHealthBar() METHOD BELOW)
         drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer, true);
 
-        int rightBoxWidth = tileSize * 5; // right box width is 5 tiles long
-        int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // it right box's x is kasunod it width it rightbox
-        int leftBoxWidth = gamePanel.getScreenWidth() - rightBoxWidth; // it kadako it leftbox it salin na gin occupy ni right box
-        int leftBoxX = 0; // pinaka left it x it left box
+        int rightBoxWidth = tileSize * 5; // WIDTH OF RIGHT BOX (CONTAINER FOR FIGHT, RUN, SWITCH, BAG)
+        int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // COORDS X IS LEFTOVER SPACE FROM LEFT CONTAINER
+        int leftBoxWidth = gamePanel.getScreenWidth() - rightBoxWidth; // WIDTH OF LEFT BOX IS LEFTOVER OF RIGHT CONTAINER
+        int leftBoxX = 0; // COORDS X OF LEFT CONTAINER (LEFTMOST)
         
+        // DRAW THE TWO SQUARES OR HIGHLIGHT BOXES OF LEFT AND RIGHT CONTAINER (SEE drawSubWindow() METHOD BELOW)
         drawSubWindow(graphics2D, leftBoxX, boxY, leftBoxWidth, boxHeight);
         drawSubWindow(graphics2D, rightBoxX, boxY, rightBoxWidth, boxHeight);
 
         graphics2D.setFont(dynamicFont);
         graphics2D.setColor(Color.WHITE);
 
-        int textX = leftBoxX + (tileSize / 2); // pads text by half a tile
-        int textY = boxY + tileSize; // pushed down by 1 full tile
+        int textX = leftBoxX + (tileSize / 2); // STARTING HORIZONTAL POSITION FOR TEXT (LEFT BY HALF A TILE RELATIVE TO LEFT BOXX)
+        int textY = boxY + tileSize; // STARTING VERTICAL POSITION FOR TEXT (UP BY ONE TILE RELATIVE TO BOXY)
+        int menuX = rightBoxX + tileSize; // INITIAL X POSITION OF SELECTABLES ON RIGHT CONTAINER
+        int menuY = boxY + tileSize; // INITIAL Y POSITION OF SELECTABLES ON RIGHT CONTAINER
+        int xSpace = tileSize * 2; // HORIZONTAL PADDING
+        int ySpace = (int) (tileSize * 0.75); // VERTICAL PADDING
 
-        int menuX = rightBoxX + tileSize;
-        int menuY = boxY + tileSize;
-        int xSpace = tileSize * 2;
-        int ySpace = (int) (tileSize * 0.75);
+        int subState = gamePanel.battleSystem.getBattleSubState(); // CONTROLS WHAT UI WILL BE DISPLAYED (subState 1 UNTIL 9)
+        int currentOption = gamePanel.battleSystem.getOptionSelected(); // JUST GETS OPTION FROM BATTLE SYSTEM (0-3)
+        int cursorOffset = tileSize / 3; // THIS IS THE POSITION OF ">" ON RIGHT CONTAINER
 
-        int subState = gamePanel.battleSystem.getBattleSubState();
-        int currentOption = gamePanel.battleSystem.getOptionSelected();
-        int cursorOffset = tileSize / 3;
-
-        if (subState == 0) {
+        if (subState == 0) { // IN BATTLESYSTEM.JAVA THIS IS initiateActionSelectionState();
+            // WE USE OUR CONFIGURATIONS ABOVE TO DRAW THE OPTIONS FOR LEFT AND RIGHT CONTAINER
             graphics2D.drawString("What will", textX, textY);
             graphics2D.drawString(activePlayer.getName() + " do?", textX, textY + (tileSize / 2));
-
             graphics2D.drawString("FIGHT", menuX, menuY);
             graphics2D.drawString("BAG", menuX + xSpace, menuY);
             graphics2D.drawString("SWAP", menuX, menuY + ySpace);
             graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
-        } else if (subState == 1) {
+        } else if (subState == 1) { // IN BATTLEYSYSTEM THIS IS initiateMoveSelectionState();
+            // NOTE IF A POKEROT DOES NOT HAVE FULL 4 MOVES DRAW A DASH "-" OPTION INSTEAD
             graphics2D.drawString("Select a move!", textX, textY);
-
             if (activePlayer.getMove(0) != null) graphics2D.drawString(activePlayer.getMove(0).getName(), menuX, menuY);
             else graphics2D.drawString("-", menuX, menuY);
             if (activePlayer.getMove(1) != null) graphics2D.drawString(activePlayer.getMove(1).getName(), menuX + xSpace, menuY);
@@ -97,8 +100,9 @@ public class BattleUI {
             if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
             else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
 
-        } else if (subState >= 2) {
+        } else if (subState >= 2) { // IN BATTLESYSTEM THIS IS initiateCalculateEnemyDamageReceivedState();
             String currentMessage = gamePanel.battleSystem.getCurrentMessage();
+            // WHILE ENEMY IS "TAKING DMG" FROM ANIMATION JUST DRAW THE TEXT AS PRESS ENTER
             graphics2D.drawString(currentMessage, textX, textY);
             if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9) {
                 graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
@@ -106,6 +110,7 @@ public class BattleUI {
                 graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
             }
         }
+        // IF AT initiateActionSelectionState(); OR initiateMoveSelectionState(); READ THE ">" CURSOR OFFSET AND DRAW IT
         if (subState == 0 || subState == 1) {
             if (currentOption == 0)
                 graphics2D.drawString(">", menuX - cursorOffset, menuY);
@@ -118,22 +123,24 @@ public class BattleUI {
         }
     }
 
-
+    // THIS METHOD IS RESPONSIBLE FOR DRAWING THE LEFT AND RIGHT CONTANIER (HIGHLIGHT)
     public void drawSubWindow(Graphics2D graphics2D, int x, int y, int width, int height) {
-        int tileSize = gamePanel.getTileSize();
-        int arcSize = tileSize / 3; // I did not define archeight and arcwidth because it's a square so we use the same variable
-        int borderThickness = Math.max(1, tileSize / 20);
+        int tileSize = gamePanel.getTileSize(); // SHORTCUT VARIABLE
+        int arcSize = tileSize / 3; // I DID NOT DEFINE ARCHEIGHT ARCWIDTH CUZ IT'S SQUARE AND USES SAME DIMENSION
+        int borderThickness = Math.max(1, tileSize / 20); // SM ARBITRARY VALUE FOR THE THICKNESS
 
-        Color blackBox = new Color(0, 0, 0, 210); // 210 makes it slightly see-through
+        Color blackBox = new Color(0, 0, 0, 210); // 210 MAKES IT SLIGHTLY SEE THROUGH
         graphics2D.setColor(blackBox);
         graphics2D.fillRoundRect(x, y, width, height, arcSize, arcSize);
 
         Color whiteBorder = new Color(255, 255, 255);
         graphics2D.setColor(whiteBorder);
-        graphics2D.setStroke(new java.awt.BasicStroke(borderThickness));
+        graphics2D.setStroke(new BasicStroke(borderThickness));
         graphics2D.drawRoundRect(x + borderThickness, y + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2), arcSize - borderThickness, arcSize - borderThickness);
     }
 
+    // THIS METHOD IS RESPONSIBLE FOR DRAWING BOTH PLAYER AND ENEMY HEALTH BARS DEPENDING ON WHAT IS CALLED
+    // IT FOLLOWS THE SAME CALCULATION PROCEDURE I DID ABOVE 
     public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot, boolean isPlayer) {
         int tileSize = gamePanel.getTileSize();
         int borderThickness = Math.max(1, tileSize / 20);
@@ -159,7 +166,7 @@ public class BattleUI {
         graphics2D.fillRect(barX, barY, currentBarWidth, barHeight);
 
         graphics2D.setColor(Color.WHITE);
-        graphics2D.setStroke(new java.awt.BasicStroke(borderThickness));
+        graphics2D.setStroke(new BasicStroke(borderThickness));
         graphics2D.drawRect(barX, barY, barWidth, barHeight);
 
         if (isPlayer) {
@@ -176,8 +183,22 @@ public class BattleUI {
             graphics2D.fillRect(barX, expBarY, currentExpWidth, expBarHeight);
 
             graphics2D.setColor(Color.WHITE);
-            graphics2D.setStroke(new java.awt.BasicStroke(1));
+            graphics2D.setStroke(new BasicStroke(1));
             graphics2D.drawRect(barX, expBarY, barWidth, expBarHeight);
         }
     }
+
+    // THIS METHOD IS RESPONSIBLE FOR CHANGING THE UI POKEROT TO WHOMEVER IS FIGHTING, IT CHANGES
+    public void loadFighterImages (PokeRot player, PokeRot enemy) {
+        try {
+            String playerFileName = player.getName().replace(" ", "_") + ".png";
+            String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
+
+            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + playerFileName));
+            enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        }
+    }
+
 }

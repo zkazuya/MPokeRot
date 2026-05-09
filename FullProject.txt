@@ -1,0 +1,1548 @@
+
+
+--- BattleSystem.java ---
+
+//import java.util.ArrayList;
+
+public class BattleSystem {
+    private GamePanel gamePanel;
+    private int optionSelected = 0; // START SELECTION AT TOP LEFT
+    private int keyCooldown = 0; // GLOBAL COOLDOWN FROM SWITCHING KEYS
+    private int battleSubState = 0; // 0 = Main Menu, 1 = Move Menu, 2 = Message Queue
+    private String dialogText = ""; // THIS CHANGES ACCORDING TO FLOW
+    private Move playerMoveToUse;
+    private int expGainedThisBattle = 0; // TEMPORARILY STORE THIS VARIABLE ON EACH BATTLE
+    private boolean leveledUpThisRound = false;
+
+    private PokeRot activePlayer;
+    private PokeRot activeEnemy;
+
+    public BattleSystem(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+    }
+
+    public String getCurrentMessage () { return this.dialogText; }
+
+    public void startEncounter (PokeRot playerCurrentRot, PokeRot wildRot) {
+        this.activePlayer = playerCurrentRot;
+        this.activeEnemy = wildRot;
+        this.battleSubState = 0;
+        this.optionSelected = 0;
+
+        gamePanel.battleUI.loadFighterImages(playerCurrentRot, wildRot);
+    }
+
+    public void update() {
+        if (activePlayer != null) activePlayer.update();
+        if (activeEnemy != null) activeEnemy.update();
+        if (keyCooldown > 0) {
+            keyCooldown--;
+        } else {
+            // UTILIZE OOP AND MADE THE WHOLE LOGIC USE ENHANCED SWITCH
+            switch (battleSubState){
+                case 0 -> initiateActionSelectionState();
+                case 1 -> initiateMoveSelectionState();
+                case 2 -> initiateCalculateEnemyDamageReceivedState();
+                case 3 -> initiateEnemyTakingDamageAnimationState();
+                case 4 -> initiateEnemyTurnToAttackState();
+                case 5 -> initiateOurPokerotTakingDamageAnimationState();
+                case 6 -> initiateVictoryState();
+                case 7 -> initiateWeGotCookedState();
+                case 8 -> initiateEarningExpAnimationState();
+                case 9 -> initiateExitBattleState();
+            }
+        }
+    }
+
+    public void twoByTwoSelectionHelper () { // SELECTION FUNCTION
+        if (gamePanel.keyHandler.getUpPressed()) { // THIS IS FOR THE "W" KEY
+            optionSelected -= 2; // MOVE UP IF W IS PRESSED (REMEMBER Y IS DECREASING AS WE GO UP)
+            if (optionSelected < 0) optionSelected += 4; // IF WE'RE ALREADY BELOW, GO UP (SUBTRACTING BY -2 & -2 GETS US BACK TO 0, SO ADDING 4 RESETS IT BACK TO UP)
+            keyCooldown = 8; // IF WE DO NOT ADD KEYCOOLDOWN SOMETIMES WHEN WE PRESS W ONCE IT GLITCHES AND IT EXECUTES TWICE
+        } else if (gamePanel.keyHandler.getDownPressed()) { // THIS IS FOR THE "S" KEY
+            optionSelected += 2; // MOVE DOWN IF S IS PRESSED (ADDING TO Y ACTUALLY PULLS US DOWN)
+            if (optionSelected > 3) optionSelected -= 4; // IF WE CROSS Y > 3 WE GO BACK TO 0 (ADDING BY +2 & +2 GETS US BACK TO 0)
+            keyCooldown = 8;
+        } else if (gamePanel.keyHandler.getLeftPressed()) { // THIS IS FOR "A" KEY
+            if (optionSelected % 2 == 0) optionSelected += 1; // IF WE ARE AT EVEN OPTIONSELECTED (0 OR 4) MOVE TO RIGHT (1 OR 3)
+            else optionSelected -= 1; // BY MOVE WE MEAN SUBTRACT ONE
+            keyCooldown = 8;
+        } else if (gamePanel.keyHandler.getRightPressed()) { // THIS IS FOR "D" KEY
+            if (optionSelected % 2 == 0) optionSelected += 1; // THE SAME LOGIC APPLIES FOR THE "D" KEY BECAUSE WE ARE WRAPPING AROUND 0-3
+            else optionSelected -= 1;
+            keyCooldown = 8;
+        }
+    }
+
+    public void initiateActionSelectionState () { // FIRST STATE IN BATTLE "RUN", "FIGHT", "SWAP", "BAG"
+        twoByTwoSelectionHelper(); // CALL THE SELECTION FUNCTION
+        if (gamePanel.keyHandler.getEnterPressed()) { // MEANING FINALLY CHOSEN SOMETHING
+            if (optionSelected == 0) { // MEANING CHOSEN "FIGHT" CUZ 0 REPRESENTS TOP LEFT
+                battleSubState = 1; // MOVE TO MOVE SELECTION STATE
+                optionSelected = 0; // RESET CURSOR TO TOP LEFT
+            } else if (optionSelected == 1) {
+                // waray pa
+            } else if (optionSelected == 2) {
+                //  waray pa
+            } else if (optionSelected == 3) { // IF RUN OPTION IS SELECTED
+                battleSubState = 0; // TO AVOID BUGS CHANGE SUBSTATE TO 0 EFFECTIVELY RESETTING EVERYTHING
+                optionSelected = 0; // RESET CURSOR TO TOP LEFT
+                gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBILITY
+                gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
+            }
+            keyCooldown = 16; // GLOBAL COOLDOWN IF THIS IS GONE WE PRESS ENTER ONCE AND SKIP TWO SELECTION STATES
+        }
+    }
+
+    public void initiateMoveSelectionState () { // THIS STATE IS WHEN WE'RE INSIDE MOVE SELECTION
+        twoByTwoSelectionHelper(); // CALL THE SELECTION FUNCTION
+        if (gamePanel.keyHandler.getEnterPressed()) { // IF PLAYER MADE A CHOICE, CAPTURE HIS CHOICE
+            playerMoveToUse = activePlayer.getMove(optionSelected);
+            if (playerMoveToUse != null) { // IF SELECTED MOVE EXISTS (PLAYER DID NOT CHOOSE "-")
+                dialogText = activePlayer.getName() + " used " + playerMoveToUse.getName() + "!"; // EX: TRALALALEO USED TACKLE
+                battleSubState = 2; // MOVE TO NEXT BATTLE SUBSTATE WHICH IS DMG CALCULATION
+                optionSelected = 0; // RESET CURSOR TOP LEFT
+            }
+            keyCooldown = 16;
+        }
+    }
+
+    public void initiateCalculateEnemyDamageReceivedState () { // THIS STATE IS WHEN WE CALCULATE DAMAGE RECEIVED ON ENEMY POKEROT
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE DOING THE CALCULATION
+            int playerDamage = playerMoveToUse.getDamage() + (activePlayer.getAttack() / 5); // CALCULATE PLAYER DAMAGE BASED ON POKEROT STATS
+            activeEnemy.takeDamage(playerDamage); // RUN POKEROT CLASS TAKE DAMAGE METHOD ON ACTIVENEMY OBJECT
+            battleSubState = 3; // INITIATE ENEMY TAKING DAMAGE ANIMATION STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEnemyTakingDamageAnimationState () { // THIS STATE IS JUST RENDERING THE HP BAR OF ENEMY POKEROT DRAINING
+        if (activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) { // THIS CONDITION MEANS IF THE DRAWN HP MATCHES THEIR CURRENT HP
+            if (activeEnemy.getCurrentHP() <= 0) { // IF THE ENEMY DIED OR HP IS 0
+                dialogText = activeEnemy.getName() + " fainted!"; // EX: TRALALELO FAINTED!
+                battleSubState = 6; // SKIP TO SUBSTATE 6 WHICH IS VICTORY STATE
+            } else { // IF THE ENEMY IS ALIVE OR HP > 0
+                Move enemyMove = activeEnemy.getMove(0); // PREPARE A REFERENCE TO THEIR MOVE
+                dialogText = activeEnemy.getName() + " retaliated with " + enemyMove.getName() + "!"; // USE THAT REFERENCE HERE TO CHANGE DIALOG
+                battleSubState = 4; // JUMP TO ENEMY TURN STATE CUZ THEY SURVIVED
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEnemyTurnToAttackState () { // THIS STATE IS WHEN WE CALCULATE DAMAGE RECEIVED ON OUR OWN POKEROT
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE GETTING ATTACKED
+            int randomMoveIndex = (int) (Math.random() * activeEnemy.getHowManyMoves());
+            Move enemyMove = activeEnemy.getMove(randomMoveIndex); // GET A REFERENCE TO THE ENEMY BRAINROT MOVE
+            int enemyDamage = enemyMove.getDamage() + (activeEnemy.getAttack() / 5); // CALCULATE THEIR DAMAGE
+            activePlayer.takeDamage(enemyDamage); // RUN POKEROT TAKEDAMAGE METHOD ON OUR POKEROT OBJECT
+            battleSubState = 5; // INITIATE OUR POKEROT TAKING DAMAGE ANIMATION STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateOurPokerotTakingDamageAnimationState () { // THIS STATE IS RENDERING OUR POKEROT LOSING HP BAR ANIMATION
+        if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) { // THIS CONDITION MEANS IF OUR DRAWNHP MATCHES OUR CURRENT HP
+            if (activePlayer.getCurrentHP() <= 0) { // IF OUR POKEROT DIED
+                dialogText = activePlayer.getName() + " fainted!"; // EX: TRALALELO FAINTED!
+
+                if (gamePanel.player.hasUsablePokeRot()) { // THIS IS FOR AUTO SWAPPING POKEROT
+                    activePlayer = gamePanel.player.getFirstAlivePokeRot(); // GET THE NEXT POKEROT ALIVE CUZ CURRNET ONE DIED
+                    gamePanel.battleUI.loadFighterImages(activePlayer, activeEnemy); // ALSO CHANGE THE ONE BEING DRAWN
+                    battleSubState = 0;
+                }
+                else battleSubState = 7; // ALL OUR POKEROT HAS BEEN WIPED OUT GO TO DEFEATED STATE
+            } else { // IF WE DIDN'T DIE
+                battleSubState = 0; // GO BACK TO MAIN MENU TO ACTION STATE AGAIN FOR ANOTHER ATTACK
+                optionSelected = 0; // RESET CURSOR TOP LEFT
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateVictoryState () { // THIS STATE IS POKEROT GAINING EXP AND DETECTING IF LVL UP
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE GETTING ATTACKED
+            expGainedThisBattle = activeEnemy.getBaseExpYield(); // CALCULATE EXP GAINED DEPENDING ON ENEMY DEFEATED
+            dialogText = activePlayer.getName() + " gained " + expGainedThisBattle + " EXP!"; // UPDATE DIALOG
+            leveledUpThisRound = activePlayer.gainExp(expGainedThisBattle); // REMEMBER gainExp() METHOD RETURNS TRUE IF WE LVLED UP WHILE GIVING XP
+            battleSubState = 8; // JUMP TO EARNING EXP STATE
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateWeGotCookedState () { // THIS STATE IS WHEN WE COMPLETELY LOST
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER TO PROCEED
+            battleSubState = 0; // GO BACK TO MAIN MENU
+            optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.encounterManager.startCooldown(120);
+            gamePanel.player.triggerBlackout();
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateEarningExpAnimationState () { // THIS STATE IS JUST RENDERING PLAYER GETTING EXP ANIMATION
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRE PLAYER TO PRESS ENTER BEFORE ANIMATION STARTS
+            if (leveledUpThisRound) { // IF THIS VARIABLE BECOMES TRUE
+                dialogText = activePlayer.getName() + " has leveled up to " + activePlayer.getLevel() + "!";
+                battleSubState = 9; // GO TO EXIT BATTLE STATE
+            } else {
+                battleSubState = 0; // REFRESH AND RESET THESE VARIABLES FOR WHEN WE ENCOUNTER NEW ENEMIES AGAIN
+                optionSelected = 0; // THESE ARE IMPORTANT SO THAT WE START FROM SCRATCH ON A NEW ENEMY
+                gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBLITY
+                gamePanel.gameState = GameState.ROAMSTATE;
+            }
+        }
+        keyCooldown = 16;
+    }
+
+    public void initiateExitBattleState () { // THIS STATE IS CONVENIENCE FOR EXITING FROM BATTLE OR COMPLETING BATTLE
+        if (gamePanel.keyHandler.getEnterPressed()) { // REQUIRES PLAYER TO PRESS ENTER BEFORE THIS IS DONE
+            battleSubState = 0; // RESET MAIN OPTION TO VERY START
+            optionSelected = 0; // RESET CURSOR TOP LEFT
+            gamePanel.encounterManager.startCooldown(120); // GRANTS 2 SECONDS OF INVINCIBILITY
+            gamePanel.gameState = GameState.ROAMSTATE; // GO TO OVERWORLD
+        }
+        keyCooldown = 16; // GLOBAL COOLDOWN
+    }
+
+    public int getOptionSelected() { return this.optionSelected; }
+    public int getBattleSubState() { return this.battleSubState; }
+    public PokeRot getActivePlayer() { return this.activePlayer; }
+    public PokeRot getActiveEnemy() { return this.activeEnemy; }
+
+}
+
+
+--- BattleUI.java ---
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+
+public class BattleUI {
+    private GamePanel gamePanel;
+    private BufferedImage battleBackground;
+    private Font dynamicFont;
+    private BufferedImage playerRot;
+    private BufferedImage enemyRot;
+
+    public BattleUI (GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+        int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
+        dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
+        try { // LOAD BATTLE BACKGROUND  
+            battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        }
+    }
+
+    public void drawBattleScreen (Graphics2D graphics2D) {
+        int tileSize = gamePanel.getTileSize(); // SHORTCUT VARIABLE
+        int boxHeight = tileSize * 3; // BOX HEIGHT IS 3 TILES TALL
+        int boxY = gamePanel.getScreenHeight() - boxHeight; // BOX'S Y IS THE SPACE LEFTOVER FROM BOXHEIGHT
+        // DRAW BATTLE BACKGROUND ACCORDING TO CONFIGURATIONS ABOVE
+        graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
+        
+        int pokerotSize = tileSize * 4; // SIZE OF POKEROT IS 4 TILES
+        int playerX = tileSize * 2; // COORDS X FOR POKEROT
+        int playerY = boxY - pokerotSize + (tileSize / 2); // COORDS Y FOR POKEROT
+        // DRAW PLAYER'S POKEROT DEPENDING ON CONFIGURATION ABOVE (BOTTOM LEFT)
+        graphics2D.drawImage(playerRot, playerX, playerY, pokerotSize, pokerotSize, null);
+
+        int enemyX = gamePanel.getScreenWidth() - (tileSize * 7); // COORDS X FOR ENEMY
+        int enemyY = tileSize * 2; // COORDS Y FOR ENEMY
+        // DRAW PLAYER'S POKEROT DEPENDING ON CONFIGURATION ABOVE (TOP RIGHT)
+        graphics2D.drawImage(enemyRot, enemyX, enemyY, pokerotSize, pokerotSize, null);
+
+        PokeRot activePlayer = gamePanel.battleSystem.getActivePlayer();
+        PokeRot activeEnemy = gamePanel.battleSystem.getActiveEnemy();
+
+        int enemyBoxX = tileSize / 2; // COORDS X FOR HEALTHBAR ENEMY
+        int enemyBoxY = tileSize / 2; // COORDS Y FOR HEALTHBAR ENEMY
+        // DRAW HEALTH BAR FOR ENEMY (SEE drawHealthBar() METHOD BELOW)
+        drawHealthBar(graphics2D, enemyBoxX, enemyBoxY, activeEnemy, false);
+
+        int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5); // COORDS X FOR HEALTHBAR PLAYER
+        int playerBoxY = boxY - (int)(tileSize * 1.8); // COORDS Y FOR HEALTHBAR PLAYER
+
+        // DRAW HEALTH BAR FOR PLAYER (SEE drawHealthBar() METHOD BELOW)
+        drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer, true);
+
+        int rightBoxWidth = tileSize * 5; // WIDTH OF RIGHT BOX (CONTAINER FOR FIGHT, RUN, SWITCH, BAG)
+        int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // COORDS X IS LEFTOVER SPACE FROM LEFT CONTAINER
+        int leftBoxWidth = gamePanel.getScreenWidth() - rightBoxWidth; // WIDTH OF LEFT BOX IS LEFTOVER OF RIGHT CONTAINER
+        int leftBoxX = 0; // COORDS X OF LEFT CONTAINER (LEFTMOST)
+        
+        // DRAW THE TWO SQUARES OR HIGHLIGHT BOXES OF LEFT AND RIGHT CONTAINER (SEE drawSubWindow() METHOD BELOW)
+        drawSubWindow(graphics2D, leftBoxX, boxY, leftBoxWidth, boxHeight);
+        drawSubWindow(graphics2D, rightBoxX, boxY, rightBoxWidth, boxHeight);
+
+        graphics2D.setFont(dynamicFont);
+        graphics2D.setColor(Color.WHITE);
+
+        int textX = leftBoxX + (tileSize / 2); // STARTING HORIZONTAL POSITION FOR TEXT (LEFT BY HALF A TILE RELATIVE TO LEFT BOXX)
+        int textY = boxY + tileSize; // STARTING VERTICAL POSITION FOR TEXT (UP BY ONE TILE RELATIVE TO BOXY)
+        int menuX = rightBoxX + tileSize; // INITIAL X POSITION OF SELECTABLES ON RIGHT CONTAINER
+        int menuY = boxY + tileSize; // INITIAL Y POSITION OF SELECTABLES ON RIGHT CONTAINER
+        int xSpace = tileSize * 2; // HORIZONTAL PADDING
+        int ySpace = (int) (tileSize * 0.75); // VERTICAL PADDING
+
+        int subState = gamePanel.battleSystem.getBattleSubState(); // CONTROLS WHAT UI WILL BE DISPLAYED (subState 1 UNTIL 9)
+        int currentOption = gamePanel.battleSystem.getOptionSelected(); // JUST GETS OPTION FROM BATTLE SYSTEM (0-3)
+        int cursorOffset = tileSize / 3; // THIS IS THE POSITION OF ">" ON RIGHT CONTAINER
+
+        if (subState == 0) { // IN BATTLESYSTEM.JAVA THIS IS initiateActionSelectionState();
+            // WE USE OUR CONFIGURATIONS ABOVE TO DRAW THE OPTIONS FOR LEFT AND RIGHT CONTAINER
+            graphics2D.drawString("What will", textX, textY);
+            graphics2D.drawString(activePlayer.getName() + " do?", textX, textY + (tileSize / 2));
+            graphics2D.drawString("FIGHT", menuX, menuY);
+            graphics2D.drawString("BAG", menuX + xSpace, menuY);
+            graphics2D.drawString("SWAP", menuX, menuY + ySpace);
+            graphics2D.drawString("RUN", menuX + xSpace, menuY + ySpace);
+        } else if (subState == 1) { // IN BATTLEYSYSTEM THIS IS initiateMoveSelectionState();
+            // NOTE IF A POKEROT DOES NOT HAVE FULL 4 MOVES DRAW A DASH "-" OPTION INSTEAD
+            graphics2D.drawString("Select a move!", textX, textY);
+            if (activePlayer.getMove(0) != null) graphics2D.drawString(activePlayer.getMove(0).getName(), menuX, menuY);
+            else graphics2D.drawString("-", menuX, menuY);
+            if (activePlayer.getMove(1) != null) graphics2D.drawString(activePlayer.getMove(1).getName(), menuX + xSpace, menuY);
+            else graphics2D.drawString("-", menuX + xSpace, menuY);
+            if (activePlayer.getMove(2) != null) graphics2D.drawString(activePlayer.getMove(2).getName(), menuX, menuY + ySpace);
+            else graphics2D.drawString("-", menuX, menuY + ySpace);
+            if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
+            else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
+
+        } else if (subState >= 2) { // IN BATTLESYSTEM THIS IS initiateCalculateEnemyDamageReceivedState();
+            String currentMessage = gamePanel.battleSystem.getCurrentMessage();
+            // WHILE ENEMY IS "TAKING DMG" FROM ANIMATION JUST DRAW THE TEXT AS PRESS ENTER
+            graphics2D.drawString(currentMessage, textX, textY);
+            if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            } else if (subState == 8 && activePlayer.getDrawnExp() == activePlayer.getExp()) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            }
+        }
+        // IF AT initiateActionSelectionState(); OR initiateMoveSelectionState(); READ THE ">" CURSOR OFFSET AND DRAW IT
+        if (subState == 0 || subState == 1) {
+            if (currentOption == 0)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY);
+            if (currentOption == 1)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
+            if (currentOption == 2)
+                graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3)
+                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        }
+    }
+
+    // THIS METHOD IS RESPONSIBLE FOR DRAWING THE LEFT AND RIGHT CONTANIER (HIGHLIGHT)
+    public void drawSubWindow(Graphics2D graphics2D, int x, int y, int width, int height) {
+        int tileSize = gamePanel.getTileSize(); // SHORTCUT VARIABLE
+        int arcSize = tileSize / 3; // I DID NOT DEFINE ARCHEIGHT ARCWIDTH CUZ IT'S SQUARE AND USES SAME DIMENSION
+        int borderThickness = Math.max(1, tileSize / 20); // SM ARBITRARY VALUE FOR THE THICKNESS
+
+        Color blackBox = new Color(0, 0, 0, 210); // 210 MAKES IT SLIGHTLY SEE THROUGH
+        graphics2D.setColor(blackBox);
+        graphics2D.fillRoundRect(x, y, width, height, arcSize, arcSize);
+
+        Color whiteBorder = new Color(255, 255, 255);
+        graphics2D.setColor(whiteBorder);
+        graphics2D.setStroke(new BasicStroke(borderThickness));
+        graphics2D.drawRoundRect(x + borderThickness, y + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2), arcSize - borderThickness, arcSize - borderThickness);
+    }
+
+    // THIS METHOD IS RESPONSIBLE FOR DRAWING BOTH PLAYER AND ENEMY HEALTH BARS DEPENDING ON WHAT IS CALLED
+    // IT FOLLOWS THE SAME CALCULATION PROCEDURE I DID ABOVE 
+    public void drawHealthBar (Graphics2D graphics2D, int x, int y, PokeRot pokerot, boolean isPlayer) {
+        int tileSize = gamePanel.getTileSize();
+        int borderThickness = Math.max(1, tileSize / 20);
+        int boxWidth = (int) (tileSize * 4.5);
+        int boxHeight = (int) (tileSize * 1.5);
+        drawSubWindow(graphics2D, x, y, boxWidth, boxHeight);
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.setFont(dynamicFont);
+        int textX = x + (tileSize / 2);
+        int textY = y + (tileSize / 2);
+        graphics2D.drawString(pokerot.getName() + " Lvl. " + pokerot.getLevel(), textX, textY);
+        int barX = textX;
+        int barY = textY + (tileSize / 3);
+        int barWidth = boxWidth - tileSize;
+        int barHeight = tileSize / 4;
+
+        graphics2D.setColor(new Color(50, 50, 50));
+        graphics2D.fillRect(barX, barY, barWidth, barHeight);
+
+        double hpRatio = (double) pokerot.getDrawnHP() / pokerot.getMaxHP();
+        int currentBarWidth = (int) (barWidth * hpRatio);
+        graphics2D.setColor(Color.GREEN);
+        graphics2D.fillRect(barX, barY, currentBarWidth, barHeight);
+
+        graphics2D.setColor(Color.WHITE);
+        graphics2D.setStroke(new BasicStroke(borderThickness));
+        graphics2D.drawRect(barX, barY, barWidth, barHeight);
+
+        if (isPlayer) {
+            int expBarY = barY + barHeight + (tileSize / 10);
+            int expBarHeight = tileSize / 8;
+
+            graphics2D.setColor(new Color(50, 50, 50));
+            graphics2D.fillRect(barX, expBarY, barWidth, expBarHeight);
+
+            double expRatio = pokerot.getDrawnExp() / pokerot.getExpNeeded();
+            int currentExpWidth = (int) (barWidth * expRatio);
+
+            graphics2D.setColor(Color.CYAN);
+            graphics2D.fillRect(barX, expBarY, currentExpWidth, expBarHeight);
+
+            graphics2D.setColor(Color.WHITE);
+            graphics2D.setStroke(new BasicStroke(1));
+            graphics2D.drawRect(barX, expBarY, barWidth, expBarHeight);
+        }
+    }
+
+    // THIS METHOD IS RESPONSIBLE FOR CHANGING THE UI POKEROT TO WHOMEVER IS FIGHTING, IT CHANGES
+    public void loadFighterImages (PokeRot player, PokeRot enemy) {
+        try {
+            String playerFileName = player.getName().replace(" ", "_") + ".png";
+            String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
+
+            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + playerFileName));
+            enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        }
+    }
+
+}
+
+
+--- Dialogue.java ---
+
+import java.awt.*;
+
+public class Dialogue {
+    private GamePanel gp;
+    private final int playState = 0;
+    private final int dialogueState = 1;
+    private int gameState = playState;
+    private boolean doneIntro = false; // checks if Intro has already been shown
+
+    private String[] IntroDialogue = {
+            "Welcome to UP!",
+            "The CS building's servers just leaked—PokeRots are jumping out of the screens and unto the campus !",
+            "Our sanity is at stake. Explore the map, stay woke and catch 'em all before the PokeRots go viral!",
+            "Once you enter, you cannot go back..."
+    };
+
+    private int dialogueIndex = 0;
+    private boolean EnterKeyHandled = false;
+
+    public Dialogue(GamePanel gp) {
+        this.gp = gp;
+    }
+
+    public void update(KeyHandler keyHandler) {
+        if (keyHandler.getEnterPressed() && !EnterKeyHandled && !doneIntro) {
+            if (gameState == playState) {
+                gameState = dialogueState;
+            } else if (gameState == dialogueState) {
+                dialogueIndex++;
+                if (dialogueIndex >= IntroDialogue.length) {
+                    gameState = playState;
+                    dialogueIndex = 0;
+                    gp.gameState = GameState.ROAMSTATE; // Exit dialogue and start roaming
+                    doneIntro = true;
+                }
+            }
+            EnterKeyHandled = true;
+        } else if (!keyHandler.getEnterPressed()) {
+            EnterKeyHandled = false;
+        }
+    }
+
+    public void draw(Graphics2D g2) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 20));
+        // g2.drawString("CONTROLS: Press 'X' to Talk | 'ENTER' to Advance", 180, 250);
+        if (gameState == dialogueState) {
+            if (!doneIntro) {
+                drawIntroDialogueWindow(g2);
+            }
+        }
+    }
+
+    private void drawIntroDialogueWindow(Graphics2D g2) {
+        int x = 10, y = 550, width = 700, height = 100;
+        g2.setColor(new Color(0, 0, 0, 210));
+        g2.fillRoundRect(x, y, width, height, 35, 35);
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(3));
+        g2.drawRoundRect(x, y, width, height, 25, 25);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 14));
+        g2.drawString(IntroDialogue[dialogueIndex], x + 20, y + 40);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 16));
+        g2.drawString("Press Enter>", x + 590, y + 85);
+    }
+}
+
+
+--- EncounterManager.java ---
+
+public class EncounterManager {
+    private GamePanel gamePanel;
+    private int encounterCooldown = 0;
+    private Player player;
+
+    public EncounterManager (GamePanel gamePanel, Player player) {
+        this.gamePanel = gamePanel;
+        this.player = player;
+    }
+
+    public void update () { // CALLED EVERY FRAME TO TICK DOWN THE TIMER
+        if (encounterCooldown > 0) encounterCooldown--;
+    }
+
+    public void startCooldown (int frames) { // THIS METHOD GRANT INVINCIBILITY AFTER BATTLE
+        this.encounterCooldown = frames;
+    } 
+
+    public void checkEncounter () {
+        if (encounterCooldown > 0) return; // IF COOLDOWN IS ACTIVE IGNORE THE GRASS (IN THIS CASE THIS METHOD)
+        int randomChance = (int)(Math.random() * 100); // THIS VARIABLE MEANS SCALE TO 99%
+        if (randomChance < 10) {
+            gamePanel.gameState = GameState.BATTLESTATE;
+
+            PokeRot playerRot = player.getFirstAlivePokeRot();
+            PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
+            gamePanel.battleSystem.startEncounter(playerRot, wildRot);
+        }
+    }
+}
+
+
+--- Entity.java ---
+
+import java.awt.image.BufferedImage;
+
+public class Entity { // instances are protected such that inheritinng classes can modify them
+    protected int x, y; // entity coordinates x and y
+    protected int speed; // movement speed
+    protected int animationSpeed; //Determines how fast the animation for an NPC walk would be
+
+    protected BufferedImage[] upSprites = new BufferedImage[4];
+    protected BufferedImage[] downSprites = new BufferedImage[4];
+    protected BufferedImage[] leftSprites = new BufferedImage[4];
+    protected BufferedImage[] rightSprites = new BufferedImage[4];
+
+    protected int spriteCounter = 0; // ensures no glitches on animation
+    protected int spriteNumber = 0; // tracks which frame of animation were on
+
+    public int getX () { return this.x; }
+    public int getY () { return this.y; }
+    public int getSpeed () { return this.speed; }
+    public int getAnimationSpeed(){ return this.animationSpeed; }
+    public void setX (int x) { this.x = x; }
+    public void setY (int y) { this.y = y; }
+    public void setSpeed (int speed) { this.speed = speed; }
+    public void setAnimationSpeed(int animSpeed){ this.animationSpeed = animSpeed; }
+}
+
+
+--- GameFrame.java ---
+
+import java.awt.CardLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+//Created GameFrame so that we can have the driver class thingy, this is also where we swap our panels
+
+public class GameFrame extends JFrame {
+    GamePanel gamePanel;
+    JPanel switcherPanel;
+    GameIntro gameIntro;
+    CardLayout switcher;
+
+    public GameFrame() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setTitle("PokeRot");
+        gamePanel = new GamePanel(this);
+        gameIntro = new GameIntro(this);// has "this" so that the Panels will have access to changing panels  "switchPanel()"
+
+        switcher = new CardLayout();
+
+        switcherPanel = new JPanel(switcher);
+
+        switcherPanel.add(gameIntro, "Intro"); // assigning them names, so that we can easily switch with them later on
+        switcherPanel.add(gamePanel, "Game");
+
+        add(switcherPanel);
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
+        gamePanel.startGameThread();
+    }
+
+    public void switchPanel(String name) {
+        if ("Game".equals(name)) {
+            switcher.show(switcherPanel, name);
+            gamePanel.requestFocusInWindow(); // this is so that the gamePanel will be able to use their keyboard
+                                              // because the gui stops when you dont have focus on that component
+        }
+        switcherPanel.revalidate();
+        switcherPanel.repaint();
+    }
+
+}
+
+
+--- GameIntro.java ---
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.font.GlyphVector;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+//The Intro for the game (I will explain this code better in f2f meetings)
+
+public class GameIntro extends JPanel{
+
+    private ArrayList<BufferedImage> frames = new ArrayList<>();
+    private ArrayList<BufferedImage> gifFrames = new ArrayList<>();
+    private Timer timer, gifTimer;
+
+    private int currFrame = 0;
+    private int gifCurrFrame = 0;
+    private boolean intro = true;
+    private boolean showText = false; //dictates whether the text will be showing on the screen or not
+    private int screenWidth = 32 * 16;
+    private int screenHeight = 32 * 12;
+    
+    KeyHandler keyHandler = new KeyHandler();
+    GameFrame frame;
+    public GameIntro(GameFrame frame){
+        this.frame = frame;
+        setFocusable(true);
+        setPreferredSize(new Dimension(screenWidth, screenHeight));
+        addKeyListener(keyHandler);
+        
+         for(int i = 1; i <= 564; i++){ //Iterates through each and every single frame and loads them up (MultiThreadable sha)
+            try{
+            if (i < 10) {
+             BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/00" + i +".png"));
+             frames.add(pic);
+            }
+            else if (i < 100 && i > 9){
+             BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/0" + i +".png"));
+             frames.add(pic);
+            }else{
+            BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/" + i +".png"));
+            frames.add(pic);
+            }
+            } catch(IOException e){}
+        }
+
+        for (int i = 1; i <= 150; i++){ //Iterates through each and every single frame to load them up
+            try {
+                if(i < 10){
+                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/00" + i + ".png"));
+                    gifFrames.add(gifPic);
+                }else if (i < 100 && i > 9){
+                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/0" + i + ".png"));
+                    gifFrames.add(gifPic);
+                }else{
+                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
+                    gifFrames.add(gifPic);
+                }
+            } catch (IOException e) {
+            }
+        }
+
+         timer = new Timer(33, e -> { //a timer of 33 miliseconds (30 frames per second)
+            currFrame++;
+            if (currFrame >= frames.size() || keyHandler.getShiftPressed()){ //if ever the current frame of the intro animation equals to the amount maximum frames, it will stop and then switch to the GIF animation so it can loop
+                timer.stop();                 //if Shift is pressed then it will immediately go to the GIF
+                gifStart(); //method down below
+                intro = false;  //boolean used to dictate that the intro animation will not be introing
+            }
+            repaint();
+        });
+        timer.start();
+        
+    }
+
+    @Override
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        if(!frames.isEmpty() && intro == true){
+            g2d.drawImage(frames.get(currFrame), 0, 0, getWidth(), getHeight(), null);
+        }else if(!gifFrames.isEmpty() && intro == false){
+            g2d.drawImage(gifFrames.get(gifCurrFrame), 0, 0, getWidth(), getHeight(), null);
+            if (showText){
+            
+                Font font = new Font("Arial", Font.BOLD, 48);
+                g2d.setFont(font);
+                String title = "Press SPACE to start!";
+                int x = ((screenWidth / 2 - g2d.getFontMetrics().stringWidth(title) / 2)+ 250);
+                int y = screenHeight / 2 + 350;
+
+                //Creating outline for text
+                FontMetrics fm = g2d.getFontMetrics(); //gets the measurements of the font
+                GlyphVector transformer = font.createGlyphVector(fm.getFontRenderContext(), title); //transforms the text that you have, into a shape so that you can add an outline to it
+                Shape textShape = transformer.getOutline(x, y); //adds the outline of the newly transformed text, by casting it as a shape (kind of)
+
+                //colors the outline
+                g2d.setColor(Color.BLACK);
+                g2d.setStroke(new BasicStroke(5f));
+                g2d.draw(textShape);
+                //colors the text
+                g2d.setColor(Color.WHITE);
+                g2d.fill(textShape);
+
+            }
+        }
+
+       
+
+
+        
+
+    }
+
+     public void gifStart(){
+        gifTimer = new Timer(33, e -> {
+            gifCurrFrame++;
+            if (gifCurrFrame >= gifFrames.size()){ 
+                gifCurrFrame = 0; //whenever the current frame reaches the same amount the frames in the GIF will reset back to 0 to make a loop
+                if(keyHandler.getSpacePressed()){
+                    frame.switchPanel("Game"); //if Space is pressed, then it will go to game
+                    gifTimer.stop();
+                }
+            }
+            if((gifCurrFrame >= 10 && gifCurrFrame <= 40) || (gifCurrFrame >= 90 && gifCurrFrame <= 120)){ //this if statement makes it so that the text will only show up every 30 frames
+                showText = true;
+            }else{
+                showText = false;
+            }
+            
+            repaint();
+        });
+        gifTimer.start();
+    }
+
+    public void setIntro(){ //makes it so that the intro animation will repeat
+        intro = true;
+    }
+}
+
+
+--- GamePanel.java ---
+
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+public class GamePanel extends JPanel implements Runnable {
+    private final int originalTileSize = 32; // each tile is 32x32 pixels without scale
+    private final int tileScale = 2; // triples every 32x32 pixel tiles
+    private final int tileSize = originalTileSize * tileScale; // actual tile size rendered is 96x96 pixels
+    private final int maxScreenColumn = 16; // there is 16 tiles horizontally
+    private final int maxScreenRow = 12; // there is 12 tiles vertically
+    private final int screenWidth = tileSize * maxScreenColumn; // final resolution is 1536 pixels wide
+    private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
+    private final int FPS = 60;
+
+    GameFrame frame;
+    Thread gameThread;
+    KeyHandler keyHandler = new KeyHandler();
+    TileManager tileManager = new TileManager(this);
+    PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
+    Player player = new Player(this, keyHandler);
+    BattleUI battleUI = new BattleUI(this);
+    BattleSystem battleSystem = new BattleSystem(this);
+    GameState gameState;
+    Dialogue dialogue = new Dialogue(this);
+    TitlePanel titlePanel = new TitlePanel(this);
+    EncounterManager encounterManager = new EncounterManager(this, player);
+    NPC[] npc = new NPC[5];
+
+    public GamePanel (GameFrame frame) {
+        this.frame = frame;
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // sets the size to fit screen
+        this.setBackground(Color.BLACK); // whole canvas is black by default
+        this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
+        this.setFocusable(true); // this tells the program to "focus" on receiving key presses
+        this.setDoubleBuffered(true); // this method improves render performance
+        gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
+    }
+
+    public void startGameThread () {
+        gameThread = new Thread(this); // make a new thread when this method is called
+        gameThread.start(); // run that thread's .start() method
+
+    }
+
+    @Override // override the run abstract method of the Runnable interface
+    public void run () {
+        double drawInterval = 1000000000 / FPS; // 1 billion nanoseconds (1 second) divided by 60, this simulates 60 actions in a second
+        double delta = 0; // will keep track of how much time has passed
+        long lastTime = System.nanoTime(); // stores the timestamp of the previous iteration
+        long currentTime; // stores the timestamp of the current iteration
+
+        while (gameThread != null) {
+            currentTime = System.nanoTime(); // grab the current time of each loop
+            delta += (currentTime - lastTime) / drawInterval; // add the elapsed time to delta (who keeps track of time)
+            lastTime = currentTime; // the time of previous iteration now becomes the current time iteration
+            if (delta >= 1) { // if delta has reached 1 second execute what's inside
+                update(); // call .update() method
+                repaint(); // call .repaint() method
+                delta--; // delta was 1 so reset the time to 0
+            }
+        } // this happens so fast that we can't even see it in action but it works
+    }
+
+    public void update () { // this method is responsible for updating all the entity coords
+        if (gameState == GameState.ROAMSTATE) { // if current state is in roaming state keep calling these
+            player.update(); // update player movement and draw
+            encounterManager.update();
+        } else if (gameState == GameState.BATTLESTATE) {
+            battleSystem.update(); // enter battle system
+        } else if (gameState == GameState.PAUSESTATE) {
+            //nothing yet
+        } else if (gameState == GameState.TALKINGSTATE) {
+            dialogue.update(keyHandler);
+        } else if (gameState == GameState.TITLESCREEN) {
+            titlePanel.update(keyHandler);
+        }
+    }
+
+    public void paintComponent (Graphics graphics) {
+        super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
+        Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
+        
+        if (gameState == GameState.ROAMSTATE) {
+            tileManager.draw(graphics2D);
+            player.draw(graphics2D);
+        } else if (gameState == GameState.BATTLESTATE) {
+            battleUI.drawBattleScreen(graphics2D);
+        } else if (gameState == GameState.PAUSESTATE) {
+            //nothing yet
+        } else if (gameState == GameState.TALKINGSTATE) {
+            tileManager.draw(graphics2D);
+            player.draw(graphics2D);
+            dialogue.draw(graphics2D);
+        } else if (gameState == GameState.TITLESCREEN) {
+            titlePanel.draw(graphics2D);
+        }
+        graphics2D.dispose(); // saves memory
+    }
+
+    public void setUpNpc() {
+        npc[0] = new NPC(500, 300, 0);
+        npc[1] = new NPC(440, 320, 1);
+        npc[2] = new NPC(800, 600, 2);
+        npc[3] = new NPC(15, 400, 3);
+        npc[4] = new NPC(620, 100, 4);
+    }
+
+    public int getMaxScreenColumn () { return this.maxScreenColumn; }
+    public int getMaxScreenRow () { return this.maxScreenRow; }
+    public int getTileSize () { return this.tileSize; }
+    public int getScreenHeight () { return this.screenHeight; }
+    public int getScreenWidth () { return this.screenWidth; }
+}
+
+
+--- GameState.java ---
+
+public enum GameState {
+    ROAMSTATE, // allows walking on the map
+    BATTLESTATE, // for being locked in battle
+    PAUSESTATE, // stop everything
+    TITLESCREEN, // main menu, disable everything
+    TALKINGSTATE, // behaviors for when interacting with NPC
+}
+
+
+--- KeyHandler.java ---
+
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+
+public class KeyHandler implements KeyListener {
+    private boolean upPressed, downPressed, leftPressed, rightPressed;
+    private boolean enterPressed; // BATTLE CHANGE PHASE KEY
+    private boolean escPressed; // CANCEL/GOING BACK KEY
+    private boolean fPressed; // DIALOGUE INTERACTION KEY
+    private boolean spacePressed; 
+    private boolean shiftPressed; 
+
+    @Override
+    public void keyTyped (KeyEvent input) {} // NOT USED BUT MUST BE IMPORTED
+
+    @Override
+    public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HOLD
+        int code = input.getKeyCode(); // TRANSLATE KEYS "AWSD" TO ASCII VALUE
+        switch (code) {
+            case KeyEvent.VK_W -> upPressed = true;
+            case KeyEvent.VK_A -> leftPressed = true;
+            case KeyEvent.VK_S -> downPressed = true;
+            case KeyEvent.VK_D -> rightPressed = true;
+            case KeyEvent.VK_F -> fPressed = true;
+            case KeyEvent.VK_ENTER -> enterPressed = true;
+            case KeyEvent.VK_ESCAPE -> escPressed = true;
+            case KeyEvent.VK_SPACE -> spacePressed = true;
+            case KeyEvent.VK_SHIFT -> shiftPressed = true;
+        }
+    }
+
+    @Override
+    public void keyReleased (KeyEvent input) { // TRIGGERS AFTER PRESSING A KEY
+        int code = input.getKeyCode();
+        switch (code) {
+            case KeyEvent.VK_W -> upPressed = false;
+            case KeyEvent.VK_S -> downPressed = false;
+            case KeyEvent.VK_A -> leftPressed = false;
+            case KeyEvent.VK_D -> rightPressed = false;
+            case KeyEvent.VK_F -> fPressed = false;
+            case KeyEvent.VK_ENTER -> enterPressed = false;
+            case KeyEvent.VK_ESCAPE -> escPressed = false;
+            case KeyEvent.VK_SPACE -> spacePressed = false;
+            case KeyEvent.VK_SHIFT -> shiftPressed = false;
+        }
+    }
+    
+    public boolean getUpPressed () { return this.upPressed; }
+    public boolean getDownPressed () { return this.downPressed; }
+    public boolean getLeftPressed () { return this.leftPressed; }
+    public boolean getRightPressed () { return this.rightPressed; }
+    public boolean getEnterPressed () { return this.enterPressed; }
+    public boolean getEscPressed () { return this.escPressed; }
+    public boolean getFPressed () { return this.fPressed; }
+    public boolean getSpacePressed () { return this.spacePressed; }
+    public boolean getShiftPressed () { return this.shiftPressed; }
+}
+
+
+--- Main.java ---
+
+import javax.swing.SwingUtilities;
+
+public class Main {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new GameFrame());
+    }
+}
+
+
+--- MapLoader.java ---
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class MapLoader {
+
+    private static final String filepath = "Assets/Maps/Map-save-updated-final.txt";
+
+    public static int[][] loadMap() {
+
+        ArrayList<int[]> rows = new ArrayList<>();
+
+        try (BufferedReader BR = new BufferedReader(new FileReader(filepath))) {
+            String line;
+
+            while ((line = BR.readLine()) != null) {
+                String[] values = line.split(",");
+
+                int[] row = new int[values.length];
+
+                for (int i = 0; i < values.length; i++) {
+                    row[i] = Integer.parseInt(values[i]);
+                }
+                rows.add(row);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return rows.toArray(new int[0][]);
+    }
+}
+
+
+--- Move.java ---
+
+public class Move {
+    private String name;
+    private int damage;
+
+    public Move (String name, int damage) {
+        this.name = name;
+        this.damage = damage;
+    }
+
+    public String getName () { return this.name; }
+    public int getDamage () { return this.damage; }
+}
+
+
+--- NPC.java ---
+
+import java.awt.Graphics2D;
+import javax.imageio.ImageIO;
+
+
+public class NPC extends Entity{
+    int type; //to keep track of NPC
+    public NPC(int x, int y, int type){ //char variable is for what npc
+        this.x=x;
+        this.y=y;
+        this.type=type;
+        loadImages();
+    }
+
+
+    public void loadImages(){
+        try { //NO NEED TO INITIALIZE DOWNSPRITES SINCE IT'S BEEN INITIALIZED IN ENTITY
+        //LIST OF NPCs by int
+            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/mmY.png"));
+            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("Assets/NPCRoam/peej.png"));
+            downSprites[2] = ImageIO.read(getClass().getResourceAsStream("Assets/NPCRoam/allen.png"));
+            downSprites[3] = ImageIO.read(getClass().getResourceAsStream("Assets/NPCRoam/kasooya.png"));
+            downSprites[4] = ImageIO.read(getClass().getResourceAsStream("Assets/NPCRoam/reese.png"));
+            
+        } catch(Exception e) {e.printStackTrace();}        
+    }
+
+    public void draw(Graphics2D g2) {
+        if (downSprites[type]!= null) { //COPIED U GUYS USING 56x56
+            g2.drawImage(downSprites[type], x, y, 72, 72, null);
+
+        }
+    }
+}
+
+
+--- Player.java ---
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.util.ArrayList;
+
+public class Player extends Entity {
+    GamePanel gamePanel;
+    KeyHandler keyHandler;
+    private boolean isMoving = false;
+    private int pixelCounter = 0; // THIS VARIABLE IS IMPORTANT TO MAKE SURE WE GO EXACTLY ONE TILE EACH AWSD MOVEMENT
+    private String direction = "down"; // DIRECTION THE PLAYER IS FACING
+    private ArrayList <PokeRot> playerParty = new ArrayList<>();
+
+    public Player (GamePanel gamePanel, KeyHandler keyHandler) {
+        this.gamePanel = gamePanel;
+        this.keyHandler = keyHandler;
+        setX(0); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setY(0); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
+        setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
+        getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
+        PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Skibidi Toilet");
+        PokeRot secondPokeRot = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
+        if (starterOne != null) playerParty.add(starterOne);
+        if (secondPokeRot != null) playerParty.add(secondPokeRot);
+    }
+
+    public void update () {
+        if (isMoving == false) { // IF WE ARE NOT MOVING, DECIDE OUR CURRENT DIRECTION
+            if (keyHandler.getUpPressed()) direction = "up"; 
+            else if (keyHandler.getDownPressed()) direction = "down"; 
+            else if (keyHandler.getLeftPressed()) direction = "left";
+            else if (keyHandler.getRightPressed()) direction = "right";
+            else spriteNumber = 0;
+        }
+
+        boolean upDownRightLeft = keyHandler.getUpPressed() || keyHandler.getDownPressed() || keyHandler.getLeftPressed() || keyHandler.getRightPressed();
+        if (upDownRightLeft) {
+            // FIGURE OUT WHICH COORDINATE WE'RE STANDING ON
+            int targetColumn = getX() / gamePanel.getTileSize();
+            int targetRow = getY() / gamePanel.getTileSize();
+            // PREDICT WHERE WE ARE GOING TO STEP NEXT BASED ON DIRECTION
+            switch (direction) {
+                case "up" -> targetRow--;
+                case "down" -> targetRow++;
+                case "left" -> targetColumn--;
+                case "right" -> targetColumn++;
+            }
+
+            // BOUNDARY CHECK, IF WE'RE GOING OUTSIDE THE MAP
+            if (targetColumn >= 0 && targetColumn < gamePanel.getMaxScreenColumn() &&
+                targetRow >= 0 && targetRow < gamePanel.getMaxScreenRow()) {
+                    // COLLISION CHECK, ARE WE STEPPING ON A TILE WITH COLLISION = FALSE?
+                    int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
+                    if (gamePanel.tileManager.getTile(targetTileID).getCollision() == false) isMoving = true;
+                }
+        }
+
+        if (isMoving) { // IF WE ARE MOVING IGNORE INPUT UNTIL WE WALK EXACTLY ONE TILE (THIS DISABLES BEING 1/2 OR 1/3 INSIDE A TILE)
+            if (direction.equals("up")) setY(getY() - getSpeed()); // IF W PRESSED MOVE Y UP
+            if (direction.equals("down")) setY(getY() + getSpeed()); // IF S PRESSED MOVE Y DOWN
+            if (direction.equals("left")) setX(getX() - getSpeed()); // IF A PRESSED MOVE X TO LEFT
+            if (direction.equals("right")) setX(getX() + getSpeed()); // IF D PRESSED MOVE X TO RIGHT
+            pixelCounter += getSpeed(); // INCREASE PIXELCOUNTER BY SPEED UNTIL IT HITS ONE TILE
+
+            spriteCounter++;
+            if (spriteCounter > getAnimationSpeed()) {
+                spriteNumber++;
+                if (spriteNumber > 3) spriteNumber = 0;
+                spriteCounter = 0;
+            }
+
+            if (pixelCounter >= gamePanel.getTileSize()) { // IF THE PIXEL COUNTER IS NOW EXACTLY ONE TILE
+                isMoving = false; // UNLOCK LISTENER AGAIN
+                pixelCounter = 0; // RESET IT TO COUNT AGAIN
+
+                int playerColumn = getX() / gamePanel.getTileSize(); // CALCULATE THE COLUMN THE PLAYER FULLY STEPPED ON
+                int playerRow = getY() / gamePanel.getTileSize(); // CALCULATE THE ROW THE PLAYER FULLY STEPPED ON
+                int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow); // GET THE CURRENT TILE NUMBER OF THAT STEPPED TILE
+                if (currentTileID == 3) gamePanel.encounterManager.checkEncounter(); // IF STEPPING ON THAT TILE CALL CHECKENCOUNTER()
+            }
+        }
+    }
+
+    public void getPlayerImage () {
+        try {
+            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_0.png"));
+            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_1.png"));
+            downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_2.png"));
+            downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_3.png"));
+            upSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_4.png"));
+            upSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_5.png"));
+            upSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_6.png"));
+            upSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/updown_7.png"));  
+            rightSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_0.png"));
+            rightSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_1.png"));
+            rightSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_2.png"));
+            rightSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_3.png"));
+            leftSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_4.png"));
+            leftSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_5.png"));
+            leftSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_6.png"));
+            leftSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/Player/leftright_7.png"));
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        }
+    }
+
+    public void draw (Graphics2D graphics2D) {
+        BufferedImage image = null;
+        switch (direction) {
+            case "up" -> image = upSprites[spriteNumber];
+            case "down" -> image = downSprites[spriteNumber];
+            case "left" -> image = leftSprites[spriteNumber];
+            case "right" -> image = rightSprites[spriteNumber];
+        }
+        graphics2D.drawImage(image, getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+    }
+
+    public boolean hasUsablePokeRot () { // THIS METHOD IS USEFUL TO DETERMINE IF WE CAN STILL BATTLE OR NOT
+        for (PokeRot eachPokeRot : playerParty) { // FOR INSTANCE WE CAN CAUSE EVENTS IF WE CAN NO LONGER BATTLE
+            if (eachPokeRot.getCurrentHP() > 0) return true; // IT RETURNS TRUE IF EVEN ONE IS STILL ALIVE
+        }
+        return false;
+    }
+
+    public PokeRot getFirstAlivePokeRot () { // THIS METHOD IS RESPONSIBLE FOR SELECTING THE VERY FIRST POKEROT
+        for (PokeRot eachPokeRot : playerParty) { // INSIDE OF THE PLAYER'S PARTY
+            if (eachPokeRot.getCurrentHP() > 0) return eachPokeRot; // THE CATCH: VERY FIRST POKEROT ALIVE
+        }
+        return null;
+    }
+
+    public void triggerBlackout () { // THIS METHOD IS TRIGGERED IN BATTLE SYSTEM WHEN ALL OUR POKEROT DIES
+        this.setX(0); // THE PLAYER SPAWNS BACK TO 0, 0 (X, Y) RESPECTIVELY
+        this.setY(0); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
+        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
+        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
+        gamePanel.gameState = GameState.TALKINGSTATE;
+    }
+
+    public ArrayList <PokeRot> getPlayerParty () { return this.playerParty; }
+
+}
+
+
+--- PokeRot.java ---
+
+import java.util.ArrayList;
+
+public class PokeRot {
+    private String name; // NAME OF EACH POKEROT
+    private int level; // LEVEL OF EACH POKEROT
+    private int maxHP; // THIS INCREASES
+    private int currentHP; // IF DAMAGED, KEEP AS THIS HP
+    private int attack; // THIS INCREASES
+    private ArrayList<Move> moves; // STORE MOVES UNIQUE TO THE POKEROT
+    private double drawnHP; // THE VISUAL BAR'S NUMBER FOR HP
+    private double drawnExp = 0; // THE VISUAL BAR'S NUMBER FOR EXP
+    private int exp; // THIS IS THE ACTUAL XP
+    private int expNeeded; // THIS IS USED FOR CONDITIONING/LEVELING
+    private int baseMaxHP; // LEVEL 1 BASE STATS HEALTH (GOES BACK TO THIS AFTER DEATH)
+    private int baseAttack; // LEVEL 1 BASE STATS ATTACK (GOES BACK TO THIS AFTER DEATH)
+
+    public PokeRot(String name, int maxHP, int attack) {
+        this.name = name;
+        this.level = 1; // ALWAYS START AT LVL 1
+        this.maxHP = maxHP; // MAX HP IS THE STARTING HP AT FIRST
+        this.currentHP = maxHP; // ALWAYS START AT FULL HEALTHH
+        this.attack = attack; // MAX ATK IS THE STARTING ATK AT FIRST
+        this.moves = new ArrayList<>(); // INITIALIZE AND ADD MOVES LATER
+        this.drawnHP = maxHP; // THE DRAWN HP STARTS AT MAX HP AT FIRST (BECUZ THIS DRAINS AND GOES DOWN TO 0)
+        this.exp = 0; // EXP IS 0 BY DEFAULT FOR EVERY POKEROT
+        this.expNeeded = 100; // EXP NEEDED IS 100 THIS IS SCALED BY 35
+        this.baseMaxHP = maxHP; // THE LEVEL 1 STAT IS OFC THE VERY FIRST STATE
+        this.baseAttack = attack; // SAME THING HERE BUT THESE DON'T CHANGE
+    }
+
+    public PokeRot (PokeRot other) {
+        this.name = other.name;
+        this.level = other.level;
+        this.maxHP = other.maxHP;
+        this.currentHP = other.maxHP;
+        this.attack = other.attack;
+        this.moves = new ArrayList<>(other.moves);
+        this.drawnHP = other.maxHP;
+        this.exp = other.exp;
+        this.expNeeded = other.expNeeded;
+    }
+
+    public void update () {
+        if (drawnHP > currentHP) { // FOR HP VISUAL BAR
+            drawnHP -= 0.3; // KEEP REDUCING VISUAL HP BAR
+            if (drawnHP < currentHP) drawnHP = currentHP; // PREVENT VISUAL BAR FROM OVERSHOOTING HP
+        }
+
+        if (drawnExp < exp) { // FOR EXP VISUAL BAR
+            drawnExp += 1.0; // KEEP INCREASING EXP BAR
+            if (drawnExp > exp) { // PREVENT VISUAL BAR FROM OVERSHOOTING ACTUAL XP
+                drawnExp = exp;
+            }
+        } else if (drawnExp > exp) {
+            drawnExp = 0; // MEANS WE LEVELED UP SO RESET BACK TO 0
+        }
+    }
+
+    public void addMove(Move move) {
+        if (this.moves.size() < 4)
+            this.moves.add(move);
+    }
+
+    public int getHowManyMoves () { return this.moves.size(); }
+
+    public Move getMove(int index) {
+        if (index >= 0 && index < this.moves.size())
+            return this.moves.get(index);
+        return null;
+    }
+
+    public void takeDamage(int damage) {
+        this.currentHP -= damage;
+        if (this.currentHP < 0)
+            this.currentHP = 0;
+    }
+
+    public int getBaseExpYield () {
+        return this.level * 35; // LEVEL 1 GIVES 35 XP, LEVEL 2 GIVES 70 XP ETC
+    } 
+
+    public void levelUp () {
+        this.level++;
+        this.exp -= this.expNeeded; // KEEP LEFTOVER XP
+        this.expNeeded = (int) (this.expNeeded * 1.5); // NEXT LVL REQUIRES 50% MORE XP
+        // STAT BOOST EACH LVL UP BELOW
+        this.maxHP += 5; // PERMANENT INCREASE MAX HP
+        this.attack += 2; // PERMANENT INCREASE ATK
+    }
+
+    public boolean gainExp (int amount) { // THIS METHOD HAS THREE PURPOSES, ONE IS GIVING EXP
+        this.exp += amount; // SECOND IS RETURNING TRUE IF LEVELED UP 1 OR MORE TIMES
+        boolean didWeLevelUp = false; // KEEP TRACK IF WE LEVELED UP AT LEAST ONCE
+        while (this.exp >= this.expNeeded) { // THE THIRD PURPOSE IS WHEN WE GAIN SO MUCH EXP
+            levelUp(); // WE CAN LEVEL UP MORE THAN ONCE
+            didWeLevelUp = true;
+        }
+        return didWeLevelUp; //RETURN TRUE IF WE LEVLED UP 1 OR MORE TIMES
+    }
+
+    public void resetToLevelOne () { // THIS METHOD IS USED WHENEVER THE POKEROT DIES FOR RESETTING
+        this.level = 1; // LEVEL GOES BACK TO 1
+        this.maxHP = this.baseMaxHP; // THEIR MAX HP DEVOLVES DOWN TO WHAT IT WAS INITIALLY
+        this.attack = this.baseAttack; // SAME HERE BEFORE THEY WERE INCREASED BY LVLING UP
+        this.currentHP = this.maxHP; // CURRENT HP ALSO GOES BACK DOWN TO MAX HP (THIS SIMULATES FULL HEAL)
+        this.drawnHP = this.maxHP; // ALSO THE DRAWING IS RESET BACK TO WHATEVER IS THE FULL HEALTH INITIALLY
+        this.exp = 0; // WIPE LEFTOVER EXP FROM PREVIOUS FIGHTS
+        this.drawnExp = 0; // RESET VISUAL EXP BAR (RMEMBER THEY START AT 0)
+        this.expNeeded = 100; // RESET LEVELING THRESHOLD
+    }
+
+    public String getName () { return this.name; }
+    public int getLevel () { return this.level;}
+    public int getMaxHP () { return this.maxHP; }
+    public int getCurrentHP () { return this.currentHP; }
+    public int getAttack () { return this.attack; }
+    public double getDrawnHP () { return this.drawnHP; }
+    public int getExp () { return this.exp; }
+    public int getExpNeeded () { return this.expNeeded; }
+    public double getDrawnExp () { return this.drawnExp; }
+}
+
+
+--- PokeRotRegistry.java ---
+
+import java.util.ArrayList;
+
+public class PokeRotRegistry {
+    private ArrayList<PokeRot> pokeRotList;
+    private ArrayList<Move> pokeRotMoves;
+    
+    public PokeRotRegistry () {
+        pokeRotList = new ArrayList<>(); 
+        pokeRotMoves = new ArrayList<>();
+        registerPokeRot();
+        registerPokeRotMoves();
+        setPokeRotMovesOnEach();
+    }
+
+    public PokeRot generateRandomPokeRot () { // THIS METHOD IS RESPONSIBLE FOR GRASS WILD ENCOUNTER
+        int randomIndex = (int) (Math.random() * pokeRotList.size()); // RANDOMIZER
+        PokeRot sendThisRot = new PokeRot(pokeRotList.get(randomIndex)); // NOTICE WE'RE CREATING A COPY, NOT SENDING THE ONE FROM ARRAYLIST
+        return sendThisRot; // THIS IS BECAUSE WE WILL BATTLE IT AGAIN, AND WE DON'T WANT TO BATTLE A POKEROT WITH 0 HP
+    }
+
+    public PokeRot getSpecificPokeRot (String name) { // THIS METHOD IS RESPONSIBLE FOR GETTING A SPECIFIC POKEROT
+        for (PokeRot eachPokeRot : pokeRotList) { // FOR EACH POKEROT FIND THE ONE THAT MATCHES THE NAME
+            if (eachPokeRot.getName().equals(name)) { // AND THEN RETURN IT TO THE CALLER
+                return new PokeRot(eachPokeRot); // ITS REAL USAGE IS FOR CREATING A CLONE POKEROT (LIKE SENDING IT TO PLAYER/ENEMY PARTY)
+            } // AGAIN, WE DO NOT SEND THE POKEROT FROM THE ARRAYLIST
+        }
+        return null;
+    }
+
+    public void registerPokeRot () { // THIS METHOD JUST JUST MAKES ALL OF THE POKEROT IN THE GAME ALONG WITH THEIR STATS
+        pokeRotList.add(new PokeRot("67", 105, 95));
+        pokeRotList.add(new PokeRot("Ballerina Capuccina", 65, 125));
+        pokeRotList.add(new PokeRot("Bobrini Cocosini", 75, 100));
+        pokeRotList.add(new PokeRot("Boneca Ambalabu", 130, 85));
+        pokeRotList.add(new PokeRot("Brr Brr Patapim", 80, 105));
+        pokeRotList.add(new PokeRot("Cappuccino Assassino", 90, 85));
+        pokeRotList.add(new PokeRot("Chimpanzini Bananini", 90, 90));
+        pokeRotList.add(new PokeRot("Frulli Frulla", 90, 90));
+        pokeRotList.add(new PokeRot("Holeee", 106, 110));
+        pokeRotList.add(new PokeRot("La Vaca Saturno Saturnita", 80, 125));
+        pokeRotList.add(new PokeRot("Lirili Larila", 65, 80));
+        pokeRotList.add(new PokeRot("Tung Tung Sahur", 95, 80));
+        pokeRotList.add(new PokeRot("Skibidi Toilet", 80, 85));
+        pokeRotList.add(new PokeRot("Tralalelo Tralala", 73, 100));
+        pokeRotList.add(new PokeRot("Udin Dinn Din Dun", 99, 68));
+    }
+
+    public void registerPokeRotMoves () { // THIS METHOD JUST CREATES ALL OF THE POKEROT MOVES WHICH WE WILL ADD TO POKEROTS
+        pokeRotMoves.add(new Move("Explosive Diarrhea", 22));
+        pokeRotMoves.add(new Move("Jawline Cutter", 19));
+        pokeRotMoves.add(new Move("Fanum Tax", 21));
+        pokeRotMoves.add(new Move("Maximum Mog", 20));
+        pokeRotMoves.add(new Move("Toilet Flush", 18));
+        pokeRotMoves.add(new Move("Gyatt Punch", 21));
+        pokeRotMoves.add(new Move("Brain Damage", 21));
+        pokeRotMoves.add(new Move("Nitro Flex", 20));
+        pokeRotMoves.add(new Move("Mewing Streak", 18));
+        pokeRotMoves.add(new Move("Sigma Stare", 22));
+        pokeRotMoves.add(new Move("Rizzification", 21));
+        pokeRotMoves.add(new Move("Eyes Scream", 18));
+        pokeRotMoves.add(new Move("Womp Womp", 21));
+        pokeRotMoves.add(new Move("Goon Swing", 19));
+    }
+
+    public void setPokeRotMovesOnEach () { // THIS METHOD GIVES THE ENEMY AI MOVES TO USE
+        for (PokeRot eachPokeRot : pokeRotList) {
+            for (int i = 1; i <= 4; i++) { // GOES UP TO 4 ONLY SINCE ONLY 4 MOVES ARE AVAILABLE
+                int randomMove = (int) (Math.random() * pokeRotMoves.size()); // RANDOMIZE THE INDEX
+                eachPokeRot.addMove(pokeRotMoves.get(randomMove)); // ADD A RANDOM MOVE TO THE ENEMY AI
+            }
+        }
+    }
+}
+
+
+--- Tile.java ---
+
+import java.awt.image.BufferedImage;
+
+public class Tile {
+    private BufferedImage image; // these are what renders the tile from a file "buffered"
+    private boolean collision = false; // this sets if collision is true for specific tiles
+    private boolean encounter = false; // if tile is encounterable with a pokerot
+
+    public boolean getEncounter () { return this.encounter; }
+    public BufferedImage getImage() { return this.image; }
+    public boolean getCollision () { return this.collision; }
+    public void setImage (BufferedImage image) { this.image = image; }
+    public void setCollision (boolean collision) { this.collision = collision; }
+    public void setEncounter (boolean encounter) { this.encounter = encounter; }
+}
+
+
+--- TileManager.java ---
+
+import java.awt.Graphics2D;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import javax.imageio.ImageIO;
+
+public class TileManager {
+    private GamePanel gamePanel;
+    private Tile[] tile; // THE TILES INSTANTIATED IN TILE IS STORED IN AN ARRAY
+    private int[][] mapTileNumber; // THIS WILL SCAN WHAT THE TILE IS AT SPECIFIC ROW & COLUMN IT CHANGES
+
+    public TileManager (GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+        tile = new Tile[10]; // THE ARRAY STORES 10 TILES CHANGEABLE
+        mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // TILE NUMBER'S MAX SIZE IS JUST THE WHOLE MAP
+        getTileImage(); // PUTS EVERY TILE INTO THE ARRAY
+        loadMap("Assets/Maps/map1.txt"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS COULD CALL THIS METHOD
+    }
+
+    public void getTileImage () {
+        try {
+            tile[0] = new Tile();
+            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); 
+            tile[1] = new Tile();
+            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); 
+            tile[2] = new Tile();
+            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); 
+            tile[2].setCollision(true);
+            tile[3] = new Tile();
+            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/tallgrass_01.png")));
+            tile[3].setEncounter(true);
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        }
+    }
+
+    public void loadMap (String filePath) {
+        try { // wrapped try catch so program won't crash when folders are missing
+            InputStream inputStream = new FileInputStream(filePath);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)); // makes a file reader, pass a InputStreamReader object
+            int column = 0; // these change, keep tracks of y coords
+            int row = 0; // keep track of x coords (of the map)
+            while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) { // as long as were inside the map coords do what's inside
+                String line = bufferedReader.readLine(); // gets the whole row of numbers "1023424 of the map"
+                while (column < gamePanel.getMaxScreenColumn()) { // as long as column doesn't overlap max column
+                    String[] numbers = line.split(" "); // array of numbers as string split from spaces
+                    int currentNumber = Integer.parseInt(numbers[column]); // cast the specific string of numbers[column] and store it (this changes each loop)
+                    mapTileNumber[column][row] = currentNumber; // put that number as the map tile at specific [column][row]
+                    column++; // go to the next column and repeat (stops at max column)
+                }
+                if (column == gamePanel.getMaxScreenColumn()) { // if we hit max column
+                    column = 0; // reset back to the first column
+                    row++; // but this time we analyze the next row of columns
+                }
+            }
+            bufferedReader.close();
+        } catch (Exception e) {
+            System.out.println("Error Loading Map Text File");
+            e.printStackTrace(); // prints what went wrong and the lines trace
+        }
+    }
+
+    public void draw (Graphics2D graphics2D) {
+        int column = 0;
+        int row = 0;
+        int x = 0;
+        int y = 0;
+
+        while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) { // while inside the map keep looping
+            int tileNumber = mapTileNumber[column][row]; // tileNumber changes each loop, it loads from our 2D array which we set earlier
+            graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(), null); // draw the tile we loaded
+            column++; // go to next column
+            x += gamePanel.getTileSize(); // this ensures drawing is 32x32 on the x-axis
+            if (column == gamePanel.getMaxScreenColumn()) { // if reaches the rightmost column
+                column = 0; // go back to left most
+                x = 0; // go back to the left most
+                row++; // but this time we're moving down the next row
+                y += gamePanel.getTileSize(); // ensures drawing is 32x32 on the y-axis
+            }
+        }
+    }
+
+    public int getTileNumber (int column, int row) { return this.mapTileNumber[column][row]; }
+    public Tile getTile (int index) { return this.tile[index]; }
+}
+
+
+--- TitlePanel.java ---
+
+import java.awt.*;
+
+public class TitlePanel {
+    private GamePanel gp;
+
+    // constructor
+    public TitlePanel(GamePanel gp) {
+        this.gp = gp;
+    }
+
+    public void update(KeyHandler keyHandler) {
+        if (keyHandler.getFPressed()) {
+            gp.gameState = GameState.TALKINGSTATE;
+        }
+
+    }
+
+    public void draw(Graphics2D g2) {
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 48));
+        String title = "PokéRot®";
+        int x = gp.getScreenWidth() / 2 - g2.getFontMetrics().stringWidth(title) / 2;
+        int y = gp.getScreenHeight() / 2 - 50;
+        g2.drawString(title, x, y);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 24));
+        String subtitle = "Press F to Start";
+        x = gp.getScreenWidth() / 2 - g2.getFontMetrics().stringWidth(subtitle) / 2;
+        y += 100;
+        g2.drawString(subtitle, x, y);
+    }
+}
