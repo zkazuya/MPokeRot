@@ -42,7 +42,7 @@ public class PokeRotRegistry {
         pokeRotList.add(new PokeRot("Tung Tung Sahur", 95, 80));
         pokeRotList.add(new PokeRot("Skibidi Toilet", 80, 85));
         pokeRotList.add(new PokeRot("Tralalelo Tralala", 73, 100));
-        pokeRotList.add(new PokeRot("Udin Dinn Din Dun", 99, 68));
+        pokeRotList.add(new PokeRot("Udin Din Din Dun", 99, 68));
     }
 
     public void registerPokeRotMoves () { // THIS METHOD JUST CREATES ALL OF THE POKEROT MOVES WHICH WE WILL ADD TO POKEROTS
