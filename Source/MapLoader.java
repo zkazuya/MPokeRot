@@ -15,7 +15,7 @@ public class MapLoader {
             String line;
 
             while ((line = BR.readLine()) != null) {
-                String[] values = line.split(",");
+                String[] values = line.trim().split("\\s+");
 
                 int[] row = new int[values.length];
 
