@@ -129,10 +129,10 @@ public class GameIntro extends JPanel{
             gifCurrFrame++;
             if (gifCurrFrame >= gifFrames.size()){ 
                 gifCurrFrame = 0; //whenever the current frame reaches the same amount the frames in the GIF will reset back to 0 to make a loop
-                if(keyHandler.getSpacePressed()){
-                    frame.switchPanel("Game"); //if Space is pressed, then it will go to game
-                    gifTimer.stop();
-                }
+            }
+            if (keyHandler.getSpacePressed()) {
+                frame.switchPanel("Game"); // if Space is pressed, then it will go to game
+                gifTimer.stop();
             }
             if((gifCurrFrame >= 10 && gifCurrFrame <= 40) || (gifCurrFrame >= 90 && gifCurrFrame <= 120)){ //this if statement makes it so that the text will only show up every 30 frames
                 showText = true;
