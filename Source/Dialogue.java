@@ -15,14 +15,14 @@ public class Dialogue {
     };
 
     private int dialogueIndex = 0;
-    private boolean fKeyHandled = false;
+    private boolean EnterKeyHandled = false;
 
     public Dialogue(GamePanel gp) {
         this.gp = gp;
     }
 
     public void update(KeyHandler keyHandler) {
-        if (keyHandler.getFPressed() && !fKeyHandled && !doneIntro) {
+        if (keyHandler.getEnterPressed() && !EnterKeyHandled && !doneIntro) {
             if (gameState == playState) {
                 gameState = dialogueState;
             } else if (gameState == dialogueState) {
@@ -34,9 +34,9 @@ public class Dialogue {
                     doneIntro = true;
                 }
             }
-            fKeyHandled = true;
-        } else if (!keyHandler.getFPressed()) {
-            fKeyHandled = false;
+            EnterKeyHandled = true;
+        } else if (!keyHandler.getEnterPressed()) {
+            EnterKeyHandled = false;
         }
     }
 
@@ -63,6 +63,6 @@ public class Dialogue {
         g2.drawString(IntroDialogue[dialogueIndex], x + 20, y + 40);
 
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        g2.drawString("Press F>", x + 600, y + 85);
+        g2.drawString("Press Enter>", x + 590, y + 85);
     }
 }

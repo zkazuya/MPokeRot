@@ -141,7 +141,13 @@ public class BattleSystem {
         if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) { // THIS CONDITION MEANS IF OUR DRAWNHP MATCHES OUR CURRENT HP
             if (activePlayer.getCurrentHP() <= 0) { // IF OUR POKEROT DIED
                 dialogText = activePlayer.getName() + " fainted!"; // EX: TRALALELO FAINTED!
-                battleSubState = 7; // SKIP TO WE GOT DEFEATED STATE
+
+                if (gamePanel.player.hasUsablePokeRot()) { // THIS IS FOR AUTO SWAPPING POKEROT
+                    activePlayer = gamePanel.player.getFirstAlivePokeRot(); // GET THE NEXT POKEROT ALIVE CUZ CURRNET ONE DIED
+                    gamePanel.battleUI.loadFighterImages(activePlayer, activeEnemy); // ALSO CHANGE THE ONE BEING DRAWN
+                    battleSubState = 0;
+                }
+                else battleSubState = 7; // ALL OUR POKEROT HAS BEEN WIPED OUT GO TO DEFEATED STATE
             } else { // IF WE DIDN'T DIE
                 battleSubState = 0; // GO BACK TO MAIN MENU TO ACTION STATE AGAIN FOR ANOTHER ATTACK
                 optionSelected = 0; // RESET CURSOR TOP LEFT
@@ -165,7 +171,7 @@ public class BattleSystem {
             battleSubState = 0; // GO BACK TO MAIN MENU
             optionSelected = 0; // RESET CURSOR TOP LEFT
             gamePanel.encounterManager.startCooldown(120);
-            gamePanel.gameState = GameState.ROAMSTATE; // GO BACK TO THE OVERWORLD
+            gamePanel.player.triggerBlackout();
         }
         keyCooldown = 16;
     }

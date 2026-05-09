@@ -12,13 +12,22 @@ public class PokeRotRegistry {
         setPokeRotMovesOnEach();
     }
 
-    public PokeRot generateRandomPokeRot () {
-        int randomIndex = (int) (Math.random() * 14);
-        PokeRot sendThisRot = new PokeRot(pokeRotList.get(randomIndex));
-        return sendThisRot;
+    public PokeRot generateRandomPokeRot () { // THIS METHOD IS RESPONSIBLE FOR GRASS WILD ENCOUNTER
+        int randomIndex = (int) (Math.random() * pokeRotList.size()); // RANDOMIZER
+        PokeRot sendThisRot = new PokeRot(pokeRotList.get(randomIndex)); // NOTICE WE'RE CREATING A COPY, NOT SENDING THE ONE FROM ARRAYLIST
+        return sendThisRot; // THIS IS BECAUSE WE WILL BATTLE IT AGAIN, AND WE DON'T WANT TO BATTLE A POKEROT WITH 0 HP
     }
 
-    public void registerPokeRot () {
+    public PokeRot getSpecificPokeRot (String name) { // THIS METHOD IS RESPONSIBLE FOR GETTING A SPECIFIC POKEROT
+        for (PokeRot eachPokeRot : pokeRotList) { // FOR EACH POKEROT FIND THE ONE THAT MATCHES THE NAME
+            if (eachPokeRot.getName().equals(name)) { // AND THEN RETURN IT TO THE CALLER
+                return new PokeRot(eachPokeRot); // ITS REAL USAGE IS FOR CREATING A CLONE POKEROT (LIKE SENDING IT TO PLAYER/ENEMY PARTY)
+            } // AGAIN, WE DO NOT SEND THE POKEROT FROM THE ARRAYLIST
+        }
+        return null;
+    }
+
+    public void registerPokeRot () { // THIS METHOD JUST JUST MAKES ALL OF THE POKEROT IN THE GAME ALONG WITH THEIR STATS
         pokeRotList.add(new PokeRot("67", 105, 95));
         pokeRotList.add(new PokeRot("Ballerina Capuccina", 65, 125));
         pokeRotList.add(new PokeRot("Bobrini Cocosini", 75, 100));
@@ -36,7 +45,7 @@ public class PokeRotRegistry {
         pokeRotList.add(new PokeRot("Udin Dinn Din Dun", 99, 68));
     }
 
-    public void registerPokeRotMoves () {
+    public void registerPokeRotMoves () { // THIS METHOD JUST CREATES ALL OF THE POKEROT MOVES WHICH WE WILL ADD TO POKEROTS
         pokeRotMoves.add(new Move("Explosive Diarrhea", 22));
         pokeRotMoves.add(new Move("Jawline Cutter", 19));
         pokeRotMoves.add(new Move("Fanum Tax", 21));
@@ -53,11 +62,11 @@ public class PokeRotRegistry {
         pokeRotMoves.add(new Move("Goon Swing", 19));
     }
 
-    public void setPokeRotMovesOnEach () {
+    public void setPokeRotMovesOnEach () { // THIS METHOD GIVES THE ENEMY AI MOVES TO USE
         for (PokeRot eachPokeRot : pokeRotList) {
-            for (int i = 1; i <= 4; i++) {
-                int randomMove = (int) (Math.random() * pokeRotMoves.size());
-                eachPokeRot.addMove(pokeRotMoves.get(randomMove));
+            for (int i = 1; i <= 4; i++) { // GOES UP TO 4 ONLY SINCE ONLY 4 MOVES ARE AVAILABLE
+                int randomMove = (int) (Math.random() * pokeRotMoves.size()); // RANDOMIZE THE INDEX
+                eachPokeRot.addMove(pokeRotMoves.get(randomMove)); // ADD A RANDOM MOVE TO THE ENEMY AI
             }
         }
     }

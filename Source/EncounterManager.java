@@ -1,9 +1,11 @@
 public class EncounterManager {
     private GamePanel gamePanel;
     private int encounterCooldown = 0;
+    private Player player;
 
-    public EncounterManager (GamePanel gamePanel) {
+    public EncounterManager (GamePanel gamePanel, Player player) {
         this.gamePanel = gamePanel;
+        this.player = player;
     }
 
     public void update () { // CALLED EVERY FRAME TO TICK DOWN THE TIMER
@@ -20,7 +22,7 @@ public class EncounterManager {
         if (randomChance < 10) {
             gamePanel.gameState = GameState.BATTLESTATE;
 
-            PokeRot playerRot = gamePanel.playerParty[0];
+            PokeRot playerRot = player.getFirstAlivePokeRot();
             PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
             gamePanel.battleSystem.startEncounter(playerRot, wildRot);
         }

@@ -1,27 +1,31 @@
 import java.util.ArrayList;
 
 public class PokeRot {
-    private String name;
-    private int level;
-    private int maxHP;
-    private int currentHP;
-    private int attack;
-    private ArrayList<Move> moves;
-    private double drawnHP;
-    private double drawnExp = 0;
-    private int exp;
-    private int expNeeded;
+    private String name; // NAME OF EACH POKEROT
+    private int level; // LEVEL OF EACH POKEROT
+    private int maxHP; // THIS INCREASES
+    private int currentHP; // IF DAMAGED, KEEP AS THIS HP
+    private int attack; // THIS INCREASES
+    private ArrayList<Move> moves; // STORE MOVES UNIQUE TO THE POKEROT
+    private double drawnHP; // THE VISUAL BAR'S NUMBER FOR HP
+    private double drawnExp = 0; // THE VISUAL BAR'S NUMBER FOR EXP
+    private int exp; // THIS IS THE ACTUAL XP
+    private int expNeeded; // THIS IS USED FOR CONDITIONING/LEVELING
+    private int baseMaxHP; // LEVEL 1 BASE STATS HEALTH (GOES BACK TO THIS AFTER DEATH)
+    private int baseAttack; // LEVEL 1 BASE STATS ATTACK (GOES BACK TO THIS AFTER DEATH)
 
     public PokeRot(String name, int maxHP, int attack) {
         this.name = name;
         this.level = 1; // ALWAYS START AT LVL 1
-        this.maxHP = maxHP;
+        this.maxHP = maxHP; // MAX HP IS THE STARTING HP AT FIRST
         this.currentHP = maxHP; // ALWAYS START AT FULL HEALTHH
-        this.attack = attack;
-        this.moves = new ArrayList<>();
-        this.drawnHP = maxHP;
-        this.exp = 0;
-        this.expNeeded = 100;
+        this.attack = attack; // MAX ATK IS THE STARTING ATK AT FIRST
+        this.moves = new ArrayList<>(); // INITIALIZE AND ADD MOVES LATER
+        this.drawnHP = maxHP; // THE DRAWN HP STARTS AT MAX HP AT FIRST (BECUZ THIS DRAINS AND GOES DOWN TO 0)
+        this.exp = 0; // EXP IS 0 BY DEFAULT FOR EVERY POKEROT
+        this.expNeeded = 100; // EXP NEEDED IS 100 THIS IS SCALED BY 35
+        this.baseMaxHP = maxHP; // THE LEVEL 1 STAT IS OFC THE VERY FIRST STATE
+        this.baseAttack = attack; // SAME THING HERE BUT THESE DON'T CHANGE
     }
 
     public PokeRot (PokeRot other) {
@@ -84,13 +88,25 @@ public class PokeRot {
         this.attack += 2; // PERMANENT INCREASE ATK
     }
 
-    public boolean gainExp (int amount) { // GIVE XP TO POKEROT & RETURN TRUE IF IT LVLED UP
-        this.exp += amount;
-        if (this.exp >= this.expNeeded) { // IF CURRENT XP HIT XP TRESHOLD
-            levelUp(); // CALL LVLUP METHOD
-            return true; // RETURNS TRUE, IMPORTANT FOR LVL TRIGGER EVENTS
+    public boolean gainExp (int amount) { // THIS METHOD HAS THREE PURPOSES, ONE IS GIVING EXP
+        this.exp += amount; // SECOND IS RETURNING TRUE IF LEVELED UP 1 OR MORE TIMES
+        boolean didWeLevelUp = false; // KEEP TRACK IF WE LEVELED UP AT LEAST ONCE
+        while (this.exp >= this.expNeeded) { // THE THIRD PURPOSE IS WHEN WE GAIN SO MUCH EXP
+            levelUp(); // WE CAN LEVEL UP MORE THAN ONCE
+            didWeLevelUp = true;
         }
-        return false;
+        return didWeLevelUp; //RETURN TRUE IF WE LEVLED UP 1 OR MORE TIMES
+    }
+
+    public void resetToLevelOne () { // THIS METHOD IS USED WHENEVER THE POKEROT DIES FOR RESETTING
+        this.level = 1; // LEVEL GOES BACK TO 1
+        this.maxHP = this.baseMaxHP; // THEIR MAX HP DEVOLVES DOWN TO WHAT IT WAS INITIALLY
+        this.attack = this.baseAttack; // SAME HERE BEFORE THEY WERE INCREASED BY LVLING UP
+        this.currentHP = this.maxHP; // CURRENT HP ALSO GOES BACK DOWN TO MAX HP (THIS SIMULATES FULL HEAL)
+        this.drawnHP = this.maxHP; // ALSO THE DRAWING IS RESET BACK TO WHATEVER IS THE FULL HEALTH INITIALLY
+        this.exp = 0; // WIPE LEFTOVER EXP FROM PREVIOUS FIGHTS
+        this.drawnExp = 0; // RESET VISUAL EXP BAR (RMEMBER THEY START AT 0)
+        this.expNeeded = 100; // RESET LEVELING THRESHOLD
     }
 
     public String getName () { return this.name; }

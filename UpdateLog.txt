@@ -81,6 +81,30 @@ java -cp "ClassFolders;Assets;." Main
     -Added loadFighterImages() in the ui now player pokerot and enemy are matching whoever is currently fighting
     -Updated Player.java to use switch instead of long if statements, also removed code that should be in other classes
     -Added map tile collisions as well as prevent player from going outside of the map
-    
+
+<5/8/2026 (Reese)>
+    -Added setters to KeyHandler class
+    -Added buttons to title panel
+    -Modified Gamepanel, Tilemanager
+    -Added NPC class for loading NPCs
+    -Modified downsprite array size in Entity class array to 5 BufferedImages to contain 5 NPCs
+    -NPCs don't show because I commented out a block of code in GamePanel that draws them
+
+<5/9/2026 (Carl)>
+    -GamePanel cleaned up (only does what its supposed to now) and playerParty is now on player.java
+    -Inside PokeRotRegistry added methods for getting a random pokerot and for getting a specific pokerot
+    -Player.java now checks if we still have pokerots we can still battle yay and switches the next pokerot
+    -Check BattleSystem.java, lots of changes there regarding the flow of battle now
+
+<5/9/2026 (Pj)>
+    -Added GameFrame class, GameIntro class, and changed the Main class so that it will become a driver class and make it possible for SwingUtilities and        
+     MultiThreading
+    -Added CardLayout inside GameFrame class so that it can switch the two panels which are "GamePanel" and "GameIntro", it will switch between these two
+     You can switch them by using the "switchPanel(String name)" method inside the GameFrame class, the name there is the name of the Panels that are being
+     switched, "GamePanel" = "Game", "GameIntro" = "Intro"
+    -Also made the GameIntro and GamePanel to need to have the GameFrame as an argument in their constructor, so that they can access the switching of the panels
+     inside their own classes.
+    -Added a new key in the KeyHandler class which is "Space"
+    -Added the animatons and looping the GIF on the intro of the game each time you start it
 
 // follow the format REMOVE THIS IF SMT IS ADDED

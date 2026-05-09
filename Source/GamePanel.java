@@ -14,32 +14,27 @@ public class GamePanel extends JPanel implements Runnable {
     private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
     private final int FPS = 60;
 
+    GameFrame gameFrame;
     Thread gameThread;
     KeyHandler keyHandler = new KeyHandler();
     TileManager tileManager = new TileManager(this);
+    PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
     Player player = new Player(this, keyHandler);
     BattleUI battleUI = new BattleUI(this);
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
-    EncounterManager encounterManager = new EncounterManager(this);
-    PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
+    EncounterManager encounterManager = new EncounterManager(this, player);
+    NPC[] npc = new NPC[5];
 
-    public PokeRot[] playerParty = new PokeRot[6];
-    public PokeRot[] enemyParty = new PokeRot[6];
-
-    public GamePanel () {
+    public GamePanel (GameFrame gameFrame) {
+        this.gameFrame = gameFrame;
         this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // sets the size to fit screen
         this.setBackground(Color.BLACK); // whole canvas is black by default
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        playerParty[0] = new PokeRot("Tung Tung Sahur", 70, 49); // 45 it hp pero gin bago ko laanay to 70
-        playerParty[1] = new PokeRot("Tralalelo Tralala", 44, 48);
-
-        playerParty[0].addMove(new Move("Tackle", 7));
-        playerParty[0].addMove(new Move("Growl", 0));
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
@@ -102,6 +97,14 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.draw(graphics2D);
         }
         graphics2D.dispose(); // saves memory
+    }
+
+    public void setUpNpc() {
+        npc[0] = new NPC(500, 300, 0);
+        npc[1] = new NPC(440, 320, 1);
+        npc[2] = new NPC(800, 600, 2);
+        npc[3] = new NPC(15, 400, 3);
+        npc[4] = new NPC(620, 100, 4);
     }
 
     public int getMaxScreenColumn () { return this.maxScreenColumn; }

@@ -2,6 +2,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.util.ArrayList;
 
 public class Player extends Entity {
     GamePanel gamePanel;
@@ -9,6 +10,7 @@ public class Player extends Entity {
     private boolean isMoving = false;
     private int pixelCounter = 0; // THIS VARIABLE IS IMPORTANT TO MAKE SURE WE GO EXACTLY ONE TILE EACH AWSD MOVEMENT
     private String direction = "down"; // DIRECTION THE PLAYER IS FACING
+    private ArrayList <PokeRot> playerParty = new ArrayList<>();
 
     public Player (GamePanel gamePanel, KeyHandler keyHandler) {
         this.gamePanel = gamePanel;
@@ -18,19 +20,19 @@ public class Player extends Entity {
         setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
+        PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Skibidi Toilet");
+        PokeRot secondPokeRot = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
+        if (starterOne != null) playerParty.add(starterOne);
+        if (secondPokeRot != null) playerParty.add(secondPokeRot);
     }
 
     public void update () {
         if (isMoving == false) { // IF WE ARE NOT MOVING, DECIDE OUR CURRENT DIRECTION
-            if (keyHandler.getUpPressed()) {
-                direction = "up";
-            } else if (keyHandler.getDownPressed()) {
-                direction = "down";
-            } else if (keyHandler.getLeftPressed()) {
-                direction = "left";
-            } else if (keyHandler.getRightPressed()) {
-                direction = "right";
-            } else spriteNumber = 0;
+            if (keyHandler.getUpPressed()) direction = "up"; 
+            else if (keyHandler.getDownPressed()) direction = "down"; 
+            else if (keyHandler.getLeftPressed()) direction = "left";
+            else if (keyHandler.getRightPressed()) direction = "right";
+            else spriteNumber = 0;
         }
 
         boolean upDownRightLeft = keyHandler.getUpPressed() || keyHandler.getDownPressed() || keyHandler.getLeftPressed() || keyHandler.getRightPressed();
@@ -114,5 +116,29 @@ public class Player extends Entity {
         }
         graphics2D.drawImage(image, getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize(), null);
     }
+
+    public boolean hasUsablePokeRot () { // THIS METHOD IS USEFUL TO DETERMINE IF WE CAN STILL BATTLE OR NOT
+        for (PokeRot eachPokeRot : playerParty) { // FOR INSTANCE WE CAN CAUSE EVENTS IF WE CAN NO LONGER BATTLE
+            if (eachPokeRot.getCurrentHP() > 0) return true; // IT RETURNS TRUE IF EVEN ONE IS STILL ALIVE
+        }
+        return false;
+    }
+
+    public PokeRot getFirstAlivePokeRot () { // THIS METHOD IS RESPONSIBLE FOR SELECTING THE VERY FIRST POKEROT
+        for (PokeRot eachPokeRot : playerParty) { // INSIDE OF THE PLAYER'S PARTY
+            if (eachPokeRot.getCurrentHP() > 0) return eachPokeRot; // THE CATCH: VERY FIRST POKEROT ALIVE
+        }
+        return null;
+    }
+
+    public void triggerBlackout () { // THIS METHOD IS TRIGGERED IN BATTLE SYSTEM WHEN ALL OUR POKEROT DIES
+        this.setX(0); // THE PLAYER SPAWNS BACK TO 0, 0 (X, Y) RESPECTIVELY
+        this.setY(0); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
+        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
+        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
+        gamePanel.gameState = GameState.TALKINGSTATE;
+    }
+
+    public ArrayList <PokeRot> getPlayerParty () { return this.playerParty; }
 
 }
