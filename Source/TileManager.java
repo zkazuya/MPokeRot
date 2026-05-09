@@ -13,25 +13,103 @@ public class TileManager {
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        tile = new Tile[10]; // THE ARRAY STORES 10 TILES CHANGEABLE
+        tile = new Tile[24]; // THE ARRAY STORES 10 TILES CHANGEABLE
         mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // TILE NUMBER'S MAX SIZE
                                                                                               // IS JUST THE WHOLE MAP
         getTileImage(); // PUTS EVERY TILE INTO THE ARRAY
-        loadMap("Assets/Maps/map1.txt"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS COULD CALL THIS METHOD
+        loadMap("Assets/Maps/FinalMap - Map save updated final"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS
+                                                                  // COULD CALL THIS METHOD
     }
 
     public void getTileImage() {
         try {
+            // grass
             tile[0] = new Tile();
-            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png")));
+            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass tiles_00.png")));
+
             tile[1] = new Tile();
-            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png")));
+            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass tiles_03.png")));
+
             tile[2] = new Tile();
-            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png")));
-            tile[2].setCollision(true);
+            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass tiles_09.png")));
+
             tile[3] = new Tile();
-            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/tallgrass_01.png")));
-            tile[3].setEncounter(true);
+            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass tiles_14.png")));
+
+            // corner road tiles
+            tile[4] = new Tile();
+            tile[4].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_0.png")));
+
+            tile[5] = new Tile();
+            tile[5].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_1.png")));
+
+            tile[6] = new Tile();
+            tile[6].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_2.png")));
+
+            tile[7] = new Tile();
+            tile[7].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_3.png")));
+
+            tile[8] = new Tile();
+            tile[8].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_4.png")));
+
+            tile[9] = new Tile();
+            tile[9].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_5.png")));
+
+            tile[10] = new Tile();
+            tile[10].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_6.png")));
+
+            tile[11] = new Tile();
+            tile[11].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/corner tiles_7.png")));
+
+            // tall grass
+            tile[12] = new Tile();
+            tile[12].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Tall grass_0.png")));
+
+            // highway tiles
+            tile[13] = new Tile();
+            tile[13].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/highway tile_00.png")));
+
+            tile[14] = new Tile();
+            tile[14].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/highway tile_03.png")));
+
+            tile[15] = new Tile();
+            tile[15].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/highway tile_06.png")));
+
+            tile[16] = new Tile();
+            tile[16].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/highway tile_16.png")));
+
+            tile[17] = new Tile();
+            tile[17].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/highway tile_17.png")));
+
+            // path/road
+            tile[18] = new Tile();
+            tile[18].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/revised road tile_1.png")));
+
+            // walls
+            tile[19] = new Tile();
+            tile[19].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/pokewalls_1.png")));
+            tile[19].setCollision(true);
+
+            tile[20] = new Tile();
+            tile[20].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/pokewalls_3.png")));
+            tile[20].setCollision(true);
+
+            tile[21] = new Tile();
+            tile[21].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/pokewalls_4.png")));
+            tile[21].setCollision(true);
+
+            tile[22] = new Tile();
+            tile[22].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/pokewalls_6.png")));
+            tile[22].setCollision(true);
+
+            // special blocks
+            tile[23] = new Tile();
+            tile[23].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/blank.png")));
+            tile[23].setCollision(true);
+
+            // tile[2] = new Tile();
+            // tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/ ")));
+            // tile[2].setCollision(true);
 
         } catch (IOException ioE) {
             ioE.printStackTrace();
