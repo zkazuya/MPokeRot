@@ -1,9 +1,9 @@
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import javax.imageio.ImageIO;
 
 public class TileManager {
@@ -11,77 +11,272 @@ public class TileManager {
     private Tile[] tile; // THE TILES INSTANTIATED IN TILE IS STORED IN AN ARRAY
     private int[][] mapTileNumber; // THIS WILL SCAN WHAT THE TILE IS AT SPECIFIC ROW & COLUMN IT CHANGES
 
-    public TileManager (GamePanel gamePanel) {
+    public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        tile = new Tile[10]; // THE ARRAY STORES 10 TILES CHANGEABLE
-        mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // TILE NUMBER'S MAX SIZE IS JUST THE WHOLE MAP
-        getTileImage(); // PUTS EVERY TILE INTO THE ARRAY
-        loadMap("Assets/Maps/map1.txt"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS COULD CALL THIS METHOD
+        tile = new Tile[45]; // THE ARRAY STORES 10 TILES CHANGEABLE
+        mapTileNumber = new int[gamePanel.getMaxWorldColumn()][gamePanel.getMaxWorldRow()];
+        getTileImage(); 
+        loadMap("Assets/Maps/FinalMap - Map save updated final.txt");
     }
 
-    public void getTileImage () {
+    public void getTileImage() {
         try {
+            // grass
             tile[0] = new Tile();
-            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/floor01.png"))); 
+            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_00.png"))); // base-grass
             tile[1] = new Tile();
-            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/grass01.png"))); 
+            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_03.png"))); // grass-with-tae
             tile[2] = new Tile();
-            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/water01.png"))); 
-            tile[2].setCollision(true);
+            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_09.png"))); // grass-with-rock
             tile[3] = new Tile();
-            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/tallgrass_01.png")));
-            tile[3].setEncounter(true);
+            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_14.png")));// grass-with-flower
+            // corner road tiles
+            tile[4] = new Tile();
+            tile[4].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_0.png"))); // vert-LS-road
+            tile[5] = new Tile();
+            tile[5].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_1.png"))); // vert-RS-road
+            tile[6] = new Tile();
+            tile[6].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_2.png"))); // upper-r-road
+            tile[7] = new Tile();
+            tile[7].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_3.png"))); // lower-l-road
+            tile[8] = new Tile();
+            tile[8].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_4.png")));// horizon-lower-side-road
+            tile[9] = new Tile();
+            tile[9].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_5.png")));// horizon-upper-side-road
+            tile[10] = new Tile();
+            tile[10].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_6.png"))); // lower-r-road
+            tile[11] = new Tile();
+            tile[11].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_7.png"))); // upper-l-road
+            // tall grass
+            tile[12] = new Tile();
+            tile[12].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Tall_Grass_0.png"))); // TALL-GRASS
+            // highway tiles
+            tile[13] = new Tile();
+            tile[13].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_00.png"))); // base-road
+            tile[14] = new Tile();
+            tile[14].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_03.png"))); // -hori-ped-line
+            tile[15] = new Tile();
+            tile[15].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_06.png"))); // vert-ped-line
+            tile[16] = new Tile();
+            tile[16].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_16.png"))); // hori-dash-line
+            tile[17] = new Tile();
+            tile[17].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_17.png"))); // vert-dash-line
+            // path/road
+            tile[18] = new Tile();
+            tile[18].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Revised_Road_Tile_1.png"))); // road-block-in-campus
+            // FENCES
+            tile[19] = new Tile();
+            tile[19].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_1.png"))); // wall-from-ls-campus-pole-to-right
+            tile[19].setCollision(true);
+            tile[20] = new Tile();
+            tile[20].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_3.png"))); // vert-fence-to-right
+            tile[20].setCollision(true);
+            tile[21] = new Tile();
+            tile[21].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_4.png"))); // vert-fence-to-left
+            tile[21].setCollision(true);
+            tile[22] = new Tile();
+            tile[22].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_6.png"))); // wall-from-rs-campus-pole-to-left
+            tile[22].setCollision(true);
+            // FOR BLANK // OCCUPIED TILES PART OF BUILDINGS AND TULTI TILE IMAGES
+            tile[23] = new Tile();
+            tile[23].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Blank.png"))); // tile-for-multi-tiled-images
+            tile[23].setCollision(true);
+            tile[23].setRenderable(true);
+            // ======================================
+            // BUILDINGS MULTI TILESSS
+            // ======================================
+            tile[24] = new Tile();
+            tile[24].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_1.png"))); // AS-bldg-right-door
+            tile[24].setCollision(true);
+            tile[24].setRenderable(true);
+            tile[25] = new Tile();
+            tile[25].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_2.png"))); // AS-bldg-left-door
+            tile[25].setCollision(true);
+            tile[25].setRenderable(true);
+            tile[26] = new Tile();
+            tile[26].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Basketball_Court.png"))); // bball-court
+            tile[26].setCollision(true);
+            tile[26].setRenderable(true);
+            tile[27] = new Tile();
+            tile[27].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png"))); // big-bldg-67
+            tile[27].setCollision(true);
+            tile[27].setRenderable(true);
+            tile[28] = new Tile();
+            tile[28].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long)#3.png"))); // big-bldg-normal
+            tile[28].setCollision(true);
+            tile[28].setRenderable(true);
+            tile[29] = new Tile();
+            tile[29].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building_#2.png"))); // red-bldg-normal
+            tile[29].setCollision(true);
+            tile[29].setRenderable(true);
+            tile[30] = new Tile();
+            tile[30].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_0.png"))); // class-room-3-window
+            tile[30].setCollision(true);
+            tile[30].setRenderable(true);
+            tile[31] = new Tile();
+            tile[31].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_1.png"))); // class-room-2-window
+            tile[31].setCollision(true);
+            tile[31].setRenderable(true);
+            tile[32] = new Tile();
+            tile[32].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
+            tile[32].setCollision(true);
+            tile[32].setRenderable(true);
+            tile[33] = new Tile();
+            tile[33].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png"))); // oble-statue
+            tile[33].setCollision(true);
+            tile[33].setRenderable(true);
+            tile[34] = new Tile();
+            tile[34].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
+            tile[34].setCollision(true);
+            tile[34].setRenderable(true);
+            tile[35] = new Tile();
+            tile[35].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree(Big).png"))); // tree-big-3x5
+            tile[35].setCollision(true);
+            tile[35].setRenderable(true);
+            tile[36] = new Tile();
+            tile[36].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree1.png"))); // tree-small-2x3
+            tile[36].setCollision(true);
+            tile[36].setRenderable(true);
+            tile[37] = new Tile();
+            tile[37].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/SL_Building_Final.png"))); // AS-bldg-w/aircon
+            tile[37].setCollision(true);
+            tile[37].setRenderable(true);
+            tile[38] = new Tile();
+            tile[38].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_0.png"))); // ROAD-INTERSECT-LOW-L
+            tile[39] = new Tile();
+            tile[39].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_1.png"))); // ROAD-INTERSECT-LOW-R
+            tile[40] = new Tile();
+            tile[40].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_2.png"))); // ROAD-INTERSECT-UP-L
+            tile[41] = new Tile();
+            tile[41].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_3.png"))); // ROAD-INTERSECT-UP-R
+            tile[42] = new Tile();
+            tile[42].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\TallGrass_01.png"))); // NEGA GRASS
+            tile[43] = new Tile();
+            tile[43].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Blank.png")));
+            tile[43].setCollision(true);
+            tile[43].setRenderable(false);
+
+            tile[44] = new Tile();
+            tile[44].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_00.png")));
+            tile[44].setCollision(true);
+            tile[44].setRenderable(true); 
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
     }
 
-    public void loadMap (String filePath) {
-        try { // wrapped try catch so program won't crash when folders are missing
+    public void loadMap(String filePath) {
+        try {
             InputStream inputStream = new FileInputStream(filePath);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)); // makes a file reader, pass a InputStreamReader object
-            int column = 0; // these change, keep tracks of y coords
-            int row = 0; // keep track of x coords (of the map)
-            while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) { // as long as were inside the map coords do what's inside
-                String line = bufferedReader.readLine(); // gets the whole row of numbers "1023424 of the map"
-                while (column < gamePanel.getMaxScreenColumn()) { // as long as column doesn't overlap max column
-                    String[] numbers = line.split(" "); // array of numbers as string split from spaces
-                    int currentNumber = Integer.parseInt(numbers[column]); // cast the specific string of numbers[column] and store it (this changes each loop)
-                    mapTileNumber[column][row] = currentNumber; // put that number as the map tile at specific [column][row]
-                    column++; // go to the next column and repeat (stops at max column)
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            int column = 0;
+            int row = 0;
+            while (column < gamePanel.getMaxWorldColumn() && row < gamePanel.getMaxWorldRow()) { 
+                String line = bufferedReader.readLine();
+                if (line == null) break;
+                String[] numbers = line.trim().split("\\s+");
+                while (column < gamePanel.getMaxWorldColumn() && column < numbers.length) {
+                    int currentNumber = Integer.parseInt(numbers[column]); 
+                    int tileIndex = currentNumber;
+                    switch (currentNumber) {
+                        case 62 -> tileIndex = 35; // BIG TREE
+                        case 80 -> tileIndex = 44; // BLANK BUILDING TILE EDIT  KO LA 23 IT HIYA
+                        case 70 -> tileIndex = 44; // BLANK BUILDING TILE
+                        case 61 -> tileIndex = 36; // SMALL TREE
+                        case 6 -> tileIndex = 2; // GRASS
+                        case 9 -> tileIndex = 3; // GRASS WITH FLOWER
+                        case 11 -> tileIndex = 2; // GRASS WITH ROCK
+                        case 13 -> tileIndex = 3; // GRASS WITH FLOWER
+                        case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
+                        case 55 -> tileIndex = 18; // NORMAL PATH
+                        case 41 -> tileIndex = 6; // UP R
+                        case 42 -> tileIndex = 10; // LOW R
+                        case 43 -> tileIndex = 11; // UP L
+                        case 44 -> tileIndex = 7; // LOW L
+                        case 30 -> tileIndex = 4; // VERTICAL LEFT S ROAD
+                        case 31 -> tileIndex = 5; // VERTICAL RIGHT S ROAD
+                        case 4 -> tileIndex = 8; // HORIZONTAL LOWER S ROAD
+                        case 5 -> tileIndex = 9; // HORIZONTAL UPPER S ROAD
+                        // ROAD-INTERSECTION-CORNER
+                        case 21 -> tileIndex = 40;
+                        case 22 -> tileIndex = 38;
+                        case 23 -> tileIndex = 41;
+                        case 24 -> tileIndex = 39;
+                        // FENCES
+                        case 56 -> tileIndex = 19; // RIGHT S POLE
+                        case 57 -> tileIndex = 22; // LEFT S POLE
+                        case 7 -> tileIndex = 22; // FENCE NEAR BOTANICAL
+                        case 58 -> tileIndex = 21; // VERTICAL F LEFT
+                        case 59 -> tileIndex = 20; // VERTICAL F RIGHT
+                        // ROAD TILES
+                        case 50 -> tileIndex = 13;
+                        case 14 -> tileIndex = 16;
+                        case 49 -> tileIndex = 15;
+                        case 3 -> tileIndex = 14;
+                        case 17 -> tileIndex = 17;
+                        // BUILDINGS
+                        case 90 -> tileIndex = 20; // ROOM WITH 67
+                        case 92 -> tileIndex = 20; // ROOM OTHER
+                        case 93 -> tileIndex = 20; // OBLE
+                        case 96 -> tileIndex = 20; // BASKETBALL COURT
+                        case 97 -> tileIndex = 20; // RED BUILDING SMALL
+                        case 98 -> tileIndex = 20; // RED BUILDING BIG
+                        case 99 -> tileIndex = 20; // RED BUILDING 67
+                        case 91 -> tileIndex = 20; // AS BUILDING LEFT D
+                        case 94 -> tileIndex = 20; // AS BUILDING RIGHT D
+                        case 95 -> tileIndex = 20; // AS BUILDING RIGHT D AC
+                        case 0 -> tileIndex = 43;
+                        default -> tileIndex = currentNumber;
+                    }
+                     mapTileNumber[column][row] = tileIndex;
+                    column++;
                 }
-                if (column == gamePanel.getMaxScreenColumn()) { // if we hit max column
-                    column = 0; // reset back to the first column
-                    row++; // but this time we analyze the next row of columns
+                if (column == gamePanel.getMaxWorldColumn() || column == numbers.length) {
+                    column = 0;
+                    row++;
                 }
             }
             bufferedReader.close();
         } catch (Exception e) {
-            System.out.println("Error Loading Map Text File");
-            e.printStackTrace(); // prints what went wrong and the lines trace
+            e.printStackTrace();
         }
     }
 
-    public void draw (Graphics2D graphics2D) {
-        int column = 0;
-        int row = 0;
-        int x = 0;
-        int y = 0;
+    public void draw(Graphics2D graphics2D) {
+        int tilePositionColumn = 0; // THINK OF THIS AS J OR THE COLUMN NUMBER
+        int tilePositionRow = 0; // THINK OF THIS AS I OR THE ROW NUMBER
 
-        while (column < gamePanel.getMaxScreenColumn() && row < gamePanel.getMaxScreenRow()) { // while inside the map keep looping
-            int tileNumber = mapTileNumber[column][row]; // tileNumber changes each loop, it loads from our 2D array which we set earlier
-            graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(), null); // draw the tile we loaded
-            column++; // go to next column
-            x += gamePanel.getTileSize(); // this ensures drawing is 32x32 on the x-axis
-            if (column == gamePanel.getMaxScreenColumn()) { // if reaches the rightmost column
-                column = 0; // go back to left most
-                x = 0; // go back to the left most
-                row++; // but this time we're moving down the next row
-                y += gamePanel.getTileSize(); // ensures drawing is 32x32 on the y-axis
+        while (tilePositionColumn < gamePanel.getMaxWorldColumn() && tilePositionRow < gamePanel.getMaxWorldRow()) {
+            int tileNumber = mapTileNumber[tilePositionColumn][tilePositionRow]; // GETS WHAT TILE WE SHOULD DRAW THIS CHANGES EACH ITERATION
+            
+            // THESE WORLDX AND WORLDY ARE ABSOLUTE POSITION FOR THE TILES AND THEY DO NOT CHANGE
+            int worldX = tilePositionColumn * gamePanel.getTileSize(); // THIS IS THE EXACT PIXEL LOCATION OF THE TILE OUT IN THE MASSIVE MAP
+            int worldY = tilePositionRow * gamePanel.getTileSize(); // THIS IS ABSOLUTE POSITION, WHEN DRAWN THERE IT'S THERE
+
+            // THIS IS FOR DRAWING ONLY THE PLAYER (HE DOESN'T MOVE HE'S ALWAYS DRAWN IN SCREENX AND SCREENY OR CENTER OF THE SCREEN)
+            int screenX = worldX - gamePanel.player.getX() + gamePanel.player.getScreenX(); // WHERE IT MUST BE DRAWN IN THE SCREEN
+            int screenY = worldY - gamePanel.player.getY() + gamePanel.player.getScreenY(); // OFFSET BY THE PLAYER'S CURRENT POSITION
+
+            if (worldX + gamePanel.getTileSize() > gamePanel.player.getX() - gamePanel.player.getScreenX() &&
+                worldX - gamePanel.getTileSize() < gamePanel.player.getX() + gamePanel.player.getScreenX() &&
+                worldY + gamePanel.getTileSize() > gamePanel.player.getY() - gamePanel.player.getScreenY() &&
+                worldY - gamePanel.getTileSize() < gamePanel.player.getY() + gamePanel.player.getScreenY()) {
+                    if (tileNumber >= 0 && tileNumber < tile.length) {
+                        Tile drawThisTile = tile[tileNumber];
+                        if (drawThisTile != null && drawThisTile.isRenderable() && drawThisTile.getImage() != null) {
+                            graphics2D.drawImage(drawThisTile.getImage(), screenX, screenY, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+                        }
+                    }
+                }
+            tilePositionColumn++;
+            if (tilePositionColumn == gamePanel.getMaxWorldColumn()) {
+                tilePositionColumn = 0;
+                tilePositionRow++;
             }
         }
     }
 
-    public int getTileNumber (int column, int row) { return this.mapTileNumber[column][row]; }
-    public Tile getTile (int index) { return this.tile[index]; }
+    public int getTileNumber(int column, int row) { return this.mapTileNumber[column][row]; } 
+    public Tile getTile(int index) { return this.tile[index]; }
+
 }

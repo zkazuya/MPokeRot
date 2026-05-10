@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class MapLoader {
 
-    private static final String filepath = "Assets/Maps/Map-save-updated-final.txt";
+    private static final String filepath = "Assets/Maps/FinalMap - Map save updated final";
 
     public static int[][] loadMap() {
 
@@ -15,7 +15,7 @@ public class MapLoader {
             String line;
 
             while ((line = BR.readLine()) != null) {
-                String[] values = line.split(",");
+                String[] values = line.trim().split("\\s+");
 
                 int[] row = new int[values.length];
 

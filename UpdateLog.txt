@@ -107,6 +107,8 @@ java -cp "ClassFolders;Assets;." Main
     -Added a new key in the KeyHandler class which is "Space"
     -Added the animatons and looping the GIF on the intro of the game each time you start it
 
+<5/10/2026 (Carl)> 
+    -Map fixes and added the camera movement following the player on the center
 <5/10/2026 (Pj)>
     -Added changes on TitlePanel, mostly on the UI side
 
