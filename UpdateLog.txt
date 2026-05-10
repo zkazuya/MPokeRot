@@ -109,4 +109,7 @@ java -cp "ClassFolders;Assets;." Main
 
 <5/10/2026 (Carl)> 
     -Map fixes and added the camera movement following the player on the center
+<5/10/2026 (Pj)>
+    -Added changes on TitlePanel, mostly on the UI side
+
 // follow the format REMOVE THIS IF SMT IS ADDED
