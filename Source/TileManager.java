@@ -1,9 +1,9 @@
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import javax.imageio.ImageIO;
 
 public class TileManager {
@@ -185,16 +185,16 @@ public class TileManager {
             tile[37].setRenderable(true);
 
             tile[38] = new Tile();
-            tile[38].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/other corner tiles_0.png"))); // ROAD-INTERSECT-LOW-L
+            tile[38].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\other_corner_tiles_0.png"))); // ROAD-INTERSECT-LOW-L
 
             tile[39] = new Tile();
-            tile[39].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/other corner tiles_l.png"))); // ROAD-INTERSECT-LOW-R
+            tile[39].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\other_corner_tiles_1.png"))); // ROAD-INTERSECT-LOW-R
 
             tile[40] = new Tile();
-            tile[40].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/other corner tiles_2.png"))); // ROAD-INTERSECT-UP-L
+            tile[40].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\other_corner_tiles_2.png"))); // ROAD-INTERSECT-UP-L
 
             tile[41] = new Tile();
-            tile[41].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/other corner tiles_3.png"))); // ROAD-INTERSECT-UP-R
+            tile[41].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\other_corner_tiles_3.png"))); // ROAD-INTERSECT-UP-R
 
         } catch (IOException ioE) {
             ioE.printStackTrace();
@@ -433,17 +433,16 @@ public class TileManager {
             int tileNumber = mapTileNumber[column][row]; // tileNumber changes each loop, it loads from our 2D array
                                                          // which we set earlier
 
-            if (tileNumber < 0 || tileNumber >= tile.length)
-                continue;
-
+            if (tileNumber >= 0 && tileNumber <= tile.length){
+                
             Tile t = tile[tileNumber];
 
-            if (t == null || !t.isRenderable() || t.getImage() == null) {
-                continue;
+            if (t != null && t.isRenderable() && t.getImage() != null) {
+                graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(),
+                    null); // draw the tile we loaded
+                }
             }
 
-            graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(),
-                    null); // draw the tile we loaded
             column++; // go to next column
             x += gamePanel.getTileSize(); // this ensures drawing is 32x32 on the x-axis
             if (column == gamePanel.getMaxScreenColumn()) { // if reaches the rightmost column
