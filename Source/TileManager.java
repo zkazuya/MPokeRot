@@ -17,8 +17,9 @@ public class TileManager {
         mapTileNumber = new int[gamePanel.getMaxScreenColumn()][gamePanel.getMaxScreenRow()]; // TILE NUMBER'S MAX SIZE
                                                                                               // IS JUST THE WHOLE MAP
         getTileImage(); // PUTS EVERY TILE INTO THE ARRAY
-        loadMap("Assets/Maps/FinalMap - Map save updated final"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE METHODS
-                                                                  // COULD CALL THIS METHOD
+        loadMap("Assets/Maps/FinalMap - Map save updated final.txt"); // THIS METHOD IS LOADED ONCE, BUT SEPARATE
+                                                                      // METHODS
+        // COULD CALL THIS METHOD
     }
 
     public void getTileImage() {
@@ -214,14 +215,16 @@ public class TileManager {
                                                                                                    // coords do what's
                                                                                                    // inside
                 String line = bufferedReader.readLine(); // gets the whole row of numbers "1023424 of the map"
+                if (line == null) {
+                    break;
+                }
                 while (column < gamePanel.getMaxScreenColumn()) { // as long as column doesn't overlp max column
-                    String[] numbers = line.split(" "); // array of numbers as string split from spaces
+                    String[] numbers = line.trim().split("\\s+"); // array of numbers as string split from spaces
                     int currentNumber = Integer.parseInt(numbers[column]); // cast the specific string of
                                                                            // numbers[column] and store it (this changes
                                                                            // each loop)
-                    mapTileNumber[column][row] = currentNumber; // put that number as the map tile at specific
-                                                                // [column][row]
 
+                    int tileIndex = currentNumber;
                     switch (currentNumber) {
                         case 62: // big-tree
                             mapTileNumber[column][row] = 35;
@@ -398,7 +401,12 @@ public class TileManager {
                         case 95: // AS-BLDG-RIGHT-D-AC
                             mapTileNumber[column][row] = 20;
                             break;
+
+                        default:
+                            tileIndex = currentNumber;
                     }
+                    mapTileNumber[column][row] = tileIndex; // put that number as the map tile at specific
+                                                            // [column][row]
 
                     column++; // go to the next column and repeat (stops at max column)
                 }
@@ -424,6 +432,16 @@ public class TileManager {
                                                                                                // keep looping
             int tileNumber = mapTileNumber[column][row]; // tileNumber changes each loop, it loads from our 2D array
                                                          // which we set earlier
+
+            if (tileNumber < 0 || tileNumber >= tile.length)
+                continue;
+
+            Tile t = tile[tileNumber];
+
+            if (t == null || !t.isRenderable() || t.getImage() == null) {
+                continue;
+            }
+
             graphics2D.drawImage(tile[tileNumber].getImage(), x, y, gamePanel.getTileSize(), gamePanel.getTileSize(),
                     null); // draw the tile we loaded
             column++; // go to next column
