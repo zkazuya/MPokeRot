@@ -4,7 +4,7 @@ public class BattleSystem {
     private GamePanel gamePanel;
     private int optionSelected = 0; // START SELECTION AT TOP LEFT
     private int keyCooldown = 0; // GLOBAL COOLDOWN FROM SWITCHING KEYS
-    private int battleSubState = 0; // 0 = Main Menu, 1 = Move Menu, 2 = Message Queue
+    private int battleSubState = 0; 
     private String dialogText = ""; // THIS CHANGES ACCORDING TO FLOW
     private Move playerMoveToUse;
     private int expGainedThisBattle = 0; // TEMPORARILY STORE THIS VARIABLE ON EACH BATTLE

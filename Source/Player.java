@@ -11,12 +11,16 @@ public class Player extends Entity {
     private int pixelCounter = 0; // THIS VARIABLE IS IMPORTANT TO MAKE SURE WE GO EXACTLY ONE TILE EACH AWSD MOVEMENT
     private String direction = "down"; // DIRECTION THE PLAYER IS FACING
     private ArrayList <PokeRot> playerParty = new ArrayList<>();
+    private final int screenX;
+    private final int screenY;
 
     public Player (GamePanel gamePanel, KeyHandler keyHandler) {
+        screenX = gamePanel.getScreenWidth() / 2 - (gamePanel.getTileSize() / 2); // CENTER X POSITION OF SCREEN
+        screenY = gamePanel.getScreenHeight() / 2 - (gamePanel.getTileSize() / 2); // CENTER Y POSITION OF SCREEN
         this.gamePanel = gamePanel;
         this.keyHandler = keyHandler;
-        setX(0); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
-        setY(0); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setX(gamePanel.getTileSize() * 5); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setY(gamePanel.getTileSize() * 8); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
@@ -49,8 +53,8 @@ public class Player extends Entity {
             }
 
             // BOUNDARY CHECK, IF WE'RE GOING OUTSIDE THE MAP
-            if (targetColumn >= 0 && targetColumn < gamePanel.getMaxScreenColumn() &&
-                targetRow >= 0 && targetRow < gamePanel.getMaxScreenRow()) {
+            if (targetColumn >= 0 && targetColumn < gamePanel.getMaxWorldColumn() &&
+                targetRow >= 0 && targetRow < gamePanel.getMaxWorldRow()) {
                     // COLLISION CHECK, ARE WE STEPPING ON A TILE WITH COLLISION = FALSE?
                     int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
                     if (gamePanel.tileManager.getTile(targetTileID).getCollision() == false) isMoving = true;
@@ -114,7 +118,7 @@ public class Player extends Entity {
             case "left" -> image = leftSprites[spriteNumber];
             case "right" -> image = rightSprites[spriteNumber];
         }
-        graphics2D.drawImage(image, getX(), getY(), gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+        graphics2D.drawImage(image, screenX, screenY, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
     }
 
     public boolean hasUsablePokeRot () { // THIS METHOD IS USEFUL TO DETERMINE IF WE CAN STILL BATTLE OR NOT
@@ -140,5 +144,7 @@ public class Player extends Entity {
     }
 
     public ArrayList <PokeRot> getPlayerParty () { return this.playerParty; }
+    public int getScreenX () { return this.screenX; }
+    public int getScreenY () { return this.screenY; }
 
 }
