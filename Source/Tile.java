@@ -5,10 +5,38 @@ public class Tile {
     private boolean collision = false; // this sets if collision is true for specific tiles
     private boolean encounter = false; // if tile is encounterable with a pokerot
 
-    public boolean getEncounter () { return this.encounter; }
-    public BufferedImage getImage() { return this.image; }
-    public boolean getCollision () { return this.collision; }
-    public void setImage (BufferedImage image) { this.image = image; }
-    public void setCollision (boolean collision) { this.collision = collision; }
-    public void setEncounter (boolean encounter) { this.encounter = encounter; }
+    private boolean renderable = true; // used for multi tiles // false then skip drawing tile
+
+    public boolean getEncounter() {
+        return this.encounter;
+    }
+
+    public BufferedImage getImage() {
+        return this.image;
+    }
+
+    public boolean getCollision() {
+        return this.collision;
+    }
+
+    public boolean isRenderable() {
+        return this.renderable;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+    }
+
+    public void setEncounter(boolean encounter) {
+        this.encounter = encounter;
+    }
+
+    public void setRenderable(boolean renderable) {
+        this.renderable = renderable;
+    }
+
 }
