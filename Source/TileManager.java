@@ -30,6 +30,7 @@ public class TileManager {
             tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_09.png"))); // grass-with-rock
             tile[3] = new Tile();
             tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_14.png")));// grass-with-flower
+            tile[3].setRenderable(false);
             // corner road tiles
             tile[4] = new Tile();
             tile[4].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_0.png"))); // vert-LS-road
@@ -110,21 +111,21 @@ public class TileManager {
                     ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png"))); // big-bldg-67
             tile[27].setCollision(true);
             tile[27].setRenderable(true);
-            tile[27].setWidth(gamePanel.getTileSize() * 9); // edit
-            tile[27].setHeight(gamePanel.getTileSize() * 14);
+            tile[27].setWidth(gamePanel.getTileSize() * 7); // edit
+            tile[27].setHeight(gamePanel.getTileSize() * 12);
 
             tile[28] = new Tile();
             tile[28].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long)#3.png"))); // big-bldg-normal
             tile[28].setCollision(true);
             tile[28].setRenderable(true);
-            tile[28].setWidth(gamePanel.getTileSize() * 9);
-            tile[28].setHeight(gamePanel.getTileSize() * 14); // edited
+            tile[28].setWidth(gamePanel.getTileSize() * 7);
+            tile[28].setHeight(gamePanel.getTileSize() * 12); // edited
 
             tile[29] = new Tile();
             tile[29].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building_#2.png"))); // red-bldg-normal
             tile[29].setCollision(true);
             tile[29].setRenderable(true);
-            tile[29].setWidth(gamePanel.getTileSize() * 8);
+            tile[29].setWidth(gamePanel.getTileSize() * 7);
             tile[29].setHeight(gamePanel.getTileSize() * 5); // edited
 
             tile[30] = new Tile();
@@ -153,8 +154,8 @@ public class TileManager {
                     ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png"))); // oble-statue
             tile[33].setCollision(true);
             tile[33].setRenderable(true);
-            tile[33].setWidth(gamePanel.getTileSize() * 5);
-            tile[33].setHeight(gamePanel.getTileSize() * 7); // d
+            tile[33].setWidth(gamePanel.getTileSize() * 3);
+            tile[33].setHeight(gamePanel.getTileSize() * 6); // d
 
             tile[34] = new Tile();
             tile[34].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
@@ -175,7 +176,7 @@ public class TileManager {
             tile[36].setCollision(true);
             tile[36].setRenderable(true);
             tile[36].setWidth(gamePanel.getTileSize() * 2);
-            tile[36].setHeight(gamePanel.getTileSize() * 3 - 5); // d
+            tile[36].setHeight(gamePanel.getTileSize() * 3); // d
 
             tile[37] = new Tile();
             tile[37].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/SL_Building_Final.png"))); // AS-bldg-w/aircon
@@ -228,7 +229,7 @@ public class TileManager {
                         case 6 -> tileIndex = 2; // GRASS
                         case 9 -> tileIndex = 3; // GRASS WITH FLOWER
                         case 11 -> tileIndex = 2; // GRASS WITH ROCK
-                        case 13 -> tileIndex = 3; // GRASS WITH FLOWER
+                        case 13 -> tileIndex = 2; // GRASS WITH FLOWER
                         case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
                         case 55 -> tileIndex = 18; // NORMAL PATH
                         case 41 -> tileIndex = 6; // UP R
@@ -291,7 +292,18 @@ public class TileManager {
         while (tilePositionColumn < gamePanel.getMaxWorldColumn() && tilePositionRow < gamePanel.getMaxWorldRow()) {
             int tileNumber = mapTileNumber[tilePositionColumn][tilePositionRow]; // GETS WHAT TILE WE SHOULD DRAW THIS
                                                                                  // CHANGES EACH ITERATION
+            Tile drawThisTile = tile[tileNumber];
 
+            if (drawThisTile == null) {
+                tilePositionColumn++;
+
+                if (tilePositionColumn == gamePanel.getMaxWorldColumn()) {
+                    tilePositionColumn = 0;
+                    tilePositionRow++;
+                }
+
+                continue;
+            }
             // THESE WORLDX AND WORLDY ARE ABSOLUTE POSITION FOR THE TILES AND THEY DO NOT
             // CHANGE
             int worldX = tilePositionColumn * gamePanel.getTileSize(); // THIS IS THE EXACT PIXEL LOCATION OF THE TILE
@@ -305,21 +317,51 @@ public class TileManager {
                                                                                             // THE SCREEN
             int screenY = worldY - gamePanel.player.getY() + gamePanel.player.getScreenY(); // OFFSET BY THE PLAYER'S
                                                                                             // CURRENT POSITION
+            int renderBuffer = gamePanel.getTileSize() * 15;
 
-            if (worldX + gamePanel.getTileSize() > gamePanel.player.getX() - gamePanel.player.getScreenX() &&
-                    worldX - gamePanel.getTileSize() < gamePanel.player.getX() + gamePanel.player.getScreenX() &&
-                    worldY + gamePanel.getTileSize() > gamePanel.player.getY() - gamePanel.player.getScreenY() &&
-                    worldY - gamePanel.getTileSize() < gamePanel.player.getY() + gamePanel.player.getScreenY()) {
-                if (tileNumber >= 0 && tileNumber < tile.length) {
-                    Tile drawThisTile = tile[tileNumber];
-                    if (drawThisTile != null && drawThisTile.isRenderable() && drawThisTile.getImage() != null) {
-                        // graphics2D.drawImage(drawThisTile.getImage(), screenX, screenY,
-                        // gamePanel.getTileSize(),
-                        // gamePanel.getTileSize(), null);
-                        graphics2D.drawImage(
-                                drawThisTile.getImage(), screenX, screenY,
-                                drawThisTile.getWidth(), drawThisTile.getHeight(), null);
-                    }
+            // if (worldX + gamePanel.getTileSize() > gamePanel.player.getX() -
+            // gamePanel.player.getScreenX() &&
+            // worldX - gamePanel.getTileSize() < gamePanel.player.getX() +
+            // gamePanel.player.getScreenX() &&
+            // worldY + gamePanel.getTileSize() > gamePanel.player.getY() -
+            // gamePanel.player.getScreenY() &&
+            // worldY - gamePanel.getTileSize() < gamePanel.player.getY() +
+            // gamePanel.player.getScreenY()) {
+            int drawWidth = drawThisTile.getWidth() > 0
+                    ? drawThisTile.getWidth()
+                    : gamePanel.getTileSize();
+
+            int drawHeight = drawThisTile.getHeight() > 0
+                    ? drawThisTile.getHeight()
+                    : gamePanel.getTileSize();
+
+            if (worldX + drawWidth > gamePanel.player.getX() - gamePanel.player.getScreenX() - renderBuffer &&
+                    worldX - drawWidth < gamePanel.player.getX() + gamePanel.player.getScreenX() + renderBuffer &&
+                    worldY + drawHeight > gamePanel.player.getY() - gamePanel.player.getScreenY() - renderBuffer &&
+                    worldY - drawHeight < gamePanel.player.getY() + gamePanel.player.getScreenY() + renderBuffer) {
+
+                // if (tileNumber >= 0 && tileNumber < tile.length) {
+                // // Tile drawThisTile = tile[tileNumber];
+                // if (drawThisTile != null && drawThisTile.isRenderable() &&
+                // drawThisTile.getImage() != null) {
+                // // graphics2D.drawImage(drawThisTile.getImage(), screenX, screenY,
+                // // gamePanel.getTileSize(),
+                // // gamePanel.getTileSize(), null);
+                // graphics2D.drawImage(
+                // drawThisTile.getImage(), screenX, screenY,
+                // drawThisTile.getWidth(), drawThisTile.getHeight(), null);
+                // }
+                // }
+
+                if (drawThisTile.isRenderable() && drawThisTile.getImage() != null) {
+
+                    graphics2D.drawImage(
+                            drawThisTile.getImage(),
+                            screenX,
+                            screenY,
+                            drawWidth,
+                            drawHeight,
+                            null);
                 }
             }
             tilePositionColumn++;
