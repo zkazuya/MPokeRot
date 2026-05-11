@@ -10,7 +10,9 @@ public class TitlePanel {
     private int commandNum  =0;//default at option 0:create new game
     private boolean isOnSave = false;
     private boolean isOnLoad = false;
-
+    private boolean isTyping = false;
+    private String playerName = "";
+ 
 
     private ArrayList<BufferedImage> Ui = new ArrayList<>();
     private int keyCooldown;
@@ -24,6 +26,7 @@ public class TitlePanel {
     }
 
     public void update(KeyHandler keyHandler) {
+
         if (keyCooldown > 0){
             keyCooldown--;
         }else{
@@ -32,10 +35,12 @@ public class TitlePanel {
                 switch(commandNum){
                     case 0:
                         isOnSave = true;
+                        commandNum = 0;
                         keyCooldown = 8;
                         break;
                     case 1:
                         isOnLoad = true;
+                        commandNum = 1;
                         keyCooldown = 8;
                         //LOAD SAVED Game
                         break;
@@ -57,22 +62,45 @@ public class TitlePanel {
 
             //This is when you pick the Create new Save and where you have to enter your name
             else if(isOnSave == true){
-                if(keyHandler.getEnterPressed()){
-                    switch(commandNum){
-                        case 0: 
-                            gp.gameState = GameState.TALKINGSTATE;
-                            break;
+                if (commandNum == 0){
+                    keyHandler.setIfTypingTrue();
+                    isTyping = true; //toggles that the user will be typing and will softlock the user
+                    if (keyHandler.isCharTyped() && keyCooldown == 0){
+                        char c = keyHandler.getTypedChar();
+                        keyCooldown = 5;
+                        if (Character.isLetterOrDigit(c)){
+                            if(playerName.length() < 12){
+                                playerName += c;
+                                
+                            }
+                            
+                        }
+                        keyHandler.resetTypedChar();
+                        
+                    }
+                    if (keyHandler.getEnterPressed()){
+                        keyHandler.setIfTypingFalse();
+                        isTyping = false;
+                        commandNum = 1;
+                        keyCooldown = 8;
+                    }
+                }
+                else if(keyHandler.getEnterPressed() && isTyping == false){
+                    switch(commandNum){    
                         case 1: 
+                            gp.gameState = GameState.ROAMSTATE;
+                            break;
+                        case 2: 
                             isOnSave = false;
                             keyCooldown = 8;
                             break;
                     }
-                }else if (keyHandler.getDownPressed()){
-                    if (commandNum < 1){
+                }else if (keyHandler.getDownPressed() && isTyping == false){
+                    if (commandNum < 2){
                         commandNum++;
                         keyCooldown = 8;
                     }
-                }else if (keyHandler.getUpPressed()){
+                }else if (keyHandler.getUpPressed() && isTyping == false){
                     if (commandNum > 0){
                         commandNum--;
                         keyCooldown = 8;
@@ -81,19 +109,26 @@ public class TitlePanel {
             
             }
 
-            else if(isOnLoad == true){
+            else if((commandNum > 0 || commandNum < 4) && isOnLoad == true){
                 if(keyHandler.getEnterPressed()){
                     switch(commandNum){
                         case 0: 
                             gp.gameState = GameState.ROAMSTATE;
                             break;
-                        case 1: 
+                        case 1:
+                            gp.gameState = GameState.ROAMSTATE;
+                            break;
+                        case 2:
+                            gp.gameState = GameState.ROAMSTATE;
+                            break;
+                        case 3: 
                             isOnLoad = false;
                             keyCooldown = 8;
+                            commandNum = 0;
                             break;
                     }
                 }else if (keyHandler.getDownPressed()){
-                    if (commandNum < 1){
+                    if (commandNum < 3){
                         commandNum++;
                         keyCooldown = 8;
                     }
@@ -136,6 +171,11 @@ public class TitlePanel {
 
             g2.drawImage(Ui.get(8), gp.getScreenWidth() / 2 - 290, gp.getScreenHeight() / 2 - 64, width + 350, height + 20, null);
 
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Arial", Font.BOLD, 32));
+
+            g2.drawString(playerName, gp.getScreenWidth() / 2 - 200, gp.getScreenHeight() / 2 + 10);
+
             for(int i = 0; i < 2; i++){
                 int yB = yBase + (i * 80);//spacing 80
 
@@ -144,6 +184,27 @@ public class TitlePanel {
                     g2.drawImage(Ui.get(i + 12), xB, yB, width, height, null);
                 }else {
                     g2.drawImage(Ui.get(i + 10), xB, yB, width, height, null);
+                }
+            }
+        }else if (isOnLoad == true){
+            g2.drawImage(Ui.get(7), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
+
+            for (int i = 0; i < 4; i++){
+                int yB = (yBase + (i * 90) - 250); //pag center lang
+
+                if (commandNum == i){
+                    if(commandNum == 3){
+                    
+                    g2.drawImage(Ui.get(13), xB, yB + 50, width, height, null);
+                    }else {
+                    g2.drawImage(Ui.get(9), xB - 150, yB, width + 300, height + 50, null);
+                    }
+                }else {
+                    if (i == 3){
+                        g2.drawImage(Ui.get(11), xB, yB + 50, width, height, null);
+                    }else{
+                    g2.drawImage(Ui.get(8), xB - 150, yB, width + 300, height + 50, null);
+                    }
                 }
             }
         }
@@ -160,5 +221,13 @@ public class TitlePanel {
         } catch (IOException e) {
         }
     }
+
+    public void setTitleState(){
+        gp.gameState = GameState.TITLESCREEN;
+        isOnSave = false;
+        isOnLoad = false;
+        commandNum = 0;
+    }
+
     
 }

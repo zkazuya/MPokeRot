@@ -1,5 +1,5 @@
-import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     private boolean upPressed, downPressed, leftPressed, rightPressed;
@@ -8,9 +8,17 @@ public class KeyHandler implements KeyListener {
     private boolean fPressed; // DIALOGUE INTERACTION KEY
     private boolean spacePressed; 
     private boolean shiftPressed; 
+    private char typedChar;
+    private boolean charTyped;
+    private boolean ifTyping = false;
 
     @Override
-    public void keyTyped (KeyEvent input) {} // NOT USED BUT MUST BE IMPORTED
+    public void keyTyped (KeyEvent input) {
+        if (ifTyping){
+        typedChar = input.getKeyChar();
+        charTyped = true;
+        }
+    } // NOT USED BUT MUST BE IMPORTED
 
     @Override
     public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HOLD
@@ -53,4 +61,9 @@ public class KeyHandler implements KeyListener {
     public boolean getFPressed () { return this.fPressed; }
     public boolean getSpacePressed () { return this.spacePressed; }
     public boolean getShiftPressed () { return this.shiftPressed; }
+    public boolean isCharTyped() { return charTyped; }
+    public char getTypedChar() { return typedChar; }
+    public boolean resetTypedChar() { return charTyped = false; }
+    public boolean setIfTypingTrue() { return ifTyping = true; }
+    public boolean setIfTypingFalse() { return ifTyping = false;}
 }

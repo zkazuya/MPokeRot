@@ -8,6 +8,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 32; // each tile is 32x32 pixels without scale
     private final int tileScale = 2; // triples every 32x32 pixel tiles
     private final int tileSize = originalTileSize * tileScale; // actual tile size rendered is 96x96 pixels
+    private final int playerScale = 3; //pinalaki yung player
+    private final int playerSize = (32 * playerScale) - originalTileSize/2; //pinalaki yung player
     private final int maxScreenColumn = 16; // there is 16 tiles horizontally
     private final int maxScreenRow = 12; // there is 12 tiles vertically
     private final int screenWidth = tileSize * maxScreenColumn; // final resolution is 1536 pixels wide
@@ -75,6 +77,9 @@ public class GamePanel extends JPanel implements Runnable {
             player.update(); // update player movement and draw
             encounterManager.update();
             pauseClass.update(keyHandler);
+            if(keyHandler.getEscPressed()){
+                titlePanel.setTitleState();
+            }
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
         } else if (gameState == GameState.PAUSESTATE) {
@@ -124,5 +129,6 @@ public class GamePanel extends JPanel implements Runnable {
     public int getWorldY () { return this.worldY; }
     public int getMaxWorldColumn () { return this.maxWorldColumn; }
     public int getMaxWorldRow () { return this.maxWorldRow; }
+    public int getPlayerSize() { return this.playerSize; }
 
 }
