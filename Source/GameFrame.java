@@ -15,13 +15,13 @@ public class GameFrame extends JFrame {
         setResizable(false);
         setTitle("PokeRot");
         gamePanel = new GamePanel(this);
-        gameIntro = new GameIntro(this);// has "this" so that the Panels will have access to changing panels  "switchPanel()"
+        //gameIntro = new GameIntro(this);// has "this" so that the Panels will have access to changing panels  "switchPanel()"
 
         switcher = new CardLayout();
 
         switcherPanel = new JPanel(switcher);
 
-        switcherPanel.add(gameIntro, "Intro"); // assigning them names, so that we can easily switch with them later on
+        //switcherPanel.add(gameIntro, "Intro"); // assigning them names, so that we can easily switch with them later on
         switcherPanel.add(gamePanel, "Game");
 
         add(switcherPanel);
