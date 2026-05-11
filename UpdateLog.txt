@@ -111,6 +111,12 @@ java -cp "ClassFolders;Assets;." Main
     -Map fixes and added the camera movement following the player on the center
 <5/10/2026 (Pj)>
     -Added changes on TitlePanel, mostly on the UI side
+<5/10/2026 (Therese)>
+    -Added setters to keyhandler
+    -Commmented out intro animation in GameFrame class for faster testing, will head on to main menu once game is opened
+    -ISSUE: When gameState is switched back to title panel, shouldn't it be showing main menu(Start Game, Load, Exit)? Nashow la kasi hiya an part na nga naaro username
+    -Added pause class, paused when esc is pressed
+    -Game is only pauseable(pauseable?) when in roamstate
 
 <5/11/2026 (Carl)>
     -Run is now smoother and added a bunch of corresponding dialogs to specific events
