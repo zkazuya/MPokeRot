@@ -21,7 +21,7 @@ public class Player extends Entity {
         this.keyHandler = keyHandler;
         setX(gamePanel.getTileSize() * 15); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setY(gamePanel.getTileSize() * 8); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
-        setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
+        setSpeed(20); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
         PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
@@ -142,7 +142,7 @@ public class Player extends Entity {
                 int playerRow = getY() / gamePanel.getTileSize();
                 int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow);
 
-                if (currentTileID == 3 || currentTileID == 13 || currentTileID == 16) {
+                if (currentTileID == 0 || currentTileID == 42) {
                     gamePanel.encounterManager.checkEncounter();
                 }
             }
@@ -203,7 +203,7 @@ public class Player extends Entity {
 
     public void triggerBlackout () { // THIS METHOD IS TRIGGERED IN BATTLE SYSTEM WHEN ALL OUR POKEROT DIES
         this.setX(gamePanel.getTileSize() * 8); // THE PLAYER SPAWNS BACK TO 0, 0 (X, Y) RESPECTIVELY
-        this.setY(gamePanel.getTileSize() * 5); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
+        this.setY(gamePanel.getTileSize() * 10); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
         if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
         while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
         gamePanel.gameState = GameState.TALKINGSTATE;

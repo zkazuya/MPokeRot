@@ -14,8 +14,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxScreenRow = 12; // there is 12 tiles vertically
     private final int screenWidth = tileSize * maxScreenColumn; // final resolution is 1536 pixels wide
     private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
-    private final int maxWorldColumn = 80; // TOTAL COLUMNS WIDE THE MAP
-    private final int maxWorldRow = 80; // TOTAL ROW WIDE THE MAP
+    private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
+    private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
 
     private int worldX;
