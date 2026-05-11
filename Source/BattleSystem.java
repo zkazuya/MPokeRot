@@ -26,7 +26,7 @@ public class BattleSystem {
         this.activeEnemyParty = enemyParty;
         this.currentNPCOpponent = opponent;
 
-        this.activePlayer = gamePanel.player.getFirstAlivePokeRot();
+        this.activePlayer = gamePanel.getPlayer().getFirstAlivePokeRot();
         this.activeEnemy = getFirstAliveEnemyPokeRot();
         this.battleSubState = 0;
         this.optionSelected = 0;
@@ -206,8 +206,8 @@ public class BattleSystem {
                     return;
                 }
                 if (gamePanel.keyHandler.getEnterPressed() && keyCooldown == 0) {
-                    if (gamePanel.player.hasUsablePokeRot()) {
-                        PokeRot nextBackup = gamePanel.player.getFirstAlivePokeRot();
+                    if (gamePanel.getPlayer().hasUsablePokeRot()) {
+                        PokeRot nextBackup = gamePanel.getPlayer().getFirstAlivePokeRot();
                         dialogText = "Swapping to the next PokeRot in your bag! Go, " + nextBackup.getName() + "!";
                         activePlayer = nextBackup;
                         keyCooldown = 16;
@@ -252,7 +252,7 @@ public class BattleSystem {
             battleSubState = 0; // GO BACK TO MAIN MENU
             optionSelected = 0; // RESET CURSOR TOP LEFT
             gamePanel.encounterManager.startCooldown(120);
-            gamePanel.player.triggerBlackout();
+            gamePanel.getPlayer().triggerBlackout();
             keyCooldown = 16;
         }
     }
@@ -313,7 +313,7 @@ public class BattleSystem {
         }
 
         if (gamePanel.keyHandler.getEnterPressed()) {
-            ArrayList <PokeRot> party = gamePanel.player.getPlayerParty(); // GET A COPY OF THE PLAYER'S PARTY
+            ArrayList <PokeRot> party = gamePanel.getPlayer().getPlayerParty(); // GET A COPY OF THE PLAYER'S PARTY
             if (optionSelected < party.size()) {
                 PokeRot selectedRot = party.get(optionSelected);
                 if (selectedRot == activePlayer) dialogText = selectedRot.getName() + " is already in battle!";
@@ -365,7 +365,7 @@ public class BattleSystem {
                     double finalCatchChance = 60.0 + (20.0 * missingHPRatio);
                     int roll = (int) (Math.random() * 100);
                     if (roll < finalCatchChance) { // SUCCESS
-                        ArrayList <PokeRot> playerParty = gamePanel.player.getPlayerParty();
+                        ArrayList <PokeRot> playerParty = gamePanel.getPlayer().getPlayerParty();
                         if (playerParty.size() < 3) { // IF PARTY IS STILL NOT FULL
                             playerParty.add(activeEnemy);
                             dialogText = "All right! " + activeEnemy.getName() + " was caught with the Plunger!";

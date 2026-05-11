@@ -1,7 +1,7 @@
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 public class NPC extends Entity{
     int type; // INDEX OF THE NPCS IN THE ARRAY OF NPC
@@ -49,13 +49,13 @@ public class NPC extends Entity{
 
     public void draw(Graphics2D g2) {
         if (downSprites[type]!= null) {
-            int screenX = x - gamePanel.player.getX() + gamePanel.player.getScreenX();
-            int screenY = y - gamePanel.player.getY() + gamePanel.player.getScreenY();
+            int screenX = x - gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX();
+            int screenY = y - gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY();
 
-            if (x + gamePanel.getTileSize() > gamePanel.player.getX() - gamePanel.player.getScreenX() &&
-                x - gamePanel.getTileSize() < gamePanel.player.getX() + gamePanel.player.getScreenX() &&
-                y + gamePanel.getTileSize() > gamePanel.player.getY() - gamePanel.player.getScreenY() &&
-                y - gamePanel.getTileSize() < gamePanel.player.getY() + gamePanel.player.getScreenY()) {
+            if (x + gamePanel.getTileSize() > gamePanel.getPlayer().getX() - gamePanel.getPlayer().getScreenX() &&
+                x - gamePanel.getTileSize() < gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX() &&
+                y + gamePanel.getTileSize() > gamePanel.getPlayer().getY() - gamePanel.getPlayer().getScreenY() &&
+                y - gamePanel.getTileSize() < gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY()) {
                     g2.drawImage(downSprites[type], screenX, screenY, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
             }
         }

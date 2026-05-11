@@ -87,6 +87,9 @@ public class Pause{
                     //pokerots tehehe
                     break;
                 case 2: //save ga,e
+                    System.out.println(gp.titlePanel.getSlotNumber());
+                    SaveLoadFiles.saveRightNow(gp, gp.titlePanel.getSlotNumber());
+
                     break;
                 case 3: //main menu
                     //gp.gameState=GameState.TITLESCREEN;  //may issue

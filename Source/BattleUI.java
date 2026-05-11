@@ -1,12 +1,12 @@
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 public class BattleUI {
     private GamePanel gamePanel;
@@ -123,7 +123,7 @@ public class BattleUI {
             if (gamePanel.battleSystem.getCurrentMessage().isEmpty()) graphics2D.drawString("Swap with who?", textX, textY);
             else graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
         graphics2D.setFont(moveFont); // USING SMALLER FONT TO FIT NAMES AND HP
-        ArrayList <PokeRot> party = gamePanel.player.getPlayerParty();
+        ArrayList <PokeRot> party = gamePanel.getPlayer().getPlayerParty();
 
         int swapMenuX = rightBoxX + (tileSize / 2);
         int swapXSpace = (int) (tileSize * 2.3);
