@@ -53,4 +53,15 @@ public class KeyHandler implements KeyListener {
     public boolean getFPressed () { return this.fPressed; }
     public boolean getSpacePressed () { return this.spacePressed; }
     public boolean getShiftPressed () { return this.shiftPressed; }
+
+    //setters pleek pleek
+    public void setUpPressed(boolean upPressed) { this.upPressed = upPressed; }
+    public void setDownPressed(boolean downPressed) { this.downPressed = downPressed; }
+    public void setLeftPressed(boolean leftPressed) { this.leftPressed = leftPressed; }
+    public void setRightPressed(boolean rightPressed) { this.rightPressed = rightPressed; }
+    public void setEnterPressed(boolean enterPressed) { this.enterPressed = enterPressed; }
+    public void setEscPressed(boolean escPressed) { this.escPressed = escPressed; }
+    public void setFPressed(boolean fPressed) { this.fPressed = fPressed; }
+    public void setSpacePressed(boolean spacePressed) { this.spacePressed = spacePressed; }
+    public void setShiftPressed(boolean shiftPressed) { this.shiftPressed = shiftPressed; }
 }
