@@ -12,8 +12,8 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxScreenRow = 12; // there is 12 tiles vertically
     private final int screenWidth = tileSize * maxScreenColumn; // final resolution is 1536 pixels wide
     private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
-    private final int maxWorldColumn = 80; // TOTAL COLUMNS WIDE THE MAP
-    private final int maxWorldRow = 80; // TOTAL ROW WIDE THE MAP
+    private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
+    private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
 
     private int worldX;
@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
     Pause pauseClass;
     NPC[] npc = new NPC[5];
 
-    public GamePanel (GameFrame frame) {
+    public GamePanel(GameFrame frame) {
         this.frame = frame;
         this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // sets the size to fit screen
         this.setBackground(Color.BLACK); // whole canvas is black by default
@@ -45,15 +45,16 @@ public class GamePanel extends JPanel implements Runnable {
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
-    public void startGameThread () {
+    public void startGameThread() {
         gameThread = new Thread(this); // make a new thread when this method is called
         gameThread.start(); // run that thread's .start() method
 
     }
 
     @Override // override the run abstract method of the Runnable interface
-    public void run () {
-        double drawInterval = 1000000000 / FPS; // 1 billion nanoseconds (1 second) divided by 60, this simulates 60 actions in a second
+    public void run() {
+        double drawInterval = 1000000000 / FPS; // 1 billion nanoseconds (1 second) divided by 60, this simulates 60
+                                                // actions in a second
         double delta = 0; // will keep track of how much time has passed
         long lastTime = System.nanoTime(); // stores the timestamp of the previous iteration
         long currentTime; // stores the timestamp of the current iteration
@@ -70,7 +71,7 @@ public class GamePanel extends JPanel implements Runnable {
         } // this happens so fast that we can't even see it in action but it works
     }
 
-    public void update () { // this method is responsible for updating all the entity coords
+    public void update() { // this method is responsible for updating all the entity coords
         if (gameState == GameState.ROAMSTATE) { // if current state is in roaming state keep calling these
             player.update(); // update player movement and draw
             encounterManager.update();
@@ -86,17 +87,17 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
-    public void paintComponent (Graphics graphics) {
+    public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
         Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
-        
+
         if (gameState == GameState.ROAMSTATE) {
             tileManager.draw(graphics2D);
             player.draw(graphics2D);
         } else if (gameState == GameState.BATTLESTATE) {
             battleUI.drawBattleScreen(graphics2D);
         } else if (gameState == GameState.PAUSESTATE) {
-            pauseClass.draw(graphics2D); 
+            pauseClass.draw(graphics2D);
         } else if (gameState == GameState.TALKINGSTATE) {
             tileManager.draw(graphics2D);
             player.draw(graphics2D);
@@ -115,14 +116,40 @@ public class GamePanel extends JPanel implements Runnable {
         npc[4] = new NPC(620, 100, 4);
     }
 
-    public int getMaxScreenColumn () { return this.maxScreenColumn; }
-    public int getMaxScreenRow () { return this.maxScreenRow; }
-    public int getTileSize () { return this.tileSize; }
-    public int getScreenHeight () { return this.screenHeight; }
-    public int getScreenWidth () { return this.screenWidth; }
-    public int getWorldX () { return this.worldX; }
-    public int getWorldY () { return this.worldY; }
-    public int getMaxWorldColumn () { return this.maxWorldColumn; }
-    public int getMaxWorldRow () { return this.maxWorldRow; }
+    public int getMaxScreenColumn() {
+        return this.maxScreenColumn;
+    }
+
+    public int getMaxScreenRow() {
+        return this.maxScreenRow;
+    }
+
+    public int getTileSize() {
+        return this.tileSize;
+    }
+
+    public int getScreenHeight() {
+        return this.screenHeight;
+    }
+
+    public int getScreenWidth() {
+        return this.screenWidth;
+    }
+
+    public int getWorldX() {
+        return this.worldX;
+    }
+
+    public int getWorldY() {
+        return this.worldY;
+    }
+
+    public int getMaxWorldColumn() {
+        return this.maxWorldColumn;
+    }
+
+    public int getMaxWorldRow() {
+        return this.maxWorldRow;
+    }
 
 }

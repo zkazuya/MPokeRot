@@ -1,34 +1,35 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
+// import java.io.BufferedReader;
+// import java.io.FileReader;
+// import java.io.IOException;
+// import java.util.ArrayList;
 
-public class MapLoader {
+// public class MapLoader {
 
-    private static final String filepath = "Assets/Maps/FinalMap - Map save updated final";
+// private static final String filepath = "Assets/Maps/FinalMap - Map save
+// updated final";
 
-    public static int[][] loadMap() {
+// public static int[][] loadMap() {
 
-        ArrayList<int[]> rows = new ArrayList<>();
+// ArrayList<int[]> rows = new ArrayList<>();
 
-        try (BufferedReader BR = new BufferedReader(new FileReader(filepath))) {
-            String line;
+// try (BufferedReader BR = new BufferedReader(new FileReader(filepath))) {
+// String line;
 
-            while ((line = BR.readLine()) != null) {
-                String[] values = line.trim().split("\\s+");
+// while ((line = BR.readLine()) != null) {
+// String[] values = line.trim().split("\\s+");
 
-                int[] row = new int[values.length];
+// int[] row = new int[values.length];
 
-                for (int i = 0; i < values.length; i++) {
-                    row[i] = Integer.parseInt(values[i]);
-                }
-                rows.add(row);
-            }
+// for (int i = 0; i < values.length; i++) {
+// row[i] = Integer.parseInt(values[i]);
+// }
+// rows.add(row);
+// }
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+// } catch (IOException e) {
+// e.printStackTrace();
+// }
 
-        return rows.toArray(new int[0][]);
-    }
-}
+// return rows.toArray(new int[0][]);
+// }
+// }
