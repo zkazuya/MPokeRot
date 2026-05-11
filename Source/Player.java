@@ -19,7 +19,7 @@ public class Player extends Entity {
         screenY = gamePanel.getScreenHeight() / 2 - (gamePanel.getTileSize() / 2); // CENTER Y POSITION OF SCREEN
         this.gamePanel = gamePanel;
         this.keyHandler = keyHandler;
-        setX(gamePanel.getTileSize() * 5); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setX(gamePanel.getTileSize() * 15); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setY(gamePanel.getTileSize() * 8); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED

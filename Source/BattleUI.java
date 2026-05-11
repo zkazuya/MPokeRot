@@ -191,7 +191,7 @@ public class BattleUI {
     // THIS METHOD IS RESPONSIBLE FOR CHANGING THE UI POKEROT TO WHOMEVER IS FIGHTING, IT CHANGES
     public void loadFighterImages (PokeRot player, PokeRot enemy) {
         try {
-            String playerFileName = player.getName().replace(" ", "_") + ".png";
+            String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
             String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
 
             playerRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + playerFileName));
