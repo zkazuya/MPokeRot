@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
     TitlePanel titlePanel = new TitlePanel(this);
     Pause pauseClass = new Pause(this);
     EncounterManager encounterManager = new EncounterManager(this, player);
-    NPC[] npc = new NPC[5];
+    NPCManager npcManager = new NPCManager(this);
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
@@ -44,6 +44,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
+        npcManager.setUpNPC();
     }
 
     public void startGameThread () {
@@ -96,6 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         if (gameState == GameState.ROAMSTATE) {
             tileManager.draw(graphics2D);
+            npcManager.draw(graphics2D);
             player.draw(graphics2D);
         } else if (gameState == GameState.BATTLESTATE) {
             battleUI.drawBattleScreen(graphics2D);
@@ -111,14 +113,6 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.draw(graphics2D);
         }
         graphics2D.dispose(); // saves memory
-    }
-
-    public void setUpNpc() {
-        npc[0] = new NPC(500, 300, 0);
-        npc[1] = new NPC(440, 320, 1);
-        npc[2] = new NPC(800, 600, 2);
-        npc[3] = new NPC(15, 400, 3);
-        npc[4] = new NPC(620, 100, 4);
     }
 
     public int getMaxScreenColumn () { return this.maxScreenColumn; }

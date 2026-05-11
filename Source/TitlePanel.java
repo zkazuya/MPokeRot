@@ -40,6 +40,8 @@ public class TitlePanel {
             if (keyHandler.getEnterPressed()) {
                 switch(commandNum){
                     case 0:
+                        String[] intro = {"Welcome to UP!", "The CS building's servers just leaked! Pokerots are everywhere!, Stay wake and catch them all before the pokerots go viral!"};
+                        gp.dialogue.startDialogue(intro, null);
                         isOnSave = true;
                         commandNum = 1;
                         keyCooldown = 8;

@@ -19,21 +19,55 @@ public class Player extends Entity {
         screenY = gamePanel.getScreenHeight() / 2 - (gamePanel.getTileSize() / 2); // CENTER Y POSITION OF SCREEN
         this.gamePanel = gamePanel;
         this.keyHandler = keyHandler;
-        setX(gamePanel.getTileSize() * 5); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setX(gamePanel.getTileSize() * 15); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setY(gamePanel.getTileSize() * 8); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
-        PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Skibidi Toilet");
-        PokeRot secondPokeRot = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
+        PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
+        PokeRot secondPokeRot = gamePanel.pokeRotRegistry.getSpecificPokeRot("Udin Din Din Dun");
         if (starterOne != null) playerParty.add(starterOne);
         if (secondPokeRot != null) playerParty.add(secondPokeRot);
     }
 
-    public void update () {
+    public void update() {
+
+        if (keyHandler.getFPressed() && !isMoving) { // IF PRESSED F AND NOT MOVING
+            keyHandler.setFPressed(false); // CONSUME THE KEY SO IT DOESN'T SPAM
+
+            int playerColumn = getX() / gamePanel.getTileSize();
+            int playerRow = getY() / gamePanel.getTileSize();
+
+            int facingColumn = playerColumn;
+            int facingRow = playerRow;
+
+            switch (direction) {
+                case "up" -> facingRow--;
+                case "down" -> facingRow++;
+                case "left" -> facingColumn--;
+                case "right" -> facingColumn++;
+            }
+
+            for (NPC targetNPC : gamePanel.npcManager.npc) {
+                if (targetNPC != null) {
+                    int npcColumn = targetNPC.getX() / gamePanel.getTileSize();
+                    int npcRow = targetNPC.getY() / gamePanel.getTileSize();
+
+                    if (facingColumn == npcColumn && facingRow == npcRow) {
+                        if (targetNPC.isDefeated()) {
+                            gamePanel.dialogue.startDialogue(targetNPC.getPostBattleDialogue(), targetNPC);
+                        } else {
+                            gamePanel.dialogue.startDialogue(targetNPC.getPreBattleDialogue(), targetNPC);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         if (isMoving == false) { // IF WE ARE NOT MOVING, DECIDE OUR CURRENT DIRECTION
-            if (keyHandler.getUpPressed()) direction = "up"; 
-            else if (keyHandler.getDownPressed()) direction = "down"; 
+            if (keyHandler.getUpPressed()) direction = "up";
+            else if (keyHandler.getDownPressed()) direction = "down";
             else if (keyHandler.getLeftPressed()) direction = "left";
             else if (keyHandler.getRightPressed()) direction = "right";
             else spriteNumber = 0;
@@ -42,10 +76,11 @@ public class Player extends Entity {
         
 
         boolean upDownRightLeft = keyHandler.getUpPressed() || keyHandler.getDownPressed() || keyHandler.getLeftPressed() || keyHandler.getRightPressed();
-        if (upDownRightLeft) {
+        if (upDownRightLeft && !isMoving) {
             // FIGURE OUT WHICH COORDINATE WE'RE STANDING ON
             int targetColumn = getX() / gamePanel.getTileSize();
             int targetRow = getY() / gamePanel.getTileSize();
+
             // PREDICT WHERE WE ARE GOING TO STEP NEXT BASED ON DIRECTION
             switch (direction) {
                 case "up" -> targetRow--;
@@ -56,24 +91,46 @@ public class Player extends Entity {
 
             // BOUNDARY CHECK, IF WE'RE GOING OUTSIDE THE MAP
             if (targetColumn >= 0 && targetColumn < gamePanel.getMaxWorldColumn() &&
-                targetRow >= 0 && targetRow < gamePanel.getMaxWorldRow()) {
-                    // COLLISION CHECK, ARE WE STEPPING ON A TILE WITH COLLISION = FALSE?
-                    int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
-                    if (gamePanel.tileManager.getTile(targetTileID).getCollision() == false) isMoving = true;
+                    targetRow >= 0 && targetRow < gamePanel.getMaxWorldRow()) {
+
+                // TILE COLLISION CHECK
+                int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
+                boolean tileCollision = gamePanel.tileManager.getTile(targetTileID).getCollision();
+
+                // NPC COLLISION CHECK
+                boolean npcCollisionCheck = false;
+                for (NPC targetNPC : gamePanel.npcManager.npc) {
+                    if (targetNPC != null) {
+                        int npcColumn = targetNPC.getX() / gamePanel.getTileSize();
+                        int npcRow = targetNPC.getY() / gamePanel.getTileSize();
+                        if (targetColumn == npcColumn && targetRow == npcRow) {
+                            npcCollisionCheck = true; // WE FOUND AN NPC IN THE WAY
+                            break;
+                        }
+                    }
                 }
+                if (tileCollision == false && npcCollisionCheck == false) {
+                    isMoving = true;
+                }
+            }
         }
 
-        if (isMoving) { // IF WE ARE MOVING IGNORE INPUT UNTIL WE WALK EXACTLY ONE TILE (THIS DISABLES BEING 1/2 OR 1/3 INSIDE A TILE)
-            if (direction.equals("up")) setY(getY() - getSpeed()); // IF W PRESSED MOVE Y UP
-            if (direction.equals("down")) setY(getY() + getSpeed()); // IF S PRESSED MOVE Y DOWN
-            if (direction.equals("left")) setX(getX() - getSpeed()); // IF A PRESSED MOVE X TO LEFT
-            if (direction.equals("right")) setX(getX() + getSpeed()); // IF D PRESSED MOVE X TO RIGHT
-            pixelCounter += getSpeed(); // INCREASE PIXELCOUNTER BY SPEED UNTIL IT HITS ONE TILE
+        if (isMoving) { // IF WE ARE MOVING IGNORE INPUT UNTIL WE WALK EXACTLY ONE TILE
+            if (direction.equals("up"))
+                setY(getY() - getSpeed());
+            if (direction.equals("down"))
+                setY(getY() + getSpeed());
+            if (direction.equals("left"))
+                setX(getX() - getSpeed());
+            if (direction.equals("right"))
+                setX(getX() + getSpeed());
+            pixelCounter += getSpeed();
 
             spriteCounter++;
             if (spriteCounter > getAnimationSpeed()) {
                 spriteNumber++;
-                if (spriteNumber > 3) spriteNumber = 0;
+                if (spriteNumber > 3)
+                    spriteNumber = 0;
                 spriteCounter = 0;
             }
 
@@ -81,10 +138,13 @@ public class Player extends Entity {
                 isMoving = false; // UNLOCK LISTENER AGAIN
                 pixelCounter = 0; // RESET IT TO COUNT AGAIN
 
-                int playerColumn = getX() / gamePanel.getTileSize(); // CALCULATE THE COLUMN THE PLAYER FULLY STEPPED ON
-                int playerRow = getY() / gamePanel.getTileSize(); // CALCULATE THE ROW THE PLAYER FULLY STEPPED ON
-                int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow); // GET THE CURRENT TILE NUMBER OF THAT STEPPED TILE
-                if (currentTileID == 3) gamePanel.encounterManager.checkEncounter(); // IF STEPPING ON THAT TILE CALL CHECKENCOUNTER()
+                int playerColumn = getX() / gamePanel.getTileSize();
+                int playerRow = getY() / gamePanel.getTileSize();
+                int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow);
+
+                if (currentTileID == 3 || currentTileID == 13 || currentTileID == 16) {
+                    gamePanel.encounterManager.checkEncounter();
+                }
             }
         }
     }
@@ -120,7 +180,11 @@ public class Player extends Entity {
             case "left" -> image = leftSprites[spriteNumber];
             case "right" -> image = rightSprites[spriteNumber];
         }
-        graphics2D.drawImage(image, screenX, screenY, gamePanel.getPlayerSize(), gamePanel.getPlayerSize(), null);
+
+        int visualSize = (int) (gamePanel.getTileSize() * 1.2);
+        int offSet = (gamePanel.getTileSize() - visualSize) / 2;
+        graphics2D.drawImage(image, screenX + offSet, screenY + offSet, visualSize, visualSize, null);
+
     }
 
     public boolean hasUsablePokeRot () { // THIS METHOD IS USEFUL TO DETERMINE IF WE CAN STILL BATTLE OR NOT
