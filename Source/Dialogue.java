@@ -43,7 +43,6 @@ public class Dialogue {
     public void draw(Graphics2D g2) {
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 20));
-        // g2.drawString("CONTROLS: Press 'X' to Talk | 'ENTER' to Advance", 180, 250);
         if (gameState == dialogueState) {
             if (!doneIntro) {
                 drawIntroDialogueWindow(g2);

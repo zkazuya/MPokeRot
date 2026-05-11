@@ -60,7 +60,7 @@ public class TitlePanel {
                 if(keyHandler.getEnterPressed()){
                     switch(commandNum){
                         case 0: 
-                            gp.gameState = GameState.ROAMSTATE;
+                            gp.gameState = GameState.TALKINGSTATE;
                             break;
                         case 1: 
                             isOnSave = false;
