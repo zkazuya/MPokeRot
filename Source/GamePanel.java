@@ -30,8 +30,8 @@ public class GamePanel extends JPanel implements Runnable {
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
+    Pause pauseClass = new Pause(this);
     EncounterManager encounterManager = new EncounterManager(this, player);
-    Pause pauseClass;
     NPC[] npc = new NPC[5];
 
     public GamePanel(GameFrame frame) {
@@ -41,7 +41,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        pauseClass = new Pause(this);
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 

@@ -89,64 +89,64 @@ public class TileManager {
             tile[24].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_1.png"))); // AS-bldg-right-door
             tile[24].setCollision(true);
             tile[24].setRenderable(true);
-            tile[24].setWidth(gamePanel.getTileSize() * 22);
-            tile[24].setHeight(gamePanel.getTileSize() * 9);
+            tile[24].setWidth(gamePanel.getTileSize() * 15);
+            tile[24].setHeight(gamePanel.getTileSize() * 6);
 
             tile[25] = new Tile();
             tile[25].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_2.png"))); // AS-bldg-left-door
             tile[25].setCollision(true);
             tile[25].setRenderable(true);
-            tile[25].setWidth(gamePanel.getTileSize() * 22);
-            tile[25].setHeight(gamePanel.getTileSize() * 9);
+            tile[25].setWidth(gamePanel.getTileSize() * 15);
+            tile[25].setHeight(gamePanel.getTileSize() * 6);
 
             tile[26] = new Tile();
             tile[26].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Basketball_Court.png"))); // bball-court
             tile[26].setRenderable(true);
-            tile[26].setWidth(gamePanel.getTileSize() * 28);
-            tile[26].setHeight(gamePanel.getTileSize() * 15);
+            tile[26].setWidth(gamePanel.getTileSize() * 20);
+            tile[26].setHeight(gamePanel.getTileSize() * 10);
 
             tile[27] = new Tile();
             tile[27].setImage(
                     ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png"))); // big-bldg-67
             tile[27].setCollision(true);
             tile[27].setRenderable(true);
-            tile[27].setWidth(gamePanel.getTileSize() * 11);
-            tile[27].setHeight(gamePanel.getTileSize() * 18);
+            tile[27].setWidth(gamePanel.getTileSize() * 9); // edit
+            tile[27].setHeight(gamePanel.getTileSize() * 14);
 
             tile[28] = new Tile();
             tile[28].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long)#3.png"))); // big-bldg-normal
             tile[28].setCollision(true);
             tile[28].setRenderable(true);
-            tile[28].setWidth(gamePanel.getTileSize() * 11);
-            tile[28].setHeight(gamePanel.getTileSize() * 18);
+            tile[28].setWidth(gamePanel.getTileSize() * 9);
+            tile[28].setHeight(gamePanel.getTileSize() * 14); // edited
 
             tile[29] = new Tile();
             tile[29].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building_#2.png"))); // red-bldg-normal
             tile[29].setCollision(true);
             tile[29].setRenderable(true);
-            tile[29].setWidth(gamePanel.getTileSize() * 11);
-            tile[29].setHeight(gamePanel.getTileSize() * 9);
+            tile[29].setWidth(gamePanel.getTileSize() * 8);
+            tile[29].setHeight(gamePanel.getTileSize() * 5); // edited
 
             tile[30] = new Tile();
             tile[30].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_0.png"))); // class-room-3-window
             tile[30].setCollision(true);
             tile[30].setRenderable(true);
-            tile[30].setWidth(gamePanel.getTileSize() * 12);
-            tile[30].setHeight(gamePanel.getTileSize() * 8);
+            tile[30].setWidth(gamePanel.getTileSize() * 8);
+            tile[30].setHeight(gamePanel.getTileSize() * 4); // d
 
             tile[31] = new Tile();
             tile[31].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_1.png"))); // class-room-2-window
             tile[31].setCollision(true);
             tile[31].setRenderable(true);
-            tile[31].setWidth(gamePanel.getTileSize() * 12);
-            tile[31].setHeight(gamePanel.getTileSize() * 8);
+            tile[31].setWidth(gamePanel.getTileSize() * 8);
+            tile[31].setHeight(gamePanel.getTileSize() * 4); // d
 
             tile[32] = new Tile();
             tile[32].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
             tile[32].setCollision(true);
             tile[32].setRenderable(true);
-            tile[32].setWidth(gamePanel.getTileSize() * 12);
-            tile[32].setHeight(gamePanel.getTileSize() * 8);
+            tile[32].setWidth(gamePanel.getTileSize() * 8);
+            tile[32].setHeight(gamePanel.getTileSize() * 4); // d
 
             tile[33] = new Tile();
             tile[33].setImage(
@@ -154,35 +154,35 @@ public class TileManager {
             tile[33].setCollision(true);
             tile[33].setRenderable(true);
             tile[33].setWidth(gamePanel.getTileSize() * 5);
-            tile[33].setHeight(gamePanel.getTileSize() * 7);
+            tile[33].setHeight(gamePanel.getTileSize() * 7); // d
 
             tile[34] = new Tile();
             tile[34].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
             tile[34].setCollision(true);
             tile[34].setRenderable(true);
-            tile[34].setWidth(gamePanel.getTileSize() * 12 + 32);
-            tile[34].setHeight(gamePanel.getTileSize() * 8 + 32);
+            tile[34].setWidth(gamePanel.getTileSize() * 8);
+            tile[34].setHeight(gamePanel.getTileSize() * 4); // d
 
             tile[35] = new Tile();
             tile[35].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree(Big).png"))); // tree-big-3x5
             tile[35].setCollision(true);
             tile[35].setRenderable(true);
-            tile[35].setWidth(gamePanel.getTileSize() * 3 + 32);
-            tile[35].setHeight(gamePanel.getTileSize() * 5 + 32);
+            tile[35].setWidth(gamePanel.getTileSize() * 3);
+            tile[35].setHeight(gamePanel.getTileSize() * 5); // d
 
             tile[36] = new Tile();
             tile[36].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree1.png"))); // tree-small-2x3
             tile[36].setCollision(true);
             tile[36].setRenderable(true);
             tile[36].setWidth(gamePanel.getTileSize() * 2);
-            tile[36].setHeight(gamePanel.getTileSize() * 3);
+            tile[36].setHeight(gamePanel.getTileSize() * 3 - 5); // d
 
             tile[37] = new Tile();
             tile[37].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/SL_Building_Final.png"))); // AS-bldg-w/aircon
             tile[37].setCollision(true);
             tile[37].setRenderable(true);
-            tile[37].setWidth(gamePanel.getTileSize() * 22);
-            tile[37].setHeight(gamePanel.getTileSize() * 9);
+            tile[37].setWidth(gamePanel.getTileSize() * 15);
+            tile[37].setHeight(gamePanel.getTileSize() * 6); // d
 
             tile[38] = new Tile();
             tile[38].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_0.png"))); // ROAD-INTERSECT-LOW-L
@@ -312,7 +312,7 @@ public class TileManager {
                     worldY - gamePanel.getTileSize() < gamePanel.player.getY() + gamePanel.player.getScreenY()) {
                 if (tileNumber >= 0 && tileNumber < tile.length) {
                     Tile drawThisTile = tile[tileNumber];
-                    if (drawThisTile != null && drawThisTile.getImage() != null) {
+                    if (drawThisTile != null && drawThisTile.isRenderable() && drawThisTile.getImage() != null) {
                         // graphics2D.drawImage(drawThisTile.getImage(), screenX, screenY,
                         // gamePanel.getTileSize(),
                         // gamePanel.getTileSize(), null);
