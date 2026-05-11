@@ -10,7 +10,7 @@ public class Tile {
     private int width; // for multi tiled image
 
     public Tile() { // for multi tile images
-        this.renderable = true;
+        this.renderable = false;
 
         this.height = 64; // base is 32 pixels
         this.width = 64;
