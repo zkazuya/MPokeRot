@@ -142,8 +142,8 @@ public class BattleSystem {
             if (activePlayer.getCurrentHP() <= 0) { // IF OUR POKEROT DIED
                 dialogText = activePlayer.getName() + " fainted!"; // EX: TRALALELO FAINTED!
 
-                if (gamePanel.player.hasUsablePokeRot()) { // THIS IS FOR AUTO SWAPPING POKEROT
-                    activePlayer = gamePanel.player.getFirstAlivePokeRot(); // GET THE NEXT POKEROT ALIVE CUZ CURRNET ONE DIED
+                if (gamePanel.getPlayer().hasUsablePokeRot()) { // THIS IS FOR AUTO SWAPPING POKEROT
+                    activePlayer = gamePanel.getPlayer().getFirstAlivePokeRot(); // GET THE NEXT POKEROT ALIVE CUZ CURRNET ONE DIED
                     gamePanel.battleUI.loadFighterImages(activePlayer, activeEnemy); // ALSO CHANGE THE ONE BEING DRAWN
                     battleSubState = 0;
                 }
@@ -171,7 +171,7 @@ public class BattleSystem {
             battleSubState = 0; // GO BACK TO MAIN MENU
             optionSelected = 0; // RESET CURSOR TOP LEFT
             gamePanel.encounterManager.startCooldown(120);
-            gamePanel.player.triggerBlackout();
+            gamePanel.getPlayer().triggerBlackout();
         }
         keyCooldown = 16;
     }

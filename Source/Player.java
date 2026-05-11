@@ -149,4 +149,7 @@ public class Player extends Entity {
     public int getScreenX () { return this.screenX; }
     public int getScreenY () { return this.screenY; }
 
+    public void setPlayerParty (ArrayList<PokeRot> playerParty) { this.playerParty = playerParty; }
+    
+
 }

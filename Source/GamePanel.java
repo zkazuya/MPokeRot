@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     TileManager tileManager = new TileManager(this);
     PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
-    Player player = new Player(this, keyHandler);
+    private Player player = new Player(this, keyHandler);
     BattleUI battleUI = new BattleUI(this);
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState;
@@ -131,5 +131,6 @@ public class GamePanel extends JPanel implements Runnable {
     public int getMaxWorldColumn () { return this.maxWorldColumn; }
     public int getMaxWorldRow () { return this.maxWorldRow; }
     public int getPlayerSize() { return this.playerSize; }
+    public Player getPlayer() { return this.player; }
 
 }

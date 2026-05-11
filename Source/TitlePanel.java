@@ -12,6 +12,12 @@ public class TitlePanel {
     private boolean isOnLoad = false;
     private boolean isTyping = false;
     private String playerName = "";
+    private int slotNumber;
+    private boolean[] slotExists = new boolean[3];
+    private SaveData[] slotData = new SaveData[3];
+    private boolean pickingSlot = false;
+    
+    
  
 
     private ArrayList<BufferedImage> Ui = new ArrayList<>();
@@ -35,14 +41,18 @@ public class TitlePanel {
                 switch(commandNum){
                     case 0:
                         isOnSave = true;
-                        commandNum = 0;
+                        commandNum = 1;
                         keyCooldown = 8;
                         break;
                     case 1:
                         isOnLoad = true;
+
+                        refreshSlots(); //see if there are slots that are open or not
+
                         commandNum = 1;
                         keyCooldown = 8;
                         //LOAD SAVED Game
+
                         break;
                     case 2:
                         System.exit(0); break;
@@ -63,15 +73,15 @@ public class TitlePanel {
             //This is when you pick the Create new Save and where you have to enter your name
             else if(isOnSave == true){
                 if (commandNum == 0){
-                    keyHandler.setIfTypingTrue();
-                    isTyping = true; //toggles that the user will be typing and will softlock the user
+                    isTyping = true;
+                    keyHandler.IfTypingTrue(isTyping);
+                     //toggles that the user will be typing and will softlock the user
                     if (keyHandler.isCharTyped() && keyCooldown == 0){
                         char c = keyHandler.getTypedChar();
                         keyCooldown = 5;
                         if (Character.isLetterOrDigit(c)){
                             if(playerName.length() < 12){
                                 playerName += c;
-                                
                             }
                             
                         }
@@ -79,20 +89,47 @@ public class TitlePanel {
                         
                     }
                     if (keyHandler.getEnterPressed()){
-                        keyHandler.setIfTypingFalse();
-                        isTyping = false;
-                        commandNum = 1;
                         keyCooldown = 8;
+                        isTyping = false;
+                        keyHandler.IfTypingTrue(isTyping);
+                        commandNum++;
+                       
                     }
                 }
                 else if(keyHandler.getEnterPressed() && isTyping == false){
                     switch(commandNum){    
                         case 1: 
+                        if(pickingSlot != true){
+                            int freeSlot = SaveUtil.findFree(); //find free slots
+                            if(freeSlot != -1){
+                            SaveData data = new SaveData();
+                            data.setPlayerName(playerName);
+                            data.setPlayerParty(gp.getPlayer().getPlayerParty());
+                            data.setPlayerX(gp.getPlayer().getX());
+                            data.setPlayerY(gp.getPlayer().getY());
+
+                            SaveLoadFiles.startSaving(data, "slot" + (freeSlot));
+                            slotNumber = freeSlot;
+                            }else{
+                                System.out.println("No slots");
+                            }
+                        }else {
+                            SaveData data = new SaveData();
+                            data.setPlayerName(playerName);
+                            data.setPlayerParty(gp.getPlayer().getPlayerParty());
+                            data.setPlayerX(gp.getPlayer().getX());
+                            data.setPlayerY(gp.getPlayer().getY());
+
+                            SaveLoadFiles.startSaving(data, "slot" + slotNumber);
+                        }
+
                             gp.gameState = GameState.ROAMSTATE;
                             break;
                         case 2: 
                             isOnSave = false;
+                            commandNum = 0;
                             keyCooldown = 8;
+                            pickingSlot = false;
                             break;
                     }
                 }else if (keyHandler.getDownPressed() && isTyping == false){
@@ -108,18 +145,80 @@ public class TitlePanel {
                 }
             
             }
-
+            //Loading Menu
             else if((commandNum > 0 || commandNum < 4) && isOnLoad == true){
                 if(keyHandler.getEnterPressed()){
                     switch(commandNum){
                         case 0: 
+                        if(!slotExists[commandNum]){
+                            keyCooldown = 8;
+                            pickingSlot = true;
+                            slotNumber = 1;
+                            isOnLoad = false;
+                            isOnSave = true;
+                            commandNum = 1;
+                            System.out.println(slotNumber);
+                        } else {
+                            keyCooldown = 8;
+                            playerName = slotData[commandNum].getPlayerName();
+                            gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                            gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                            gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+
+                            for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                p.initAfterLoad();
+                                
+                            }
+                            slotNumber = 1;
                             gp.gameState = GameState.ROAMSTATE;
+                        }
                             break;
                         case 1:
+                            if(!slotExists[commandNum]){
+                            keyCooldown = 8;
+                            pickingSlot = true;
+                            slotNumber = 2;
+                            isOnLoad = false;
+                            isOnSave = true;
+                            commandNum = 1;
+                            System.out.println(slotNumber);
+                            } else {
+                                keyCooldown = 8;
+                            playerName = slotData[commandNum].getPlayerName();
+                            gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                            gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                            gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+                            for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                p.initAfterLoad();
+                            }
+                            slotNumber = 2;
                             gp.gameState = GameState.ROAMSTATE;
+                            }
                             break;
                         case 2:
+                            if(!slotExists[commandNum]){
+                            keyCooldown = 8;
+                            pickingSlot = true;
+                            slotNumber = 3;
+                            isOnLoad = false;
+                            isOnSave = true;
+                            commandNum = 1;
+                            System.out.println(slotNumber);
+                            } else {
+                                keyCooldown = 8;
+                            playerName = slotData[commandNum].getPlayerName();
+                            gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                            gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                            gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+                            for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                p.initAfterLoad();
+                            }
+                            slotNumber = 3;
                             gp.gameState = GameState.ROAMSTATE;
+                            }
                             break;
                         case 3: 
                             isOnLoad = false;
@@ -129,6 +228,7 @@ public class TitlePanel {
                     }
                 }else if (keyHandler.getDownPressed()){
                     if (commandNum < 3){
+                        
                         commandNum++;
                         keyCooldown = 8;
                     }
@@ -174,16 +274,16 @@ public class TitlePanel {
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.BOLD, 32));
 
-            g2.drawString(playerName, gp.getScreenWidth() / 2 - 200, gp.getScreenHeight() / 2 + 10);
+            g2.drawString(playerName, gp.getScreenWidth() / 2 - 180, gp.getScreenHeight() / 2 + 30);
 
-            for(int i = 0; i < 2; i++){
+            for(int i = 1; i <= 2; i++){
                 int yB = yBase + (i * 80);//spacing 80
 
                 if (commandNum == i){
 
-                    g2.drawImage(Ui.get(i + 12), xB, yB, width, height, null);
+                    g2.drawImage(Ui.get(i + 11), xB, yB, width, height, null);
                 }else {
-                    g2.drawImage(Ui.get(i + 10), xB, yB, width, height, null);
+                    g2.drawImage(Ui.get(i + 9), xB, yB, width, height, null);
                 }
             }
         }else if (isOnLoad == true){
@@ -204,6 +304,17 @@ public class TitlePanel {
                         g2.drawImage(Ui.get(11), xB, yB + 50, width, height, null);
                     }else{
                     g2.drawImage(Ui.get(8), xB - 150, yB, width + 300, height + 50, null);
+                    }
+                }
+
+                if(i < 3){
+                    g2.setColor(Color.BLACK);
+                    g2.setFont(new Font("Arial", Font.BOLD, 20));   
+
+                    if(slotExists[i]){
+                        g2.drawString(slotData[i].getPlayerName(), xB - 50, yB + 100);
+                    }else {
+                        g2.drawString("Create New Save", xB - 50, yB + 100);
                     }
                 }
             }
@@ -228,6 +339,28 @@ public class TitlePanel {
         isOnLoad = false;
         commandNum = 0;
     }
+
+    public int getSlotNumber(){ return slotNumber; }
+    public String getPlayerName(){ return playerName; }
+
+
+    public void refreshSlots(){
+
+        for(int i = 0; i < 3; i++){
+            int slotNumber = i + 1;
+
+            slotExists[i] = SaveLoadFiles.fileExists("slot" + slotNumber);
+
+            if(slotExists[i]){
+                slotData[i] = SaveLoadFiles.loadGame("slot" + slotNumber);
+            } else {
+                slotData[i] = null;
+            }
+        }
+    }
+
+   
+  
 
     
 }

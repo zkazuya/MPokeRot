@@ -254,13 +254,13 @@ public class TileManager {
             int worldY = tilePositionRow * gamePanel.getTileSize(); // THIS IS ABSOLUTE POSITION, WHEN DRAWN THERE IT'S THERE
 
             // THIS IS FOR DRAWING ONLY THE PLAYER (HE DOESN'T MOVE HE'S ALWAYS DRAWN IN SCREENX AND SCREENY OR CENTER OF THE SCREEN)
-            int screenX = worldX - gamePanel.player.getX() + gamePanel.player.getScreenX(); // WHERE IT MUST BE DRAWN IN THE SCREEN
-            int screenY = worldY - gamePanel.player.getY() + gamePanel.player.getScreenY(); // OFFSET BY THE PLAYER'S CURRENT POSITION
+            int screenX = worldX - gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX(); // WHERE IT MUST BE DRAWN IN THE SCREEN
+            int screenY = worldY - gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY(); // OFFSET BY THE PLAYER'S CURRENT POSITION
 
-            if (worldX + gamePanel.getTileSize() > gamePanel.player.getX() - gamePanel.player.getScreenX() &&
-                worldX - gamePanel.getTileSize() < gamePanel.player.getX() + gamePanel.player.getScreenX() &&
-                worldY + gamePanel.getTileSize() > gamePanel.player.getY() - gamePanel.player.getScreenY() &&
-                worldY - gamePanel.getTileSize() < gamePanel.player.getY() + gamePanel.player.getScreenY()) {
+            if (worldX + gamePanel.getTileSize() > gamePanel.getPlayer().getX() - gamePanel.getPlayer().getScreenX() &&
+                worldX - gamePanel.getTileSize() < gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX() &&
+                worldY + gamePanel.getTileSize() > gamePanel.getPlayer().getY() - gamePanel.getPlayer().getScreenY() &&
+                worldY - gamePanel.getTileSize() < gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY()) {
                     if (tileNumber >= 0 && tileNumber < tile.length) {
                         Tile drawThisTile = tile[tileNumber];
                         if (drawThisTile != null && drawThisTile.isRenderable() && drawThisTile.getImage() != null) {
