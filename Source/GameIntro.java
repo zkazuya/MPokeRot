@@ -10,7 +10,6 @@ import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -19,8 +18,8 @@ import javax.swing.Timer;
 
 public class GameIntro extends JPanel {
 
-    private ArrayList<BufferedImage> frames = new ArrayList<>();
-    private ArrayList<BufferedImage> gifFrames = new ArrayList<>();
+    
+    private BufferedImage introFrame, gifFrame, currIntroFrame, currGifFrame;
     private Timer timer, gifTimer;
 
     private int currFrame = 0;
@@ -29,6 +28,10 @@ public class GameIntro extends JPanel {
     private boolean showText = false; // dictates whether the text will be showing on the screen or not
     private int screenWidth = 32 * 16;
     private int screenHeight = 32 * 12;
+    private int zeru = 0;
+    private int gifFrameSize = 150;
+    private int introFrameSize = 560;
+
 
     KeyHandler keyHandler = new KeyHandler();
     GameFrame frame;
@@ -39,48 +42,18 @@ public class GameIntro extends JPanel {
         setPreferredSize(new Dimension(screenWidth, screenHeight));
         addKeyListener(keyHandler);
 
-        for (int i = 1; i <= 564; i++) { // Iterates through each and every single frame and loads them up
-                                         // (MultiThreadable sha)
-            try {
-                if (i < 10) {
-                    BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
-                    frames.add(pic);
-                } else if (i < 100 && i > 9) {
-                    BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
-                    frames.add(pic);
-                } else {
-                    BufferedImage pic = ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));
-                    frames.add(pic);
-                }
-            } catch (IOException e) {
-            }
-        }
-
-        for (int i = 1; i <= 150; i++) { // Iterates through each and every single frame to load them up
-            try {
-                if (i < 10) {
-                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/00" + i + ".png"));
-                    gifFrames.add(gifPic);
-                } else if (i < 100 && i > 9) {
-                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/0" + i + ".png"));
-                    gifFrames.add(gifPic);
-                } else {
-                    BufferedImage gifPic = ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
-                    gifFrames.add(gifPic);
-                }
-            } catch (IOException e) {
-            }
-        }
 
         timer = new Timer(33, e -> { // a timer of 33 miliseconds (30 frames per second)
             currFrame++;
-            if (currFrame >= frames.size() || keyHandler.getShiftPressed()) { // if ever the current frame of the intro
+            currIntroFrame = loadIntroFrames(currFrame);
+            if (currFrame >= introFrameSize || keyHandler.getShiftPressed()) { // if ever the current frame of the intro
                                                                               // animation equals to the amount maximum
                                                                               // frames, it will stop and then switch to
                                                                               // the GIF animation so it can loop
                 timer.stop(); // if Shift is pressed then it will immediately go to the GIF
                 gifStart(); // method down below
                 intro = false; // boolean used to dictate that the intro animation will not be introing
+                
             }
             repaint();
         });
@@ -94,10 +67,10 @@ public class GameIntro extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
 
-        if (!frames.isEmpty() && intro == true) {
-            g2d.drawImage(frames.get(currFrame), 0, 0, getWidth(), getHeight(), null);
-        } else if (!gifFrames.isEmpty() && intro == false) {
-            g2d.drawImage(gifFrames.get(gifCurrFrame), 0, 0, getWidth(), getHeight(), null);
+        if (currIntroFrame != null && intro == true) {
+            g2d.drawImage(currIntroFrame, zeru, zeru, getWidth(), getHeight(), null);
+        } else if (currGifFrame != null && intro == false) {
+            g2d.drawImage(currGifFrame, zeru, zeru, getWidth(), getHeight(), null);
             if (showText) {
 
                 Font font = new Font("Arial", Font.BOLD, 48);
@@ -124,6 +97,7 @@ public class GameIntro extends JPanel {
                 // colors the text
                 g2d.setColor(Color.WHITE);
                 g2d.fill(textShape);
+                g2d.dispose();
 
             }
         }
@@ -133,9 +107,11 @@ public class GameIntro extends JPanel {
     public void gifStart() {
         gifTimer = new Timer(33, e -> {
             gifCurrFrame++;
-            if (gifCurrFrame >= gifFrames.size()) {
+            currGifFrame = loadGifFrames(gifCurrFrame); 
+            if (gifCurrFrame >= gifFrameSize) {
                 gifCurrFrame = 0; // whenever the current frame reaches the same amount the frames in the GIF will
                                   // reset back to 0 to make a loop
+                
             }
             if (keyHandler.getSpacePressed()) {
                 frame.switchPanel("Game"); // if Space is pressed, then it will go to game
@@ -149,16 +125,48 @@ public class GameIntro extends JPanel {
                                                                                                              // will
                                                                                                              // only
                                                                                                              // show up
-                                                                                                             // every 30
-                                                                                                             // frames
+                                                                                                             // every 30                                                                                            // frames
                 showText = true;
             } else {
                 showText = false;
             }
-
             repaint();
         });
         gifTimer.start();
+    }
+
+    public BufferedImage loadIntroFrames(int i){
+        try {
+            
+            if (i < 10) {
+                return ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
+            } else if (i < 100 && i > 9) {
+                return ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
+            } else {
+                return ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));
+                
+            }
+        } catch (IOException e) {
+        }
+        return null;
+
+    }
+
+    public BufferedImage loadGifFrames(int i){
+        try {
+             if (i < 10) {
+                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/00" + i + ".png"));
+                    
+                } else if (i < 100 && i > 9) {
+                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/0" + i + ".png"));
+                    
+                } else {
+                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
+                    
+                }
+        } catch (IOException e) {
+        }
+        return null;
     }
 
     public void setIntro() { // makes it so that the intro animation will repeat

@@ -40,7 +40,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        gameState = GameState.ROAMSTATE; // by default game state is on ROAMSTATE
+        gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
     public void startGameThread () {
