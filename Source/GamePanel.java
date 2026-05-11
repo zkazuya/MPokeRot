@@ -30,8 +30,8 @@ public class GamePanel extends JPanel implements Runnable {
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
+    Pause pauseClass = new Pause(this);
     EncounterManager encounterManager = new EncounterManager(this, player);
-    Pause pauseClass;
     NPC[] npc = new NPC[5];
 
     public GamePanel (GameFrame frame) {
@@ -41,7 +41,6 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
-        pauseClass = new Pause(this);
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
     }
 
@@ -78,7 +77,7 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
         } else if (gameState == GameState.PAUSESTATE) {
-
+            pauseClass.update(keyHandler);
         } else if (gameState == GameState.TALKINGSTATE) {
             dialogue.update(keyHandler);
         } else if (gameState == GameState.TITLESCREEN) {
@@ -96,6 +95,8 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.BATTLESTATE) {
             battleUI.drawBattleScreen(graphics2D);
         } else if (gameState == GameState.PAUSESTATE) {
+            tileManager.draw(graphics2D);
+            player.draw(graphics2D);
             pauseClass.draw(graphics2D); 
         } else if (gameState == GameState.TALKINGSTATE) {
             tileManager.draw(graphics2D);
