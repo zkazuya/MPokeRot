@@ -6,11 +6,14 @@ import javax.imageio.ImageIO;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 
 public class BattleUI {
     private GamePanel gamePanel;
     private BufferedImage battleBackground;
     private Font dynamicFont;
+    private Font swapFont;
+    private Font moveFont;
     private BufferedImage playerRot;
     private BufferedImage enemyRot;
 
@@ -18,6 +21,8 @@ public class BattleUI {
         this.gamePanel = gamePanel;
         int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
+        moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
+        swapFont = new Font("Arial", Font.PLAIN, (int)(fontSize *0.55));
         try { // LOAD BATTLE BACKGROUND  
             battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
         } catch (IOException ioE) {
@@ -91,6 +96,7 @@ public class BattleUI {
         } else if (subState == 1) { // IN BATTLEYSYSTEM THIS IS initiateMoveSelectionState();
             // NOTE IF A POKEROT DOES NOT HAVE FULL 4 MOVES DRAW A DASH "-" OPTION INSTEAD
             graphics2D.drawString("Select a move!", textX, textY);
+            graphics2D.setFont(moveFont);
             if (activePlayer.getMove(0) != null) graphics2D.drawString(activePlayer.getMove(0).getName(), menuX, menuY);
             else graphics2D.drawString("-", menuX, menuY);
             if (activePlayer.getMove(1) != null) graphics2D.drawString(activePlayer.getMove(1).getName(), menuX + xSpace, menuY);
@@ -100,26 +106,69 @@ public class BattleUI {
             if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
             else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
 
-        } else if (subState >= 2) { // IN BATTLESYSTEM THIS IS initiateCalculateEnemyDamageReceivedState();
+        } else if (subState >= 2 && subState <= 10) { // IN BATTLESYSTEM THIS IS initiateCalculateEnemyDamageReceivedState();
             String currentMessage = gamePanel.battleSystem.getCurrentMessage();
             // WHILE ENEMY IS "TAKING DMG" FROM ANIMATION JUST DRAW THE TEXT AS PRESS ENTER
             graphics2D.drawString(currentMessage, textX, textY);
-            if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9) {
+            if (subState == 2 || subState == 4 || subState == 6 || subState == 7 || subState == 9 || subState == 10) {
                 graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
             } else if (subState == 8 && activePlayer.getDrawnExp() == activePlayer.getExp()) {
                 graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            } else if (subState == 3 && activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
+            } else if (subState == 5 && activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) {
+                graphics2D.drawString("Press Enter", menuX, menuY + (ySpace / 2));
             }
+        } else if (subState == 11) { // THIS IS SWAPPING UI
+            if (gamePanel.battleSystem.getCurrentMessage().isEmpty()) graphics2D.drawString("Swap with who?", textX, textY);
+            else graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
+        graphics2D.setFont(moveFont); // USING SMALLER FONT TO FIT NAMES AND HP
+        ArrayList <PokeRot> party = gamePanel.player.getPlayerParty();
+
+        int swapMenuX = rightBoxX + (tileSize / 2);
+        int swapXSpace = (int) (tileSize * 2.3);
+
+        for (int i = 0; i < 4; i++) {
+            int drawX = swapMenuX;
+            int drawY = menuY;
+            if (i % 2 != 0) drawX += swapXSpace; // MOVE RIGHT FOR SLOT 1 AND 3
+            if (i >= 2) drawY += ySpace; // MOVE DOWN FOR SLOT 2 AND 3
+            if (i < party.size()) {
+                PokeRot playerRot = party.get(i);
+                String label = playerRot.getName();
+                if (playerRot == activePlayer) label += " (In)";
+                else if (playerRot.getCurrentHP() <= 0) label += " (Fnt)";
+                else label += " (" + playerRot.getCurrentHP() + "HP)";
+                graphics2D.drawString(label, drawX, drawY);
+            } else {
+                graphics2D.drawString("-", drawX, drawY);
+                }
+            }
+        } else if (subState == 12) {
+            if (gamePanel.battleSystem.getCurrentMessage().isEmpty()) {
+                graphics2D.drawString("Open Bag:", textX, textY);
+            } else {
+                graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
+            }
+            graphics2D.setFont(moveFont);
+            graphics2D.drawString("Malunggay Pandesal (x99)", menuX, menuY);
+            graphics2D.drawString("-", menuX + xSpace, menuY);
+            graphics2D.drawString("Plunger (x99)", menuX, menuY + ySpace);
+            graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
         }
         // IF AT initiateActionSelectionState(); OR initiateMoveSelectionState(); READ THE ">" CURSOR OFFSET AND DRAW IT
-        if (subState == 0 || subState == 1) {
-            if (currentOption == 0)
-                graphics2D.drawString(">", menuX - cursorOffset, menuY);
-            if (currentOption == 1)
-                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
-            if (currentOption == 2)
-                graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
-            if (currentOption == 3)
-                graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        if (subState == 0 || subState == 1 || subState == 12) {
+            if (currentOption == 0) graphics2D.drawString(">", menuX - cursorOffset, menuY);
+            if (currentOption == 1) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY);
+            if (currentOption == 2) graphics2D.drawString(">", menuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3) graphics2D.drawString(">", menuX + xSpace - cursorOffset, menuY + ySpace);
+        } else if (subState == 11) {
+            int swapMenuX = rightBoxX + (tileSize / 2);
+            int swapXSpace = (int) (tileSize * 2.3);
+            if (currentOption == 0) graphics2D.drawString(">", swapMenuX - cursorOffset, menuY);
+            if (currentOption == 1) graphics2D.drawString(">", swapMenuX + swapXSpace - cursorOffset, menuY);
+            if (currentOption == 2) graphics2D.drawString(">", swapMenuX - cursorOffset, menuY + ySpace);
+            if (currentOption == 3) graphics2D.drawString(">", swapMenuX + swapXSpace - cursorOffset, menuY + ySpace);
         }
     }
 
@@ -194,7 +243,7 @@ public class BattleUI {
             String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
             String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
 
-            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + playerFileName));
+            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRotBack/" + playerFileName));
             enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
         } catch (IOException ioE) {
             ioE.printStackTrace();

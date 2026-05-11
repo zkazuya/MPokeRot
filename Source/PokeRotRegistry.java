@@ -46,7 +46,7 @@ public class PokeRotRegistry {
     }
 
     public void registerPokeRotMoves () { // THIS METHOD JUST CREATES ALL OF THE POKEROT MOVES WHICH WE WILL ADD TO POKEROTS
-        pokeRotMoves.add(new Move("Explosive Diarrhea", 22));
+        pokeRotMoves.add(new Move("Explo Diarrhea", 22));
         pokeRotMoves.add(new Move("Jawline Cutter", 19));
         pokeRotMoves.add(new Move("Fanum Tax", 21));
         pokeRotMoves.add(new Move("Maximum Mog", 20));

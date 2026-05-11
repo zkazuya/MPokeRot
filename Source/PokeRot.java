@@ -41,9 +41,12 @@ public class PokeRot {
     }
 
     public void update () {
-        if (drawnHP > currentHP) { // FOR HP VISUAL BAR
+        if (drawnHP > currentHP) { // FOR HP VISUAL BAR TAKING DMG
             drawnHP -= 0.3; // KEEP REDUCING VISUAL HP BAR
             if (drawnHP < currentHP) drawnHP = currentHP; // PREVENT VISUAL BAR FROM OVERSHOOTING HP
+        } else if (drawnHP < currentHP) { // FOR HP VISUAL BAR HEALING
+            drawnHP += 0.3; // KEEP INCREASING VISUAL HP BAR
+            if (drawnHP > currentHP) drawnHP = currentHP; // PREVENT OVERSHOOTING
         }
 
         if (drawnExp < exp) { // FOR EXP VISUAL BAR
@@ -61,8 +64,6 @@ public class PokeRot {
             this.moves.add(move);
     }
 
-    public int getHowManyMoves () { return this.moves.size(); }
-
     public Move getMove(int index) {
         if (index >= 0 && index < this.moves.size())
             return this.moves.get(index);
@@ -73,6 +74,11 @@ public class PokeRot {
         this.currentHP -= damage;
         if (this.currentHP < 0)
             this.currentHP = 0;
+    }
+
+    public void heal (int amount) {
+        this.currentHP += amount;
+        if (this.currentHP > this.maxHP) this.currentHP = this.maxHP;
     }
 
     public int getBaseExpYield () {
@@ -117,5 +123,6 @@ public class PokeRot {
     public double getDrawnHP () { return this.drawnHP; }
     public int getExp () { return this.exp; }
     public int getExpNeeded () { return this.expNeeded; }
+    public int getHowManyMoves () { return this.moves.size(); }
     public double getDrawnExp () { return this.drawnExp; }
 }

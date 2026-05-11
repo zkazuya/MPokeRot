@@ -112,4 +112,13 @@ java -cp "ClassFolders;Assets;." Main
 <5/10/2026 (Pj)>
     -Added changes on TitlePanel, mostly on the UI side
 
+<5/11/2026 (Carl)>
+    -Run is now smoother and added a bunch of corresponding dialogs to specific events
+    -Press esc to return to the previous UI (for fight, bag, swap)
+    -Bug fix long ass delay each time pressing enter key interval
+    -Added switching pokerot and corresponding specific cases along with their dialogues
+    -Added potions that heals our pokerot along with the corresponding dialogues and healing
+    -Added dynamic enemy and player image updates upon switching
+
+
 // follow the format REMOVE THIS IF SMT IS ADDED
