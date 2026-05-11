@@ -66,25 +66,11 @@ public class Pause{
     }
 
     public void update(KeyHandler keyHandler){
-        if (keyHandler.getEnterPressed()) {
+        if (keyHandler.getEscPressed()) {
             if (gp.gameState == GameState.ROAMSTATE){//if di nakapause
                 gp.gameState = GameState.PAUSESTATE;
-            } else {
-                switch(choice){
-                    case 0: //resume
-                        gp.gameState= GameState.ROAMSTATE;
-                        break;
-                    case 1: //pokerots
-                        //pokerots tehehe
-                        break;
-                    case 2: //save ga,e
-                        break;
-                    case 3: //main menu
-                        gp.gameState=GameState.TITLESCREEN;
-                        break;
-                }
-            }
-            keyHandler.setEnterPressed(false);
+            } 
+            keyHandler.setEscPressed(false);
         }else
         if(keyHandler.getDownPressed() && choice<3){
             choice++;
@@ -92,6 +78,20 @@ public class Pause{
         }else if(keyHandler.getUpPressed() && choice>0){
             choice--;
             keyHandler.setUpPressed(false);
+        } else if(keyHandler.getEnterPressed()){
+            switch(choice){
+                case 0: //resume
+                    gp.gameState= GameState.ROAMSTATE;
+                    break;
+                case 1: //pokerots
+                    //pokerots tehehe
+                    break;
+                case 2: //save ga,e
+                    break;
+                case 3: //main menu
+                    //gp.gameState=GameState.TITLESCREEN;  //may issue
+                    break;
+            }
         }
     }
     public void draw(Graphics2D g2){
