@@ -12,6 +12,7 @@ public class PokeRotStats {
     private KeyHandler keyHandler;
     private Pause paused;
     private GamePanel gp;
+    private Player player;
     private BattleUI battleUI;
     public PokeRotStats(GamePanel gp, Pause paused){
         this.gp=gp;

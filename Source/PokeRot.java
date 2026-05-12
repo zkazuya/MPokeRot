@@ -1,14 +1,16 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class PokeRot {
+public class PokeRot implements Serializable{
+    private static final long serialVersionUID = 1L;
     private String name; // NAME OF EACH POKEROT
     private int level; // LEVEL OF EACH POKEROT
     private int maxHP; // THIS INCREASES
     private int currentHP; // IF DAMAGED, KEEP AS THIS HP
     private int attack; // THIS INCREASES
     private ArrayList<Move> moves; // STORE MOVES UNIQUE TO THE POKEROT
-    private double drawnHP; // THE VISUAL BAR'S NUMBER FOR HP
-    private double drawnExp = 0; // THE VISUAL BAR'S NUMBER FOR EXP
+    transient private double drawnHP; // THE VISUAL BAR'S NUMBER FOR HP
+    transient private double drawnExp = 0; // THE VISUAL BAR'S NUMBER FOR EXP
     private int exp; // THIS IS THE ACTUAL XP
     private int expNeeded; // THIS IS USED FOR CONDITIONING/LEVELING
     private int baseMaxHP; // LEVEL 1 BASE STATS HEALTH (GOES BACK TO THIS AFTER DEATH)
@@ -41,9 +43,12 @@ public class PokeRot {
     }
 
     public void update () {
-        if (drawnHP > currentHP) { // FOR HP VISUAL BAR
+        if (drawnHP > currentHP) { // FOR HP VISUAL BAR TAKING DMG
             drawnHP -= 0.3; // KEEP REDUCING VISUAL HP BAR
             if (drawnHP < currentHP) drawnHP = currentHP; // PREVENT VISUAL BAR FROM OVERSHOOTING HP
+        } else if (drawnHP < currentHP) { // FOR HP VISUAL BAR HEALING
+            drawnHP += 0.3; // KEEP INCREASING VISUAL HP BAR
+            if (drawnHP > currentHP) drawnHP = currentHP; // PREVENT OVERSHOOTING
         }
 
         if (drawnExp < exp) { // FOR EXP VISUAL BAR
@@ -61,8 +66,6 @@ public class PokeRot {
             this.moves.add(move);
     }
 
-    public int getHowManyMoves () { return this.moves.size(); }
-
     public Move getMove(int index) {
         if (index >= 0 && index < this.moves.size())
             return this.moves.get(index);
@@ -73,6 +76,11 @@ public class PokeRot {
         this.currentHP -= damage;
         if (this.currentHP < 0)
             this.currentHP = 0;
+    }
+
+    public void heal (int amount) {
+        this.currentHP += amount;
+        if (this.currentHP > this.maxHP) this.currentHP = this.maxHP;
     }
 
     public int getBaseExpYield () {
@@ -117,5 +125,21 @@ public class PokeRot {
     public double getDrawnHP () { return this.drawnHP; }
     public int getExp () { return this.exp; }
     public int getExpNeeded () { return this.expNeeded; }
+    public int getHowManyMoves () { return this.moves.size(); }
     public double getDrawnExp () { return this.drawnExp; }
+
+    public void setName (String name) {  this.name = name; }
+    public void setLevel (int level) {  this.level = level;}
+    public void setMaxHP (int maxHP) { this.maxHP = maxHP; }
+    public void setCurrentHP (int currentHP) {  this.currentHP = currentHP; }
+    public void setAttack (int attack) {  this.attack = attack; }
+    public void setDrawnHP (int drawnHP) {  this.drawnHP = drawnHP; }
+    public void setExp (int exp) {  this.exp = exp; }
+    public void setExpNeeded (int expNeeded) {  this.expNeeded = expNeeded; }
+    public void setDrawnExp (int drawnExp) {  this.drawnExp = drawnExp; }
+    
+    public void initAfterLoad(){
+        this.drawnHP = this.currentHP;
+        this.drawnExp = this.exp;
+    }
 }

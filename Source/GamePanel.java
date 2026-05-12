@@ -8,12 +8,14 @@ public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 32; // each tile is 32x32 pixels without scale
     private final int tileScale = 2; // triples every 32x32 pixel tiles
     private final int tileSize = originalTileSize * tileScale; // actual tile size rendered is 96x96 pixels
+    private final int playerScale = 3; //pinalaki yung player
+    private final int playerSize = (32 * playerScale) - originalTileSize/2; //pinalaki yung player
     private final int maxScreenColumn = 16; // there is 16 tiles horizontally
     private final int maxScreenRow = 12; // there is 12 tiles vertically
     private final int screenWidth = tileSize * maxScreenColumn; // final resolution is 1536 pixels wide
     private final int screenHeight = tileSize * maxScreenRow; // final resolution is 1152 pixels tall
-    private final int maxWorldColumn = 80; // TOTAL COLUMNS WIDE THE MAP
-    private final int maxWorldRow = 80; // TOTAL ROW WIDE THE MAP
+    private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
+    private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
 
     private int worldX;
@@ -33,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
     Pause pauseClass = new Pause(this);
     PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
     EncounterManager encounterManager = new EncounterManager(this, player);
-    NPC[] npc = new NPC[5];
+    NPCManager npcManager = new NPCManager(this);
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
@@ -43,6 +45,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
+        npcManager.setUpNPC();
     }
 
     public void startGameThread () {
@@ -75,6 +78,9 @@ public class GamePanel extends JPanel implements Runnable {
             player.update(); // update player movement and draw
             encounterManager.update();
             pauseClass.update(keyHandler);
+            if(keyHandler.getEscPressed()){
+                titlePanel.setTitleState();
+            }
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
         } else if (gameState == GameState.PAUSESTATE) {
@@ -92,6 +98,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         if (gameState == GameState.ROAMSTATE) {
             tileManager.draw(graphics2D);
+            npcManager.draw(graphics2D);
             player.draw(graphics2D);
         } else if (gameState == GameState.BATTLESTATE) {
             battleUI.drawBattleScreen(graphics2D);
@@ -109,14 +116,6 @@ public class GamePanel extends JPanel implements Runnable {
         graphics2D.dispose(); // saves memory
     }
 
-    public void setUpNpc() {
-        npc[0] = new NPC(500, 300, 0);
-        npc[1] = new NPC(440, 320, 1);
-        npc[2] = new NPC(800, 600, 2);
-        npc[3] = new NPC(15, 400, 3);
-        npc[4] = new NPC(620, 100, 4);
-    }
-
     public int getMaxScreenColumn () { return this.maxScreenColumn; }
     public int getMaxScreenRow () { return this.maxScreenRow; }
     public int getTileSize () { return this.tileSize; }
@@ -126,5 +125,7 @@ public class GamePanel extends JPanel implements Runnable {
     public int getWorldY () { return this.worldY; }
     public int getMaxWorldColumn () { return this.maxWorldColumn; }
     public int getMaxWorldRow () { return this.maxWorldRow; }
+    public int getPlayerSize() { return this.playerSize; }
+    public Player getPlayer() { return this.player; }
 
 }
