@@ -8,6 +8,7 @@ public class KeyHandler implements KeyListener {
     private boolean fPressed; // DIALOGUE INTERACTION KEY
     private boolean spacePressed; 
     private boolean shiftPressed; 
+    private boolean backSpacePressed;
     private char typedChar;
     private boolean charTyped;
     private boolean ifTyping = false;
@@ -33,6 +34,7 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ESCAPE -> escPressed = true;
             case KeyEvent.VK_SPACE -> spacePressed = true;
             case KeyEvent.VK_SHIFT -> shiftPressed = true;
+            case KeyEvent.VK_BACK_SPACE -> backSpacePressed = true;
         }
     }
 
@@ -49,6 +51,7 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ESCAPE -> escPressed = false;
             case KeyEvent.VK_SPACE -> spacePressed = false;
             case KeyEvent.VK_SHIFT -> shiftPressed = false;
+            case KeyEvent.VK_BACK_SPACE -> backSpacePressed = false;
         }
     }
     
@@ -61,6 +64,7 @@ public class KeyHandler implements KeyListener {
     public boolean getFPressed () { return this.fPressed; }
     public boolean getSpacePressed () { return this.spacePressed; }
     public boolean getShiftPressed () { return this.shiftPressed; }
+    public boolean getBackSpacePressed () { return this.backSpacePressed; }
     public void IfTypingTrue (boolean isTyping) {  ifTyping = isTyping; }
     public boolean isCharTyped() { return charTyped; }
     public char getTypedChar() { return typedChar; }
