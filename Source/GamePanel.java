@@ -26,13 +26,14 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     TileManager tileManager = new TileManager(this);
     PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
-    private Player player = new Player(this, keyHandler);
+    Player player = new Player(this, keyHandler);
     BattleUI battleUI = new BattleUI(this);
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
     Pause pauseClass = new Pause(this);
+    PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
     EncounterManager encounterManager = new EncounterManager(this, player);
     NPCManager npcManager = new NPCManager(this);
 

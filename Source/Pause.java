@@ -9,6 +9,9 @@ public class Pause{
     private GameState gameState;
     private Dialogue dialogue;
     private TitlePanel titlePanel;
+    private PokeRotStats pokerotStats;
+    private KeyHandler keyHandler;
+    private boolean showingStats;
     int padding = 20;//Padding to not touch edges
     int x=5;
     int y;
@@ -16,7 +19,11 @@ public class Pause{
     String pauseString = "Press F \u275A\u275A";
 
 
-    public Pause(GamePanel gp){this.gp=gp; y=gp.getHeight()/2;}
+    public Pause(GamePanel gp){
+        this.gp=gp;
+        y=gp.getHeight()/2;
+        this.pokerotStats = new PokeRotStats(gp, this);
+    }
     private void drawPauseLabel(Graphics2D g2) {
         String pauseString = "Game Paused";
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -67,38 +74,52 @@ public class Pause{
 
     public void update(KeyHandler keyHandler){
         if (keyHandler.getEscPressed()) {
-            if (gp.gameState == GameState.ROAMSTATE){//if di nakapause
+            if (gp.gameState == GameState.ROAMSTATE) {
                 gp.gameState = GameState.PAUSESTATE;
-            } 
+            } else if (gp.gameState == GameState.PAUSESTATE && !showingStats) {
+                gp.gameState = GameState.ROAMSTATE;
+            }
             keyHandler.setEscPressed(false);
-        }else
-        if(keyHandler.getDownPressed() && choice<3){
-            choice++;
-            keyHandler.setDownPressed(false);
-        }else if(keyHandler.getUpPressed() && choice>0){
-            choice--;
-            keyHandler.setUpPressed(false);
-        } else if(keyHandler.getEnterPressed()){
-            switch(choice){
-                case 0: //resume
-                    gp.gameState= GameState.ROAMSTATE;
-                    break;
-                case 1: //pokerots
-                    //pokerots tehehe
-                    break;
-                case 2: //save ga,e
-                    System.out.println(gp.titlePanel.getSlotNumber());
-                    SaveLoadFiles.saveRightNow(gp, gp.titlePanel.getSlotNumber());
+        }
 
-                    break;
-                case 3: //main menu
-                    //gp.gameState=GameState.TITLESCREEN;  //may issue
-                    break;
+        // paused main menu logic only if game is paused
+        if (gp.gameState == GameState.PAUSESTATE) {
+            
+            if (showingStats) {
+                // Logic for the Stats Screen
+                if (keyHandler.getEnterPressed()) {
+                    showingStats = false;
+                    keyHandler.setEnterPressed(false);
+                } else {
+                    pokerotStats.update(keyHandler);
+                }
+            } else {
+                if (keyHandler.getDownPressed()) {
+                    if (choice < 3) choice++;
+                    keyHandler.setDownPressed(false);
+                }
+                if (keyHandler.getUpPressed()) {
+                    if (choice > 0) choice--;
+                    keyHandler.setUpPressed(false);
+                }
+                if (keyHandler.getEnterPressed()) {
+                    keyHandler.setEnterPressed(false);
+                    switch (choice) {
+                        case 0: gp.gameState = GameState.ROAMSTATE; break;
+                        case 1: showingStats = true; break;            
+                        case 2: /* SAVEEE */ break;
+                        case 3: /* main menu */ break;
+                    }
+                }
             }
         }
     }
     public void draw(Graphics2D g2){
-        drawPauseLabel(g2);
-        drawOptions(g2);
+        if(showingStats){
+            pokerotStats.draw(g2);
+        }else{
+            drawPauseLabel(g2);
+            drawOptions(g2);
+        }
     }
 }
