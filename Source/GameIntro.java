@@ -75,6 +75,9 @@ public class GameIntro extends JPanel {
                 if (introSound != null){
                     introSound.stop();
                     introSound.close();
+                }if (eyeSound != null){
+                    eyeSound.stop();
+                    eyeSound.close();
                 }
                 
                 gifLoop = loadSound("Assets/Music/Titlescreen(1).wav");

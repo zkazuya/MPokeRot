@@ -19,9 +19,9 @@ public class Player extends Entity {
         screenY = gamePanel.getScreenHeight() / 2 - (gamePanel.getTileSize() / 2); // CENTER Y POSITION OF SCREEN
         this.gamePanel = gamePanel;
         this.keyHandler = keyHandler;
-        setX(gamePanel.getTileSize() * 15); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
-        setY(gamePanel.getTileSize() * 8); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
-        setSpeed(20); // MOVEMENT SPEED IS 4 CHANGEABLE
+        setX(gamePanel.getTileSize() * 32); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setY(gamePanel.getTileSize() * 10); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
+        setSpeed(10); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
         PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
