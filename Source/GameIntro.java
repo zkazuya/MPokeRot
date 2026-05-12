@@ -12,6 +12,7 @@ import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -236,20 +237,30 @@ public class GameIntro extends JPanel {
         intro = true;
     }
 
-    public Clip loadSound(String path){
-        try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+   
 
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
+public Clip loadSound(String path) {
+    try {
+        InputStream audioSrc = getClass().getResourceAsStream(path);
 
-            return clip;
-            
-        }catch (Exception e){
-            e.printStackTrace();
+        if (audioSrc == null) {
+            System.err.println("Sound not found: " + path);
+            return null;
         }
-        return null;
+
+        AudioInputStream audio =
+                AudioSystem.getAudioInputStream(audioSrc);
+
+        Clip clip = AudioSystem.getClip();
+        clip.open(audio);
+
+        return clip;
+
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return null;
+}
 
     public Clip getTitleLoop() { return titleLoop; }
 
