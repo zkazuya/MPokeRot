@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
+    private boolean worldMusic = false;
 
     private int worldX;
     private int worldY;
