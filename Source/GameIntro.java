@@ -11,6 +11,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -35,6 +38,7 @@ public class GameIntro extends JPanel {
 
     KeyHandler keyHandler = new KeyHandler();
     GameFrame frame;
+    Clip gifLoop;
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
@@ -42,14 +46,43 @@ public class GameIntro extends JPanel {
         setPreferredSize(new Dimension(screenWidth, screenHeight));
         addKeyListener(keyHandler);
 
+        Clip eyeSound = loadSound("Assets/Music/OpenEyeSound_(2).wav");
+        Clip introSound = loadSound("Assets/Music/TitleScreen(no_melody).wav");
+        Clip whoosh = loadSound("Assets/Music/woosh.wav");
+        
+        if (eyeSound != null){
+            eyeSound.start();
+        }
 
         timer = new Timer(33, e -> { // a timer of 33 miliseconds (30 frames per second)
             currFrame++;
+            if (currFrame == 162){
+                if (eyeSound != null){
+                eyeSound.close();
+                }if (introSound != null){
+                introSound.start();
+                }
+            }if (currFrame == 509){
+                if (whoosh != null){
+                whoosh.setFramePosition(0);
+                whoosh.start();
+                }
+            }
             currIntroFrame = loadIntroFrames(currFrame);
             if (currFrame >= introFrameSize || keyHandler.getShiftPressed()) { // if ever the current frame of the intro
-                                                                              // animation equals to the amount maximum
-                                                                              // frames, it will stop and then switch to
-                                                                              // the GIF animation so it can loop
+                                                                            // animation equals to the amount maximum
+                                                                            // frames, it will stop and then switch to
+                if (introSound != null){
+                    introSound.stop();
+                    introSound.close();
+                }
+                
+                gifLoop = loadSound("Assets/Music/Titlescreen(1).wav");
+
+                if(gifLoop != null){
+                    gifLoop.loop(Clip.LOOP_CONTINUOUSLY);
+                }
+                                                                      // the GIF animation so it can loop
                 timer.stop(); // if Shift is pressed then it will immediately go to the GIF
                 gifStart(); // method down below
                 intro = false; // boolean used to dictate that the intro animation will not be introing
@@ -114,6 +147,9 @@ public class GameIntro extends JPanel {
                 
             }
             if (keyHandler.getSpacePressed()) {
+                if (gifLoop != null){
+                    gifLoop.stop();
+                }
                 frame.switchPanel("Game"); // if Space is pressed, then it will go to game
                 gifTimer.stop();
             }
@@ -171,5 +207,20 @@ public class GameIntro extends JPanel {
 
     public void setIntro() { // makes it so that the intro animation will repeat
         intro = true;
+    }
+
+    public Clip loadSound(String path){
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+
+            return clip;
+            
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
