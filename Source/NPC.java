@@ -72,4 +72,5 @@ public class NPC extends Entity{
     public ArrayList <PokeRot> getNPCParty () { return this.npcParty; }
     public String[] getPreBattleDialogue () { return this.preBattleDialogue; }
     public String[] getPostBattleDialogue () { return this.postBattleDialogue; }
+
 }

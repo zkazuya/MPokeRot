@@ -24,6 +24,8 @@ public class NPCManager {
         npc.get(1).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Skibidi Toilet"));
         npc.get(2).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Frulli Frulla"));
         npc.get(3).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Tung Tung Sahur"));
+
+        npc.get(0).getNPCParty().get(0).setLevel(4);
         //npc.get(4).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Brr Brr Patapim"));
 
         npc.get(0).setDialogues(new String[]{"hello there", "yoou da real ART", "hey pookie"}, 
