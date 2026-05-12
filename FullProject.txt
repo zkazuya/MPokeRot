@@ -21,12 +21,9 @@ public class BattleSystem {
 
     public BattleSystem(GamePanel gamePanel) { this.gamePanel = gamePanel; }
 
-    public String getCurrentMessage () { return this.dialogText; }
-
     public void startEncounter (ArrayList <PokeRot> enemyParty, NPC opponent) {
         this.activeEnemyParty = enemyParty;
         this.currentNPCOpponent = opponent;
-
         this.activePlayer = gamePanel.getPlayer().getFirstAlivePokeRot();
         this.activeEnemy = getFirstAliveEnemyPokeRot();
         this.battleSubState = 0;
@@ -38,10 +35,8 @@ public class BattleSystem {
     public void update() {
         if (activePlayer != null) activePlayer.update();
         if (activeEnemy != null) activeEnemy.update();
-        if (keyCooldown > 0) {
-            keyCooldown--;
-        } else {
-            // UTILIZE OOP AND MADE THE WHOLE LOGIC USE ENHANCED SWITCH
+        if (keyCooldown > 0) keyCooldown--;
+        else { // UTILIZE OOP AND MADE THE WHOLE LOGIC USE ENHANCED SWITCH
             switch (battleSubState){
                 case 0 -> initiateActionSelectionState();
                 case 1 -> initiateMoveSelectionState();
@@ -110,7 +105,6 @@ public class BattleSystem {
 
     public void initiateMoveSelectionState () { // THIS STATE IS WHEN WE'RE INSIDE MOVE SELECTION
         twoByTwoSelectionHelper(); // CALL THE SELECTION FUNCTION
-
         if (gamePanel.keyHandler.getEscPressed()) {
             battleSubState = 0;
             optionSelected = 0;
@@ -140,14 +134,12 @@ public class BattleSystem {
 
     public void initiateEnemyTakingDamageAnimationState() { // THIS STATE IS JUST RENDERING THE HP BAR OF ENEMY POKEROT DRAINING
         if (activeEnemy.getDrawnHP() == activeEnemy.getCurrentHP()) {
-            if (activeEnemy.getCurrentHP() <= 0) { // IF THE ENEMY DIED
-                // STOP AND SHOW FAINTED DIALOGUE
+            if (activeEnemy.getCurrentHP() <= 0) { // IF THE ENEMY DIED STOP AND SHOW FAINTED DIALOGUE
                 if (!dialogText.contains("fainted")) {
                     dialogText = activeEnemy.getName() + " fainted!";
                     keyCooldown = 16;
                     return;
                 }
-                
                 if (gamePanel.keyHandler.getEnterPressed() && keyCooldown == 0) {
                     expGainedThisBattle = activeEnemy.getBaseExpYield();
                     dialogText = activePlayer.getName() + " gained " + expGainedThisBattle + " EXP!";
@@ -155,16 +147,10 @@ public class BattleSystem {
                     battleSubState = 6;
                     keyCooldown = 16;
                 }
-
             } else { // IF THE ENEMY IS ALIVE OR HP > 0
-
-                // Wait for the player to press Enter before the enemy retaliates
                 if (gamePanel.keyHandler.getEnterPressed() && keyCooldown == 0) {
-
-                    // FIXED: Properly roll the random move and save it to enemyMoveToUse!
                     int randomMoveIndex = (int) (Math.random() * activeEnemy.getHowManyMoves());
                     enemyMoveToUse = activeEnemy.getMove(randomMoveIndex);
-
                     dialogText = activeEnemy.getName() + " retaliated with " + enemyMoveToUse.getName() + "!";
                     battleSubState = 4; // JUMP TO ENEMY TURN STATE CUZ THEY SURVIVED
                     keyCooldown = 16;
@@ -183,8 +169,6 @@ public class BattleSystem {
     }
 
     public void initiateOurPokerotTakingDamageAnimationState() { // THIS STATE RENDERS OUR HP BAR MOVING (DAMAGE & HEAL)
-
-        // 1. CATCH THE SWAP CONFIRMATION FIRST BEFORE ANY HP CHECKS!
         if (dialogText.startsWith("Swapping")) {
             if (gamePanel.keyHandler.getEnterPressed() && keyCooldown == 0) {
                 gamePanel.battleUI.loadFighterImages(activePlayer, activeEnemy);
@@ -195,12 +179,8 @@ public class BattleSystem {
             }
             return; // EXIT EARLY SO WE DON'T DO THE REST OF THE METHOD
         }
-
-        // 2. Wait until HP bar stops moving visually before letting the player progress
-        if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) {
-
-            // IF THE ACTIVE POKEROT FAINTED (HP <= 0)
-            if (activePlayer.getCurrentHP() <= 0) {
+        if (activePlayer.getDrawnHP() == activePlayer.getCurrentHP()) { 
+            if (activePlayer.getCurrentHP() <= 0) { // IF THE ACTIVE POKEROT FAINTED (HP <= 0)
                 if (!dialogText.contains("fainted")) {
                     dialogText = activePlayer.getName() + " fainted!";
                     keyCooldown = 16;
@@ -241,9 +221,7 @@ public class BattleSystem {
             if (leveledUpThisRound) {
                 dialogText = activePlayer.getName() + " has leveled up to " + activePlayer.getLevel() + "!";
                 battleSubState = 8; // ROUTE TO LEVEL DISPLAY
-            } else {
-                checkNextEnemy(); // HELPER METHOD TO SEE IF BATTLE CONTINUES OR ENDS 
-            }
+            } else checkNextEnemy(); // HELPER METHOD TO SEE IF BATTLE CONTINUES OR ENDS 
             keyCooldown = 16;
         }
     }
@@ -328,9 +306,7 @@ public class BattleSystem {
                     battleSubState = 4; // ENEMY ATTACK STATE BECAUSE YOU SWAPPED POKEROT
                     optionSelected = 0; // RESET CURSOR TOP LEFT
                 }
-            } else {
-                dialogText = "There's no PokeRot in that slot!"; // THEY PICKED AN EMPTY SLOT
-            }
+            } else dialogText = "There's no PokeRot in that slot!"; // THEY PICKED AN EMPTY SLOT
             keyCooldown = 16;
         }
     }
@@ -383,9 +359,7 @@ public class BattleSystem {
                     }
                 }
                 optionSelected = 0;
-            } else {
-                dialogText = "Slot Empty!";
-            }
+            } else dialogText = "Slot Empty!";
             keyCooldown = 16;
         }
     }
@@ -403,27 +377,21 @@ public class BattleSystem {
         if (nextEnemy != null) {
             activeEnemy = nextEnemy;
             gamePanel.battleUI.loadFighterImages(activePlayer, activeEnemy);
-            if (currentNPCOpponent != null) {
-                dialogText = currentNPCOpponent.getName() + " sent out " + activeEnemy.getName() + "!";
-            } else {
-                dialogText = "A wild " + activeEnemy.getName() + " appeared!";
-            }
+            if (currentNPCOpponent != null) dialogText = currentNPCOpponent.getName() + " sent out " + activeEnemy.getName() + "!";
+            else dialogText = "A wild " + activeEnemy.getName() + " appeared!";
             battleSubState = 9; // ROUTE TO TRANSITION SCREEN
         } else {
-            if (currentNPCOpponent != null) {
-                dialogText = "You defeated " + currentNPCOpponent.getName() + "!";
-            } else {
-                dialogText = "You won the battle!";
-            }
+            if (currentNPCOpponent != null) dialogText = "You defeated " + currentNPCOpponent.getName() + "!";
+            else dialogText = "You won the battle!";
             battleSubState = 9;
         }
     }
 
     public int getOptionSelected() { return this.optionSelected; }
+    public String getCurrentMessage () { return this.dialogText; }
     public int getBattleSubState() { return this.battleSubState; }
     public PokeRot getActivePlayer() { return this.activePlayer; }
     public PokeRot getActiveEnemy() { return this.activeEnemy; }
-
 }
 
 
@@ -443,7 +411,6 @@ public class BattleUI {
     private GamePanel gamePanel;
     private BufferedImage battleBackground;
     private Font dynamicFont;
-    private Font swapFont;
     private Font HPFont;
     private Font moveFont;
     private BufferedImage playerRot;
@@ -454,9 +421,7 @@ public class BattleUI {
         int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
         moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
-        swapFont = new Font("Arial", Font.PLAIN, (int)(fontSize *0.55));
         HPFont = new Font("Arial", Font.BOLD, (int)(fontSize * 0.75));
-        
         try { // LOAD BATTLE BACKGROUND  
             battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
         } catch (IOException ioE) {
@@ -470,7 +435,7 @@ public class BattleUI {
         int boxY = gamePanel.getScreenHeight() - boxHeight; // BOX'S Y IS THE SPACE LEFTOVER FROM BOXHEIGHT
         // DRAW BATTLE BACKGROUND ACCORDING TO CONFIGURATIONS ABOVE
         graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
-        
+    
         int pokerotSize = tileSize * 4; // SIZE OF POKEROT IS 4 TILES
         int playerX = tileSize * 2; // COORDS X FOR POKEROT
         int playerY = boxY - pokerotSize + (tileSize / 2); // COORDS Y FOR POKEROT
@@ -485,6 +450,8 @@ public class BattleUI {
         PokeRot activePlayer = gamePanel.battleSystem.getActivePlayer();
         PokeRot activeEnemy = gamePanel.battleSystem.getActiveEnemy();
 
+        if (activePlayer == null || activeEnemy == null) return;
+
         int enemyBoxX = tileSize / 2; // COORDS X FOR HEALTHBAR ENEMY
         int enemyBoxY = tileSize / 2; // COORDS Y FOR HEALTHBAR ENEMY
         // DRAW HEALTH BAR FOR ENEMY (SEE drawHealthBar() METHOD BELOW)
@@ -492,7 +459,6 @@ public class BattleUI {
 
         int playerBoxX = gamePanel.getScreenWidth() - (int)(tileSize * 5); // COORDS X FOR HEALTHBAR PLAYER
         int playerBoxY = boxY - (int)(tileSize * 1.8); // COORDS Y FOR HEALTHBAR PLAYER
-
         // DRAW HEALTH BAR FOR PLAYER (SEE drawHealthBar() METHOD BELOW)
         drawHealthBar(graphics2D, playerBoxX, playerBoxY, activePlayer, true);
 
@@ -500,25 +466,21 @@ public class BattleUI {
         int rightBoxX = gamePanel.getScreenWidth() - rightBoxWidth; // COORDS X IS LEFTOVER SPACE FROM LEFT CONTAINER
         int leftBoxWidth = gamePanel.getScreenWidth() - rightBoxWidth; // WIDTH OF LEFT BOX IS LEFTOVER OF RIGHT CONTAINER
         int leftBoxX = 0; // COORDS X OF LEFT CONTAINER (LEFTMOST)
-        
         // DRAW THE TWO SQUARES OR HIGHLIGHT BOXES OF LEFT AND RIGHT CONTAINER (SEE drawSubWindow() METHOD BELOW)
         drawSubWindow(graphics2D, leftBoxX, boxY, leftBoxWidth, boxHeight);
         drawSubWindow(graphics2D, rightBoxX, boxY, rightBoxWidth, boxHeight);
 
         graphics2D.setFont(dynamicFont);
         graphics2D.setColor(Color.WHITE);
-
         int textX = leftBoxX + (tileSize / 2); // STARTING HORIZONTAL POSITION FOR TEXT (LEFT BY HALF A TILE RELATIVE TO LEFT BOXX)
         int textY = boxY + tileSize; // STARTING VERTICAL POSITION FOR TEXT (UP BY ONE TILE RELATIVE TO BOXY)
         int menuX = rightBoxX + tileSize; // INITIAL X POSITION OF SELECTABLES ON RIGHT CONTAINER
         int menuY = boxY + tileSize; // INITIAL Y POSITION OF SELECTABLES ON RIGHT CONTAINER
         int xSpace = tileSize * 2; // HORIZONTAL PADDING
         int ySpace = (int) (tileSize * 0.75); // VERTICAL PADDING
-
         int subState = gamePanel.battleSystem.getBattleSubState(); // CONTROLS WHAT UI WILL BE DISPLAYED (subState 1 UNTIL 9)
         int currentOption = gamePanel.battleSystem.getOptionSelected(); // JUST GETS OPTION FROM BATTLE SYSTEM (0-3)
         int cursorOffset = tileSize / 3; // THIS IS THE POSITION OF ">" ON RIGHT CONTAINER
-
         if (subState == 0) { // IN BATTLESYSTEM.JAVA THIS IS initiateActionSelectionState();
             // WE USE OUR CONFIGURATIONS ABOVE TO DRAW THE OPTIONS FOR LEFT AND RIGHT CONTAINER
             graphics2D.drawString("What will", textX, textY);
@@ -539,7 +501,6 @@ public class BattleUI {
             else graphics2D.drawString("-", menuX, menuY + ySpace);
             if (activePlayer.getMove(3) != null) graphics2D.drawString(activePlayer.getMove(3).getName(), menuX + xSpace, menuY + ySpace);
             else graphics2D.drawString("-", menuX + xSpace, menuY + ySpace);
-
         } else if (subState >= 2 && subState <= 10) { // IN BATTLESYSTEM THIS IS initiateCalculateEnemyDamageReceivedState();
             String currentMessage = gamePanel.battleSystem.getCurrentMessage();
             // WHILE ENEMY IS "TAKING DMG" FROM ANIMATION JUST DRAW THE TEXT AS PRESS ENTER
@@ -558,10 +519,8 @@ public class BattleUI {
             else graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
         graphics2D.setFont(moveFont); // USING SMALLER FONT TO FIT NAMES AND HP
         ArrayList <PokeRot> party = gamePanel.getPlayer().getPlayerParty();
-
         int swapMenuX = rightBoxX + (tileSize / 2);
         int swapXSpace = (int) (tileSize * 2.3);
-
         for (int i = 0; i < 4; i++) {
             int drawX = swapMenuX;
             int drawY = menuY;
@@ -574,16 +533,11 @@ public class BattleUI {
                 else if (playerRot.getCurrentHP() <= 0) label += " (Fnt)";
                 else label += " (" + playerRot.getCurrentHP() + "HP)";
                 graphics2D.drawString(label, drawX, drawY);
-            } else {
-                graphics2D.drawString("-", drawX, drawY);
-                }
-            }
-        } else if (subState == 12) {
-            if (gamePanel.battleSystem.getCurrentMessage().isEmpty()) {
-                graphics2D.drawString("Open Bag:", textX, textY);
-            } else {
-                graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
-            }
+            } else graphics2D.drawString("-", drawX, drawY);
+        }
+    } else if (subState == 12) {
+            if (gamePanel.battleSystem.getCurrentMessage().isEmpty()) graphics2D.drawString("Open Bag:", textX, textY);
+            else graphics2D.drawString(gamePanel.battleSystem.getCurrentMessage(), textX, textY);
             graphics2D.setFont(moveFont);
             graphics2D.drawString("Malunggay Pandesal (x99)", menuX, menuY);
             graphics2D.drawString("-", menuX + xSpace, menuY);
@@ -611,7 +565,6 @@ public class BattleUI {
         int tileSize = gamePanel.getTileSize(); // SHORTCUT VARIABLE
         int arcSize = tileSize / 3; // I DID NOT DEFINE ARCHEIGHT ARCWIDTH CUZ IT'S SQUARE AND USES SAME DIMENSION
         int borderThickness = Math.max(1, tileSize / 20); // SM ARBITRARY VALUE FOR THE THICKNESS
-
         Color blackBox = new Color(0, 0, 0, 210); // 210 MAKES IT SLIGHTLY SEE THROUGH
         graphics2D.setColor(blackBox);
         graphics2D.fillRoundRect(x, y, width, height, arcSize, arcSize);
@@ -639,40 +592,30 @@ public class BattleUI {
         int barY = textY + (tileSize / 3);
         int barWidth = boxWidth - tileSize;
         int barHeight = tileSize / 4;
-
         graphics2D.setColor(new Color(50, 50, 50));
         graphics2D.fillRect(barX, barY, barWidth, barHeight);
-
         double hpRatio = (double) pokerot.getDrawnHP() / pokerot.getMaxHP();
         int currentBarWidth = (int) (barWidth * hpRatio);
         graphics2D.setColor(Color.GREEN);
         graphics2D.fillRect(barX, barY, currentBarWidth, barHeight);
-
         graphics2D.setColor(Color.WHITE);
         graphics2D.setStroke(new BasicStroke(borderThickness));
         graphics2D.drawRect(barX, barY, barWidth, barHeight);
-
         graphics2D.setFont(HPFont);
         graphics2D.setColor(new Color(50, 50, 50));
         String HPString = pokerot.getCurrentHP() + " / " + pokerot.getMaxHP();
-        
         int HPTextX = barX + (tileSize / 8);
         int HPTextY = barY + (barHeight / 2) + (tileSize / 16);
         graphics2D.drawString(HPString, HPTextX, HPTextY);
-
         if (isPlayer) {
             int expBarY = barY + barHeight + (tileSize / 10);
             int expBarHeight = tileSize / 8;
-
             graphics2D.setColor(new Color(50, 50, 50));
             graphics2D.fillRect(barX, expBarY, barWidth, expBarHeight);
-
             double expRatio = pokerot.getDrawnExp() / pokerot.getExpNeeded();
             int currentExpWidth = (int) (barWidth * expRatio);
-
             graphics2D.setColor(Color.CYAN);
             graphics2D.fillRect(barX, expBarY, currentExpWidth, expBarHeight);
-
             graphics2D.setColor(Color.WHITE);
             graphics2D.setStroke(new BasicStroke(1));
             graphics2D.drawRect(barX, expBarY, barWidth, expBarHeight);
@@ -684,7 +627,6 @@ public class BattleUI {
         try {
             String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
             String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
-
             playerRot = ImageIO.read(new FileInputStream("Assets/PokeRotBack/" + playerFileName));
             enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
         } catch (IOException ioE) {
@@ -704,11 +646,9 @@ public class Dialogue {
     private String[] currentDialogue;
     private int dialogueIndex = 0;
     private boolean enterKeyHandled = false;
-    private NPC currentNPC; // Remembers who we are talking to
+    private NPC currentNPC; // REMEMBER WHO WE ARE CURRENTLY TALKING TO
 
-    public Dialogue(GamePanel gp) {
-        this.gp = gp;
-    }
+    public Dialogue(GamePanel gp) { this.gp = gp; }
 
     public void startDialogue(String[] lines, NPC npc) {
         this.currentDialogue = lines;
@@ -726,11 +666,16 @@ public class Dialogue {
 
                 // IF WE'RE TALKING TO AN NPC
                 if (currentNPC != null) {
-                    if (!currentNPC.isDefeated()) { // AND HE ISN'T DEFEATED YET
+                    if (!currentNPC.isDefeated() && !currentNPC.getNPCParty().isEmpty()) { // AND HE ISN'T DEFEATED YET
                         gp.battleSystem.startEncounter(currentNPC.getNPCParty(), currentNPC); // START THE BATTLE
                         gp.gameState = GameState.BATTLESTATE;
                     } else {
-                        // JUST GO BACK TO ROAMING STATE IF THEY'RE ALREADY DEFEATED
+                        if (currentNPC.getName().equals("Nurse Yot")) {
+                            for (PokeRot each : gp.getPlayer().getPlayerParty()) {
+                                each.heal(each.getMaxHP());
+                                each.initAfterLoad();
+                            }
+                        }
                         gp.gameState = GameState.ROAMSTATE;
                     }
                     currentNPC = null; // CLEAR THE MEMORY
@@ -740,15 +685,11 @@ public class Dialogue {
                 }
             }
             enterKeyHandled = true;
-        } else if (!keyHandler.getEnterPressed()) {
-            enterKeyHandled = false;
-        }
+        } else if (!keyHandler.getEnterPressed()) enterKeyHandled = false;
     }
 
     public void draw(Graphics2D g2) {
-        if (gp.gameState == GameState.TALKINGSTATE && currentDialogue != null) {
-            drawDialogueWindow(g2);
-        }
+        if (gp.gameState == GameState.TALKINGSTATE && currentDialogue != null) drawDialogueWindow(g2);
     }
 
     private void drawDialogueWindow(Graphics2D g2) {
@@ -758,14 +699,8 @@ public class Dialogue {
         g2.setColor(Color.WHITE);
         g2.setStroke(new BasicStroke(3));
         g2.drawRoundRect(x, y, width, height, 25, 25);
-
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
-        g2.drawString(currentDialogue[dialogueIndex], x + 20, y + 40);
-
-        if (currentDialogue != null && dialogueIndex < currentDialogue.length) {
-            g2.drawString(currentDialogue[dialogueIndex], x + 20, y + 40);
-        }
-
+        if (currentDialogue != null && dialogueIndex < currentDialogue.length) g2.drawString(currentDialogue[dialogueIndex], x + 20, y + 40);
         g2.setFont(new Font("Arial", Font.BOLD, 16));
         g2.drawString("Press Enter >", x + 560, y + 85);
     }
@@ -796,15 +731,16 @@ public class EncounterManager {
 
     public void checkEncounter () {
         if (encounterCooldown > 0) return; // IF COOLDOWN IS ACTIVE IGNORE THE GRASS (IN THIS CASE THIS METHOD)
+        if (player.getPlayerParty().isEmpty()) return;
         int randomChance = (int)(Math.random() * 100); // THIS VARIABLE MEANS SCALE TO 99%
         if (randomChance < 10) {
-            gamePanel.gameState = GameState.BATTLESTATE;
 
             PokeRot playerRot = player.getFirstAlivePokeRot();
             PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
             ArrayList <PokeRot> wildParty = new ArrayList<>();
             wildParty.add(wildRot);
             gamePanel.battleSystem.startEncounter(wildParty, null);
+            gamePanel.gameState = GameState.BATTLESTATE;
         }
     }
 }
@@ -814,18 +750,18 @@ public class EncounterManager {
 
 import java.awt.image.BufferedImage;
 
-public class Entity { // instances are protected such that inheritinng classes can modify them
-    protected int x, y; // entity coordinates x and y
-    protected int speed; // movement speed
-    protected int animationSpeed; //Determines how fast the animation for an NPC walk would be
+public class Entity { 
+    protected int x, y; 
+    protected int speed; 
+    protected int animationSpeed; 
 
     protected BufferedImage[] upSprites = new BufferedImage[4];
     protected BufferedImage[] downSprites = new BufferedImage[4];
     protected BufferedImage[] leftSprites = new BufferedImage[4];
     protected BufferedImage[] rightSprites = new BufferedImage[4];
 
-    protected int spriteCounter = 0; // ensures no glitches on animation
-    protected int spriteNumber = 0; // tracks which frame of animation were on
+    protected int spriteCounter = 0; 
+    protected int spriteNumber = 0; 
 
     public int getX () { return this.x; }
     public int getY () { return this.y; }
@@ -844,7 +780,7 @@ import java.awt.CardLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-//Created GameFrame so that we can have the driver class thingy, this is also where we swap our panels
+// CREATED GAME FRAME SO THAT WE CAN HAVE THE DRIVER CLASS, THIS IS WHERE WE SWAP OUR PANELS
 
 public class GameFrame extends JFrame {
     GamePanel gamePanel;
@@ -857,15 +793,11 @@ public class GameFrame extends JFrame {
         setResizable(false);
         setTitle("PokeRot");
         gamePanel = new GamePanel(this);
-        gameIntro = new GameIntro(this);// has "this" so that the Panels will have access to changing panels  "switchPanel()"
-
+        gameIntro = new GameIntro(this);
         switcher = new CardLayout();
-
         switcherPanel = new JPanel(switcher);
-
-        switcherPanel.add(gameIntro, "Intro"); // assigning them names, so that we can easily switch with them later on
+        switcherPanel.add(gameIntro, "Intro");
         switcherPanel.add(gamePanel, "Game");
-
         add(switcherPanel);
         pack();
         setLocationRelativeTo(null);
@@ -876,13 +808,11 @@ public class GameFrame extends JFrame {
     public void switchPanel(String name) {
         if ("Game".equals(name)) {
             switcher.show(switcherPanel, name);
-            gamePanel.requestFocusInWindow(); // this is so that the gamePanel will be able to use their keyboard
-                                              // because the gui stops when you dont have focus on that component
+            gamePanel.requestFocusInWindow(); 
         }
         switcherPanel.revalidate();
         switcherPanel.repaint();
     }
-
 }
 
 
@@ -910,18 +840,14 @@ import javax.sound.sampled.FloatControl;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-//The Intro for the game (I will explain this code better in f2f meetings)
-
 public class GameIntro extends JPanel {
 
-    
     private BufferedImage introFrame, gifFrame, currIntroFrame, currGifFrame;
     private Timer timer, gifTimer;
-
     private int currFrame = 0;
     private int gifCurrFrame = 0;
     private boolean intro = true;
-    private boolean showText = false; // dictates whether the text will be showing on the screen or not
+    private boolean showText = false; // DICTATES WHETHER THE TEXT WILL BE SHOWING IN THE SCREEN OR NOT
     private int screenWidth = 32 * 16;
     private int screenHeight = 32 * 12;
     private int zeru = 0;
@@ -929,7 +855,6 @@ public class GameIntro extends JPanel {
     private int introFrameSize = 560;
     private boolean spacePressed = false;
     private boolean shiftPressed = false;
-
     GameFrame frame;
     Clip gifLoop;
     Clip titleLoop;
@@ -950,17 +875,13 @@ public class GameIntro extends JPanel {
                 if (e.getKeyCode() == KeyEvent.VK_SHIFT) shiftPressed = false;
             }
         });
-
         Clip eyeSound = loadSound("Assets/Music/OpenEyeSound_(2).wav");
         Clip introSound = loadSound("Assets/Music/TitleScreen(no_melody).wav");
         Clip whoosh = loadSound("Assets/Music/woosh.wav");
         
-        
-        if (eyeSound != null){
-            eyeSound.start();
-        }
+        if (eyeSound != null) eyeSound.start();
 
-        timer = new Timer(33, e -> { // a timer of 33 miliseconds (30 frames per second)
+        timer = new Timer(33, e -> { // A TIMER OF 33 MILISECOND (30 FPS)
             currFrame++;
             if (currFrame == 162){
                 if (eyeSound != null){
@@ -975,85 +896,63 @@ public class GameIntro extends JPanel {
                 }
             }
             currIntroFrame = loadIntroFrames(currFrame);
-            if (currFrame >= introFrameSize || shiftPressed) { // if ever the current frame of the intro
-                                                                            // animation equals to the amount maximum
-                                                                            // frames, it will stop and then switch to
+            if (currFrame >= introFrameSize || shiftPressed) { // IF CURRENT FRAME OF THE INTRO ANIMATION EQUALS AMOUNT OF MAXIMUM FRAMES THEN STOP AND SWITCH TO
                 if (introSound != null){
                     introSound.stop();
                     introSound.close();
                 }if (eyeSound != null){
                     eyeSound.stop();
                     eyeSound.close();
-                }
-                
+                }   
                 gifLoop = loadSound("Assets/Music/Titlescreen(1).wav");
-
                 if(gifLoop != null){
-                    gifLoop.loop(Clip.LOOP_CONTINUOUSLY);
+                    gifLoop.loop(Clip.LOOP_CONTINUOUSLY); // THE GIF ANIMATION SO IT CAN LOOP
                 }
-                                                                      // the GIF animation so it can loop
-                timer.stop(); // if Shift is pressed then it will immediately go to the GIF
-                gifStart(); // method down below
-                intro = false; // boolean used to dictate that the intro animation will not be introing
-                
+                timer.stop(); // IF SHIFT IS PRESSED THEN IT WILL IMMEDIATELY GO TO GIF
+                gifStart(); // METHOD DOWN BELOW
+                intro = false; // BOOLEAN USED TO DICTATE WHETHER WILL INTRO OR NOT
             }
             repaint();
         });
         timer.start();
-
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2d = (Graphics2D) g;
-
         if (currIntroFrame != null && intro == true) {
             g2d.drawImage(currIntroFrame, zeru, zeru, getWidth(), getHeight(), null);
         } else if (currGifFrame != null && intro == false) {
             g2d.drawImage(currGifFrame, zeru, zeru, getWidth(), getHeight(), null);
             if (showText) {
-
                 Font font = new Font("Arial", Font.BOLD, 48);
                 g2d.setFont(font);
                 String title = "Press SPACE to start!";
                 int x = ((screenWidth / 2 - g2d.getFontMetrics().stringWidth(title) / 2) + 250);
                 int y = screenHeight / 2 + 350;
-
-                // Creating outline for text
-                FontMetrics fm = g2d.getFontMetrics(); // gets the measurements of the font
-                GlyphVector transformer = font.createGlyphVector(fm.getFontRenderContext(), title); // transforms the
-                                                                                                    // text that you
-                                                                                                    // have, into a
-                                                                                                    // shape so that you
-                                                                                                    // can add an
-                                                                                                    // outline to it
-                Shape textShape = transformer.getOutline(x, y); // adds the outline of the newly transformed text, by
-                                                                // casting it as a shape (kind of)
-
-                // colors the outline
+                // CREATING OUTLINE FOR TEXT
+                FontMetrics fm = g2d.getFontMetrics(); // GETS THE MEASURES OF THE FONTS
+                // TRANSFORMS THE TEXT THAT YOU HAVE, INTO SHAPE SO THAT YOU CAN ADD AN OUTLINE TO IT
+                GlyphVector transformer = font.createGlyphVector(fm.getFontRenderContext(), title); 
+                // ADDS THE OUTLINE OF THE NEWLY TRANSFORMED TEXT, BY CASTING IT AS A SHAPE (KIND OF)
+                Shape textShape = transformer.getOutline(x, y);
                 g2d.setColor(Color.BLACK);
                 g2d.setStroke(new BasicStroke(5f));
                 g2d.draw(textShape);
-                // colors the text
                 g2d.setColor(Color.WHITE);
                 g2d.fill(textShape);
                 g2d.dispose();
-
             }
         }
-
     }
 
     public void gifStart() {
         gifTimer = new Timer(33, e -> {
             gifCurrFrame++;
             currGifFrame = loadGifFrames(gifCurrFrame); 
-            if (gifCurrFrame >= gifFrameSize) {
-                gifCurrFrame = 0; // whenever the current frame reaches the same amount the frames in the GIF will
-                                  // reset back to 0 to make a loop
-                
+            if (gifCurrFrame >= gifFrameSize) { // WHENEVER THE CURRENT FRAME REACHES THE SAME AMOUNT OF FRAMES IN THE GIF WILL RESET BACK TO 0 TO MAKE LOOP
+                gifCurrFrame = 0;        
             }
             if (spacePressed) {
                 if (gifLoop != null){
@@ -1064,21 +963,13 @@ public class GameIntro extends JPanel {
                 FloatControl gainControl = (FloatControl) titleLoop.getControl(FloatControl.Type.MASTER_GAIN);
                 gainControl.setValue(-15f);
                 if(titleLoop != null){
-                    
                     titleLoop.loop(Clip.LOOP_CONTINUOUSLY);
                 }
-                frame.switchPanel("Game"); // if Space is pressed, then it will go to game
+                frame.switchPanel("Game"); // IF SHIFT IS PRESSED THEN IT WILL GO TO GAME
                 gifTimer.stop();
             }
-            if ((gifCurrFrame >= 10 && gifCurrFrame <= 40) || (gifCurrFrame >= 90 && gifCurrFrame <= 120)) { // this if
-                                                                                                             // statement
-                                                                                                             // makes it
-                                                                                                             // so that
-                                                                                                             // the text
-                                                                                                             // will
-                                                                                                             // only
-                                                                                                             // show up
-                                                                                                             // every 30                                                                                            // frames
+            // THIS IF STATEMENT MAKES IT SO THAT THE TEXT WILL ONLY SHOW UP EVERY 30
+            if ((gifCurrFrame >= 10 && gifCurrFrame <= 40) || (gifCurrFrame >= 90 && gifCurrFrame <= 120)) {                                                                                         // frames
                 showText = true;
             } else {
                 showText = false;
@@ -1090,19 +981,11 @@ public class GameIntro extends JPanel {
 
     public BufferedImage loadIntroFrames(int i){
         try {
-            
-            if (i < 10) {
-                return ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
-            } else if (i < 100 && i > 9) {
-                return ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
-            } else {
-                return ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));
-                
-            }
-        } catch (IOException e) {
-        }
+            if (i < 10) return ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
+            else if (i < 100 && i > 9) return ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
+            else return ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));   
+        } catch (IOException e) { }
         return null;
-
     }
 
     public BufferedImage loadGifFrames(int i){
@@ -1117,31 +1000,25 @@ public class GameIntro extends JPanel {
                     return ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
                     
                 }
-        } catch (IOException e) {
-        }
+        } catch (IOException e) { }
         return null;
     }
 
-    public void setIntro() { // makes it so that the intro animation will repeat
+    public void setIntro() { // MAKES IT SO INTRO ANIMATION CAN REPEAT
         intro = true;
     }
 
     public Clip loadSound(String path){
         try {
             AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
-
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
-
             return clip;
-            
         }catch (Exception e){
             e.printStackTrace();
         }
         return null;
     }
-
-    
 }
 
 
@@ -1359,33 +1236,54 @@ public class KeyHandler implements KeyListener {
     @Override
     public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HELD
         int code = input.getKeyCode(); 
-
         switch (code) {
-            // --- DIRECTIONAL UI NAVIGATION SOUNDS (Marked true to block overworld walk sound buzzes) ---
-            case KeyEvent.VK_W -> { upPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_A -> { leftPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_S -> { downPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_D -> { rightPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            // DIRECTIONAL UI NAVIGATION SOUNDS
+            case KeyEvent.VK_W -> { 
+                if (!upPressed) playMenuSound("Assets/Music/buttSelect.wav", true);
+                upPressed = true; 
+            }
+            case KeyEvent.VK_A -> { 
+                if (!leftPressed) playMenuSound("Assets/Music/buttSelect.wav", true);
+                leftPressed = true; 
+            }
+            case KeyEvent.VK_S -> { 
+                if (!downPressed) playMenuSound("Assets/Music/buttSelect.wav", true);
+                downPressed = true; 
+            }
+            case KeyEvent.VK_D -> { 
+                if (!rightPressed) playMenuSound("Assets/Music/buttSelect.wav", true);
+                rightPressed = true; 
+            }
             
-            // --- GENERAL INTERACTION AND ACTION SOUNDS (Marked false to always play across screens) ---
-            case KeyEvent.VK_F -> { fPressed = true; playMenuSound("Assets/Music/interact.wav", false); }
-            case KeyEvent.VK_ENTER -> { enterPressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
-            case KeyEvent.VK_SPACE -> { spacePressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
-            case KeyEvent.VK_ESCAPE -> { escPressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
-            case KeyEvent.VK_BACK_SPACE -> { backSpacePressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
+            // GENERAL INTERACTION AND ACTION SOUNDS
+            case KeyEvent.VK_F -> { 
+                if (!fPressed) playMenuSound("Assets/Music/buttSelect.wav", false);
+                fPressed = true; 
+            }
+            case KeyEvent.VK_ENTER -> { 
+                if (!enterPressed) playMenuSound("Assets/Music/buttSelect.wav", false);
+                enterPressed = true; 
+            }
+            case KeyEvent.VK_SPACE -> { 
+                if (!spacePressed) playMenuSound("Assets/Music/buttSelect.wav", false);
+                spacePressed = true; 
+            }
+            case KeyEvent.VK_ESCAPE -> { 
+                if (!escPressed) playMenuSound("Assets/Music/buttSelect.wav", false);
+                escPressed = true; 
+            }
+            case KeyEvent.VK_BACK_SPACE -> { 
+                if (!backSpacePressed) playMenuSound("Assets/Music/buttSelect.wav", false);
+                backSpacePressed = true; 
+            }
         }
     }
 
-    // New helper method to route crisp audio menu clicks safely without background noise loop overlap
+    // NEW HELPER METHOD TO ROUTE CRISP AUDIO MENU CLICKS SAFELY WITHOUT BACKGROUND NPISE LOOP OVERLAP
     private void playMenuSound(String soundPath, boolean isDirectionalKey) {
         if (gamePanel == null) return;
-        
-        // Block directional movement indicators from playing clips during exploration ticks
-        if (isDirectionalKey && gamePanel.gameState == GameState.ROAMSTATE) {
-            return; 
-        }
-        
-        // Direct execution across any background layout menu layers
+        if (isDirectionalKey && gamePanel.gameState == GameState.ROAMSTATE) return; 
+        // DIRECT EXECUTION ACROSS ANY BACKGORUND LAYOUT MENU LAYERS
         SoundHelper.playSound(soundPath);
     }
 
@@ -1421,7 +1319,6 @@ public class KeyHandler implements KeyListener {
     public char getTypedChar() { return typedChar; }
     public void resetTypedChar() { charTyped = false; }
 
-    //setters pleek pleek
     public void setUpPressed(boolean upPressed) { this.upPressed = upPressed; }
     public void setDownPressed(boolean downPressed) { this.downPressed = downPressed; }
     public void setLeftPressed(boolean leftPressed) { this.leftPressed = leftPressed; }
@@ -1474,16 +1371,16 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-public class NPC extends Entity{
+public class NPC extends Entity {
     int type; // INDEX OF THE NPCS IN THE ARRAY OF NPC
     private String name;
     private boolean isDefeated = false; // BY DEFAULT ALL NPCS ARE NOT DEFEATED (MEANS BATTLEABLE)
-    private ArrayList <PokeRot> npcParty; // THE ARRAYLIST OF POKEROTS OF THE ENEMY NPC
+    private ArrayList<PokeRot> npcParty; // THE ARRAYLIST OF POKEROTS OF THE ENEMY NPC
     GamePanel gamePanel;
     private String[] preBattleDialogue;
     private String[] postBattleDialogue;
 
-    public NPC(GamePanel gamePanel, int x, int y, int type, String name){ //char variable is for what npc
+    public NPC(GamePanel gamePanel, int x, int y, int type, String name) { // char variable is for what npc
         this.x = x;
         this.y = y;
         this.type = type;
@@ -1493,57 +1390,73 @@ public class NPC extends Entity{
         loadImages();
     }
 
-    public void addPokeRot (PokeRot pokeRot) {
-        if (npcParty.size() < 3 && pokeRot != null) npcParty.add(pokeRot);
+
+    public void addPokeRot(PokeRot pokeRot) {
+        if (npcParty.size() < 3 && pokeRot != null)
+            npcParty.add(pokeRot);
     }
 
-    public PokeRot getFirstAlivePokeRot () {
+
+    public PokeRot getFirstAlivePokeRot() {
         for (PokeRot eachPokeRot : npcParty) {
-            if (eachPokeRot.getCurrentHP() > 0) return eachPokeRot;
+            if (eachPokeRot.getCurrentHP() > 0)
+                return eachPokeRot;
         }
         return null;
     }
 
-    public void loadImages(){
-        try { //NO NEED TO INITIALIZE DOWNSPRITES SINCE IT'S BEEN INITIALIZED IN ENTITY
-        //LIST OF NPCs by int
+    public void loadImages() {
+        try {
             npcParty = new ArrayList<>();
-            downSprites = new BufferedImage[5];
+            downSprites = new BufferedImage[15];
             downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/PokeGIVER.png"));
             downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Healer_Overworld.png"));
             downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Prof._mmY.png"));
             downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sir_Sam_NPC.png"));
-           // downSprites[4] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Champ_Therese.png"));
-            
-        } catch(Exception e) {e.printStackTrace();}        
+
+
+            downSprites[4] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_0.png"));
+            downSprites[5] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_1.png"));
+            downSprites[6] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_2.png"));
+            downSprites[7] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_3.png"));
+            downSprites[8] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_4.png"));
+            downSprites[9] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_4.png"));
+            downSprites[10] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_6.png"));
+
+            downSprites[11] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sprite_6.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+
     public void draw(Graphics2D g2) {
-        if (downSprites[type]!= null) {
+        if (type >= 0 && type < downSprites.length && downSprites[type] != null) {
             int screenX = x - gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX();
             int screenY = y - gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY();
 
             if (x + gamePanel.getTileSize() > gamePanel.getPlayer().getX() - gamePanel.getPlayer().getScreenX() &&
-                x - gamePanel.getTileSize() < gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX() &&
-                y + gamePanel.getTileSize() > gamePanel.getPlayer().getY() - gamePanel.getPlayer().getScreenY() &&
-                y - gamePanel.getTileSize() < gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY()) {
-                    g2.drawImage(downSprites[type], screenX, screenY, (int)(gamePanel.getTileSize() * 1.3), (int)(gamePanel.getTileSize() * 1.3), null);
+                    x - gamePanel.getTileSize() < gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX() &&
+                    y + gamePanel.getTileSize() > gamePanel.getPlayer().getY() - gamePanel.getPlayer().getScreenY() &&
+                    y - gamePanel.getTileSize() < gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY()) {
+                
+                g2.drawImage(downSprites[type], screenX, screenY, (int) (gamePanel.getTileSize() * 1.3),
+                        (int) (gamePanel.getTileSize() * 1.3), null);
             }
         }
     }
 
-    public void setDialogues (String[] pre, String[] post) {
+    public void setDialogues(String[] pre, String[] post) {
         this.preBattleDialogue = pre;
         this.postBattleDialogue = post;
     }
 
-    public String getName () { return this.name; }
-    public boolean isDefeated () { return this.isDefeated; }
-    public void setDefeated (boolean status) { this.isDefeated = status; }
-    public ArrayList <PokeRot> getNPCParty () { return this.npcParty; }
-    public String[] getPreBattleDialogue () { return this.preBattleDialogue; }
-    public String[] getPostBattleDialogue () { return this.postBattleDialogue; }
-
+    public String getName() { return this.name; }
+    public boolean isDefeated() { return this.isDefeated; }
+    public void setDefeated(boolean status) { this.isDefeated = status; }
+    public ArrayList<PokeRot> getNPCParty() { return this.npcParty; }
+    public String[] getPreBattleDialogue() { return this.preBattleDialogue; }
+    public String[] getPostBattleDialogue() { return this.postBattleDialogue; }
 }
 
 
@@ -1555,7 +1468,6 @@ import java.util.ArrayList;
 public class NPCManager {
     GamePanel gamePanel;
     public ArrayList<NPC> npc;
-    
 
     public NPCManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -1569,31 +1481,73 @@ public class NPCManager {
         npc.add(new NPC(gamePanel, sTile * 60, sTile * 31, 2, "Kuya Shan Shan"));
         npc.add(new NPC(gamePanel, sTile * 39, sTile * 79, 3, "Queen Y"));
         npc.add(new NPC(gamePanel, sTile * 11, sTile * 79, 4, "Sammy strong"));
+        npc.add(new NPC(gamePanel, sTile * 137, sTile * 71, 5, "Scoobaa Scoob"));
+        npc.add(new NPC(gamePanel, sTile * 68, sTile * 53, 6, "Numero Uno"));
+        npc.add(new NPC(gamePanel, sTile * 12, sTile * 47, 7, "Mark"));
+        npc.add(new NPC(gamePanel, sTile * 57, sTile * 67, 8, "Martino Croco"));
+        npc.add(new NPC(gamePanel, sTile * 66, sTile * 93, 9, "Skrill buddy"));
+        npc.add(new NPC(gamePanel, sTile * 140, sTile * 62, 10, "Annie M. Pito"));
+        npc.add(new NPC(gamePanel, sTile * 130, sTile * 95, 11, "Pitou A-nim"));
 
-        npc.get(1).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Holeee"));
-        npc.get(1).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Boneca Ambalabu"));
         npc.get(2).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Skibidi Toilet"));
         npc.get(3).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Frulli Frulla"));
         npc.get(4).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Tung Tung Sahur"));
 
-        npc.get(1).getNPCParty().get(0).jumpToLevel(4);
-        //npc.get(4).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Brr Brr Patapim"));
+
+        npc.get(5).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("67"));
+        npc.get(6).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Bobrini Cocosini"));
+        npc.get(7).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Brr Brr Patapim"));
+        npc.get(8).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Cappuccino Assassino"));
+        npc.get(9).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Tung Tung Sahur"));
+        npc.get(10).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("La Vaca Saturno Saturnita"));
+        npc.get(11).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Udin Din Din Dun"));
+        // npc.get(4).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Brr Brr
+        // Patapim"));
 
         npc.get(0).setDialogues(
-            new String[]{"Ah, I see you've chosen your PokeRot!", "Goodluck out there in the wild!"}, 
-            new String[]{"Excellent!", "You have great potential. Good luck out there!"});
-
-        npc.get(1).setDialogues(new String[]{"hello there", "yoou da real ART", "hey pookie"}, 
-                                new String[]{"damn you beat me bro"});
-        npc.get(2).setDialogues(new String[]{"hello there", "I am Kuya Shhh", "And I will be your opponent!"}, 
-                                new String[]{"Damn you !", "You are very strong!"} );
-        npc.get(3).setDialogues(new String[]{"Oh! Hello there", "I am Queen Y, I work here!", "Want to fight?"}, 
-                                new String[]{"Awww dangg it"});
-        npc.get(4).setDialogues(new String[]{"Hello there", "I am Sammy one of the Strongest!", "Fight me if you dare!"}, 
-                                new String[]{"I never though you could beat me!", "You are worthy!"});
-        
-        
-
+                new String[] { "Ah, I see you've chosen your PokeRot!", "Let's test its strength right now!" },
+                new String[] { "Excellent!", "You have great potential. Good luck out there!" });
+        npc.get(1).setDialogues(new String[] { "Welcome to UP Clinic!", "Let me take your PokeRots for a second!", "*Da-da-da-da-da!*", "There you go they are fully healed!", "Come back anytime!" },
+                new String[] { "damn you beat me bro" });
+        npc.get(2).setDialogues(new String[] { "hello there", "I am Kuya Shhh", "And I will be your opponent!" },
+                new String[] { "Damn you !", "You are very strong!" });
+        npc.get(3).setDialogues(new String[] { "Oh! Hello there", "I am Queen Y, I work here!", "Want to fight?" },
+                new String[] { "Awww dangg it" });
+        npc.get(4).setDialogues(
+                new String[] { "Hello there", "I am Sammy one of the Strongest!", "Fight me if you dare!" },
+                new String[] { "I never though you could beat me!", "You are worthy!" });
+        npc.get(5).setDialogues(
+                new String[] { "Hey there, young trainer!", "Your PokeRot looks full of energy!",
+                        "Care for a quick battle?" },
+                new String[] { "Whoa... your bond with your PokeRot is incredible!",
+                        "Keep training and you'll go far!" });
+        npc.get(5).getNPCParty().get(0).jumpToLevel(4);
+        npc.get(6).setDialogues(
+                new String[] { "The winds today feel perfect for battling!", "Show me what your team can do!" },
+                new String[] { "Hah! That was an exciting match!", "Your strategy caught me off guard!" });
+        npc.get(7).setDialogues(
+                new String[] { "I train every single day beside the tall grass.", "Strong trainers never back down!",
+                        "Battle me now!" },
+                new String[] { "Looks like my training still isn't enough...", "You're seriously talented!" });
+        npc.get(8).getNPCParty().get(0).jumpToLevel(4);
+        npc.get(8).setDialogues(
+                new String[] { "Shhh... listen carefully.", "Wild PokeRot gather around powerful trainers.",
+                        "Let's see if the rumors are true!" },
+                new String[] { "Amazing...", "Your PokeRot fought with pure heart!" });
+        npc.get(9).setDialogues(
+                new String[] { "Yo! I've been waiting for a worthy challenger!",
+                        "Think you can defeat my favorite PokeRot?" },
+                new String[] { "No way!", "Your team is stronger than I expected!" });
+        npc.get(9).getNPCParty().get(0).jumpToLevel(3);
+        npc.get(10).setDialogues(
+                new String[] { "Greetings, traveler.", "Many trainers pass through this route.",
+                        "Few can defeat me though!" },
+                new String[] { "Impressive victory.", "You battle just like a true champion!" });
+        npc.get(1).getNPCParty().get(0).jumpToLevel(2);
+        npc.get(11).setDialogues(
+                new String[] { "Bwahaha!", "My PokeRot and I are unbeatable!", "Prepare yourself!" },
+                new String[] { "What?! Impossible!", "I guess even legends can lose sometimes..." });
+        npc.get(11).getNPCParty().get(0).jumpToLevel(4);
     }
 
     public void draw(Graphics2D g2) {
@@ -1622,7 +1576,7 @@ public class Pause{
     private PokeRotStats pokerotStats;
     private KeyHandler keyHandler;
     private boolean showingStats;
-    int padding = 20;//Padding to not touch edges
+    int padding = 20;
     int x=5;
     int y;
     int choice;
@@ -1692,11 +1646,10 @@ public class Pause{
             keyHandler.setEscPressed(false);
         }
 
-        // paused main menu logic only if game is paused
+        // PAUSE MAIN MENU ONLY IF THE GAME IS PAUSED
         if (gp.gameState == GameState.PAUSESTATE) {
-            
             if (showingStats) {
-                // Logic for the Stats Screen
+                // LOGIC FOR STATS SCREEN
                 if (keyHandler.getEnterPressed()) {
                     showingStats = false;
                     keyHandler.setEnterPressed(false);
@@ -1728,6 +1681,7 @@ public class Pause{
             }
         }
     }
+    
     public void draw(Graphics2D g2){
         if(showingStats){
             pokerotStats.draw(g2);
@@ -1764,22 +1718,19 @@ public class Player extends Entity {
         this.keyHandler = keyHandler;
         setX(gamePanel.getTileSize() * 32); // X COORDINATE OF PLAYER AT SPAWN CHANGEABLE
         setY(gamePanel.getTileSize() * 10); // Y COORDINATE OF PLAYER AT SPAWN CHANGEABLE
-        setSpeed(10); // MOVEMENT SPEED IS 4 CHANGEABLE
+        setSpeed(4); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
     }
 
     public void update() {
-
         if (keyHandler.getFPressed() && !isMoving) { // IF PRESSED F AND NOT MOVING
             keyHandler.setFPressed(false); // CONSUME THE KEY SO IT DOESN'T SPAM
 
             int playerColumn = getX() / gamePanel.getTileSize();
             int playerRow = getY() / gamePanel.getTileSize();
-
             int facingColumn = playerColumn;
             int facingRow = playerRow;
-
             switch (direction) {
                 case "up" -> facingRow--;
                 case "down" -> facingRow++;
@@ -1791,7 +1742,6 @@ public class Player extends Entity {
                 if (targetNPC != null) {
                     int npcColumn = targetNPC.getX() / gamePanel.getTileSize();
                     int npcRow = targetNPC.getY() / gamePanel.getTileSize();
-
                     if (facingColumn == npcColumn && facingRow == npcRow) {
                         if (targetNPC.isDefeated()) {
                             gamePanel.dialogue.startDialogue(targetNPC.getPostBattleDialogue(), targetNPC);
@@ -1819,7 +1769,6 @@ public class Player extends Entity {
             // FIGURE OUT WHICH COORDINATE WE'RE STANDING ON
             int targetColumn = getX() / gamePanel.getTileSize();
             int targetRow = getY() / gamePanel.getTileSize();
-
             // PREDICT WHERE WE ARE GOING TO STEP NEXT BASED ON DIRECTION
             switch (direction) {
                 case "up" -> targetRow--;
@@ -1834,13 +1783,10 @@ public class Player extends Entity {
 
                 int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
                 Tile targetTile = gamePanel.tileManager.getTile(targetTileID);
-                boolean tileCollision = false; // Default to false
-                
-                // Only ask for collision if the tile actually exists!
+                boolean tileCollision = false;
                 if (targetTile != null) {
                     tileCollision = targetTile.getCollision();
                 }
-
                 // NPC COLLISION CHECK
                 boolean npcCollisionCheck = false;
                 for (NPC targetNPC : gamePanel.npcManager.npc) {
@@ -1881,11 +1827,9 @@ public class Player extends Entity {
             if (pixelCounter >= gamePanel.getTileSize()) { // IF THE PIXEL COUNTER IS NOW EXACTLY ONE TILE
                 isMoving = false; // UNLOCK LISTENER AGAIN
                 pixelCounter = 0; // RESET IT TO COUNT AGAIN
-
                 int playerColumn = getX() / gamePanel.getTileSize();
                 int playerRow = getY() / gamePanel.getTileSize();
                 int currentTileID = gamePanel.tileManager.getTileNumber(playerColumn, playerRow);
-
                 if (currentTileID == 0 || currentTileID == 42) {
                     gamePanel.encounterManager.checkEncounter();
                 }
@@ -1950,13 +1894,13 @@ public class Player extends Entity {
         this.setY(gamePanel.getTileSize() * 10); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
         if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
         while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
-        gamePanel.gameState = GameState.TALKINGSTATE;
+        String[] blackoutMessage = {"All your PokeRot have fainted!", "You scurried back to safety in panic."};
+        gamePanel.dialogue.startDialogue(blackoutMessage, null);
     }
 
     public ArrayList <PokeRot> getPlayerParty () { return this.playerParty; }
     public int getScreenX () { return this.screenX; }
     public int getScreenY () { return this.screenY; }
-
     public void setPlayerParty (ArrayList<PokeRot> playerParty) { this.playerParty = playerParty; }
     
 
@@ -2194,9 +2138,20 @@ public class PokeRotRegistry {
 
     public void setPokeRotMovesOnEach () { // THIS METHOD GIVES THE ENEMY AI MOVES TO USE
         for (PokeRot eachPokeRot : pokeRotList) {
-            for (int i = 1; i <= 4; i++) { // GOES UP TO 4 ONLY SINCE ONLY 4 MOVES ARE AVAILABLE
-                int randomMove = (int) (Math.random() * pokeRotMoves.size()); // RANDOMIZE THE INDEX
-                eachPokeRot.addMove(pokeRotMoves.get(randomMove)); // ADD A RANDOM MOVE TO THE ENEMY AI
+            // Create a temporary list to keep track of the moves we are handing out
+            ArrayList<Move> assignedMoves = new ArrayList<>();
+            
+            // Keep looping until this PokeRot has exactly 4 unique moves
+            while (assignedMoves.size() < 4) { 
+                int randomMove = (int) (Math.random() * pokeRotMoves.size()); 
+                Move newMove = pokeRotMoves.get(randomMove);
+                
+                // Check if we ALREADY gave them this exact move
+                if (!assignedMoves.contains(newMove)) {
+                    // If it's a new move, add it to our tracker AND give it to the PokeRot
+                    assignedMoves.add(newMove);
+                    eachPokeRot.addMove(newMove); 
+                }
             }
         }
     }
@@ -2301,25 +2256,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class SaveData implements Serializable {
-
     private static long serialVersionUID = 1L;
-
     private String playerName = "";
-
     private int playerX;
     private int playerY;
-
     private ArrayList<PokeRot> party = new ArrayList<>();
-    
 
-   //Methods to use for Loading
+   // METHODS TO USE FOR LOADING
     public String getPlayerName() { return playerName; }
     public int getPlayerX() { return playerX; }
     public int getPlayerY() { return playerY; }
     public ArrayList<PokeRot> getPlayerParty() { return party; }
 
-    //Methods to use for Saving
-    
+    // METHODS TO USE FOR SAVING
     public void setPlayerName(String playerName ) { this.playerName = playerName; }
     public void setPlayerX(int playerX) { this.playerX = playerX; }
     public void setPlayerY(int playerY) { this.playerY = playerY; }
@@ -2334,13 +2283,11 @@ public class SaveData implements Serializable {
 import java.io.*;
 
 public class SaveLoadFiles {
-
     public static void startSaving(SaveData savedData, String slotName){
         new Thread(() -> {
             saveGame(savedData, slotName);
         }).start();
     }
-
 
     public static void saveGame(SaveData savedData, String slotName){
         try {
@@ -2350,15 +2297,9 @@ public class SaveLoadFiles {
             }
             FileOutputStream fos = new FileOutputStream("saves/" + slotName + ".sav");
             ObjectOutputStream os = new ObjectOutputStream(fos);
-
             os.writeObject(savedData);
-
             os.close();
-
             System.out.println("Saved Game");
-
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -2368,56 +2309,41 @@ public class SaveLoadFiles {
         try{
             FileInputStream fis = new FileInputStream("saves/" + slotName + ".sav");
             ObjectInputStream ois = new ObjectInputStream(fis);
-
             SaveData data = (SaveData) ois.readObject();
-
             ois.close();
-
             System.out.println("Game Loaded!");
-
             return data;
-
-
         }catch (IOException | ClassNotFoundException e ){
             e.printStackTrace();
         }
         return null;
-
     }
 
     public static void deleteSave(String slotName){
-
         File file = new File("saves/" + slotName + ".sav");
-
         if(fileExists(slotName)){
-
             if(file.delete()){
                 System.out.println("tinapon ko na ang bola !");
             }else {
                 System.out.println("hindi talaga na delete dol" + slotName);
             }
-
         }else {
             System.out.println("Wala naman");
         }
     }
 
     public static boolean fileExists(String slotName){
-
         File file = new File("saves/" +slotName +".sav");
         return file.exists();
     }
 
     public static void saveRightNow(GamePanel gp, int slotNumber){
-
         SaveData data = new SaveData();
          data.setPlayerName(gp.titlePanel.getPlayerName());
          data.setPlayerParty(gp.getPlayer().getPlayerParty());
          data.setPlayerX(gp.getPlayer().getX());
          data.setPlayerY(gp.getPlayer().getY());
-
          startSaving(data, "slot" + slotNumber);
-        
     }
 }
 
@@ -2426,7 +2352,6 @@ public class SaveLoadFiles {
 
 
 public class SaveUtil {
-
     public static final int maxSlots = 3;
 
     public static boolean slotExists (int slot){
@@ -2435,14 +2360,10 @@ public class SaveUtil {
 
     public static int findFree(){
         for (int i = 1; i <= 3; i++){
-            if(!slotExists(i)){
-                return i;
-            }
-        }return -1;
-
+            if(!slotExists(i)) return i;
+        }
+        return -1;
     }
-
-
 }
 
 
@@ -2454,24 +2375,21 @@ import javax.sound.sampled.*;
 public class SoundHelper {
 
     public static void playSound(String path){
-        // --- FIXED: WRAP AUDIO IN A BACKGROUND THREAD ---
+        // WRAP AUDIO IN A BACKGROUND THREAD
         new Thread(() -> {
             try {
                 AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audio);
-
-                // auto cleanup
+                // AUTO CLEAN UP
                 clip.addLineListener(event -> {
                     if(event.getType() == LineEvent.Type.STOP){
                         clip.close();
                     }
                 });
-
                 clip.start();
-
             } catch(Exception e) {
-                // Silently ignore missing files instead of printing massive red terminal errors
+                // SILENTLY IGNORE MISSING FILES INSTEAD OF PRINTING
             }
         }).start();
     }
@@ -2672,41 +2590,27 @@ public class StarterSelection {
 }
 
 
---- StatusEffects.java ---
-
-public class StatusEffects {
-    
-}
-
-
 --- Tile.java ---
 
 import java.awt.image.BufferedImage;
 
 
 public class Tile {
-    private BufferedImage image; // these are what renders the tile from a file "buffered"
-    private boolean collision = false; // this sets if collision is true for specific tiles
-    private boolean encounter = false; // if tile is encounterable with a pokerot
+    private BufferedImage image;
+    private boolean collision = false; // COLLISION FOR CERTAIN TILES
+    private boolean encounter = false; // IF TILE IS ENCOUNTERABLE WITH BRAINROT
+    private boolean renderable = true; // USED FOR MULTI TILE SKIP IF NOT
+    private int height; // HEIGHT OF MULTI TILED IMAGE
+    private int width; // WIDTH OF MULTI TILED IMAGE
 
 
-    private boolean renderable = true; // used for multi tiles // false then skip drawing tile
-    private int height; // for multi tiled image
-    private int width; // for multi tiled image
-
-
-    public Tile() { // for multi tile images
+    public Tile() { // FOR MULTI TILE IMAGES
         this.renderable = true;
-
-
-        this.height = 64; // base is 64 pixels
+        this.height = 64; // BASE IS 64 PIXELS
         this.width = 64;
     }
-
-
-    public boolean getEncounter() {
-        return this.encounter;
-    }
+    
+    public boolean getEncounter() { return this.encounter; }
 
 
     public BufferedImage getImage() {
@@ -3200,7 +3104,7 @@ import javax.imageio.ImageIO;
 
 public class TitlePanel {
     private GamePanel gp;
-    private int commandNum  =0;//default at option 0:create new game
+    private int commandNum = 0; // DEFAULT AT OPTION 0: CREATE A GAME
     private boolean isOnSave = false;
     private boolean isOnLoad = false;
     private boolean isTyping = false;
@@ -3210,343 +3114,325 @@ public class TitlePanel {
     private SaveData[] slotData = new SaveData[3];
     private boolean pickingSlot = false;
     private String buttonSound = "Assets/Music/buttSelect.wav";
-    
- 
-
     private ArrayList<BufferedImage> Ui = new ArrayList<>();
     private int keyCooldown;
-
     
-
-    // constructor
     public TitlePanel(GamePanel gp) {
         this.gp = gp;
         loadUi();
     }
 
     public void update(KeyHandler keyHandler) {
-
         if (keyCooldown > 0){
             keyCooldown--;
-        }else{
-        if((commandNum<3 ||commandNum>=0) && isOnLoad == false && isOnSave == false){
-            if (keyHandler.getEnterPressed()) {
-                switch(commandNum){
-                    case 0:
-                        isOnSave = true;
-                        commandNum = 1;
+        } else {
+            if((commandNum<3 ||commandNum>=0) && isOnLoad == false && isOnSave == false){
+                if (keyHandler.getEnterPressed()) {
+                    switch(commandNum){
+                        case 0:
+                            isOnSave = true;
+                            commandNum = 1;
+                            keyCooldown = 8;
+                            break;
+                        case 1:
+                            isOnLoad = true;
+                            refreshSlots(); 
+                            commandNum = 1;
+                            keyCooldown = 8;
+                            break;
+                        case 2:
+                            System.exit(0); 
+                            break;
+                    }   
+                } else if(keyHandler.getDownPressed()){
+                    if(commandNum<2){
+                        commandNum++;
                         keyCooldown = 8;
-                        break;
-                    case 1:
-                        isOnLoad = true;
-                        refreshSlots(); //see if there are slots that are open or not
-                        commandNum = 1;
+                    }
+                } else if(keyHandler.getUpPressed()){
+                    if(commandNum>0){
+                        commandNum--;
                         keyCooldown = 8;
-                        break;
-                    case 2:
-                        System.exit(0); break;
-                }   
-            }else if(keyHandler.getDownPressed()){
-                if(commandNum<2){
-                    commandNum++;
-                    keyCooldown = 8;
-                }
-            }else if(keyHandler.getUpPressed()){
-                if(commandNum>0){
-                    commandNum--;
-                    keyCooldown = 8;
+                    }
                 }
             }
-        }
 
-        //This is when you pick the Create new Save and where you have to enter your name
-        else if(isOnSave == true){
-            if (commandNum == 0){
-                isTyping = true;
-                keyHandler.IfTypingTrue(isTyping);
-                 //toggles that the user will be typing and will softlock the user
-                if (keyHandler.isCharTyped() && keyCooldown == 0){
-
-                    char c = keyHandler.getTypedChar();
-                    keyCooldown = 5;
-
-                    if (c == '\b'){
-                        if(playerName.length() > 0){
-                            playerName = playerName.substring(0, playerName.length() - 1);
-                        }
-                    }
-                    if (Character.isLetterOrDigit(c)){
-                        if(playerName.length() < 12){
-                            playerName += c;
-                        }
-                    }
-                    keyHandler.resetTypedChar();
-                }
-                if (keyHandler.getEnterPressed()){
-                    keyCooldown = 8;
-                    isTyping = false;
+            // THIS IS WHEN YOU PICK THE CREATE NEW SAVE AND WHERE YOU HAVE TO ENTER YOUR NAME
+            else if(isOnSave == true){
+                if (commandNum == 0){
+                    isTyping = true;
                     keyHandler.IfTypingTrue(isTyping);
-                    commandNum++;
-                }
-            }
-            else if(keyHandler.getEnterPressed() && isTyping == false){
-                switch(commandNum){    
-                    case 1: 
-                    if(pickingSlot != true){
-                        int freeSlot = SaveUtil.findFree(); //find free slots
-                        if(freeSlot != -1){
-                            SaveData data = new SaveData();
-                            data.setPlayerName(playerName);
-                            data.setPlayerParty(gp.getPlayer().getPlayerParty());
-                            data.setPlayerX(gp.getPlayer().getX());
-                            data.setPlayerY(gp.getPlayer().getY());
+                    
+                    if (keyHandler.isCharTyped() && keyCooldown == 0){
+                        char c = keyHandler.getTypedChar();
+                        keyCooldown = 5;
 
-                            SaveLoadFiles.startSaving(data, "slot" + (freeSlot));
-                            slotNumber = freeSlot;
-                        }else{
-                            System.out.println("No slots");
-                        }
-                    }else {
-                        SaveData data = new SaveData();
-                        data.setPlayerName(playerName);
-                        data.setPlayerParty(gp.getPlayer().getPlayerParty());
-                        data.setPlayerX(gp.getPlayer().getX());
-                        data.setPlayerY(gp.getPlayer().getY());
-
-                        SaveLoadFiles.startSaving(data, "slot" + slotNumber);
-                    }
-
-                        keyHandler.setEnterPressed(false);
-                        gp.gameState = GameState.STARTERSTATE;
-                        break;
-                    case 2: 
-                        isOnSave = false;
-                        commandNum = 0;
-                        keyCooldown = 8;
-                        pickingSlot = false;
-                        break;
-                }
-            }else if (keyHandler.getDownPressed() && isTyping == false){
-                if (commandNum < 2){
-                    commandNum++;
-                    keyCooldown = 8;
-                }
-            }else if (keyHandler.getUpPressed() && isTyping == false){
-                if (commandNum > 0){
-                    commandNum--;
-                    keyCooldown = 8;
-                }
-            }
-        }
-        
-        //Loading Menu
-        else if((commandNum > 0 || commandNum < 4) && isOnLoad == true){
-            if(keyHandler.getEnterPressed()){
-                switch(commandNum){
-                    case 0: 
-                    if(!slotExists[commandNum]){
-                        keyCooldown = 8;
-                        pickingSlot = true;
-                        slotNumber = 1;
-                        isOnLoad = false;
-                        isOnSave = true;
-                        commandNum = 1;
-                        System.out.println(slotNumber);
-                    } else {
-                        keyCooldown = 8;
-                        playerName = slotData[commandNum].getPlayerName();
-                        gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
-                        gp.getPlayer().setX(slotData[commandNum].getPlayerX());
-                        gp.getPlayer().setY(slotData[commandNum].getPlayerY());
-
-                        for (PokeRot p : gp.getPlayer().getPlayerParty()){
-                            p.initAfterLoad();
-                        }
-                        slotNumber = 1;
-                        gp.gameState = GameState.ROAMSTATE;
-                    }
-                        break;
-                    case 1:
-                        if(!slotExists[commandNum]){
-                            keyCooldown = 8;
-                            pickingSlot = true;
-                            slotNumber = 2;
-                            isOnLoad = false;
-                            isOnSave = true;
-                            commandNum = 1;
-                            System.out.println(slotNumber);
-                        } else {
-                            keyCooldown = 8;
-                            playerName = slotData[commandNum].getPlayerName();
-                            gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
-                            gp.getPlayer().setX(slotData[commandNum].getPlayerX());
-                            gp.getPlayer().setY(slotData[commandNum].getPlayerY());
-
-                            for (PokeRot p : gp.getPlayer().getPlayerParty()){
-                                p.initAfterLoad();
+                        if (c == '\b'){
+                            if(playerName.length() > 0){
+                                playerName = playerName.substring(0, playerName.length() - 1);
                             }
-                            slotNumber = 2;
-                            gp.gameState = GameState.ROAMSTATE;
                         }
-                        break;
-                    case 2:
-                        if(!slotExists[commandNum]){
-                            keyCooldown = 8;
-                            pickingSlot = true;
-                            slotNumber = 3;
-                            isOnLoad = false;
-                            isOnSave = true;
-                            commandNum = 1;
-                            System.out.println(slotNumber);
-                        } else {
-                            keyCooldown = 8;
-                            playerName = slotData[commandNum].getPlayerName();
-                            gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
-                            gp.getPlayer().setX(slotData[commandNum].getPlayerX());
-                            gp.getPlayer().setY(slotData[commandNum].getPlayerY());
-
-                            for (PokeRot p : gp.getPlayer().getPlayerParty()){
-                                p.initAfterLoad();
+                        if (Character.isLetterOrDigit(c)){
+                            if(playerName.length() < 12){
+                                playerName += c;
                             }
-                            slotNumber = 3;
-                            gp.gameState = GameState.ROAMSTATE;
                         }
-                        break;
-                    case 3: 
-                        isOnLoad = false;
-                        keyCooldown = 8;
-                        commandNum = 0;
-                        break;
-                }
-            }else if (keyHandler.getBackSpacePressed()){    
-                switch(commandNum){
-                    case 0: if (slotExists[commandNum]){
-                        keyCooldown = 8;
-                        SaveLoadFiles.deleteSave("slot1");
-                        refreshSlots();
-                        break;
+                        keyHandler.resetTypedChar();
                     }
-                    case 1: if (slotExists[commandNum]){
+                    if (keyHandler.getEnterPressed()){
                         keyCooldown = 8;
-                        SaveLoadFiles.deleteSave("slot2");
-                        refreshSlots();
-                        break;
+                        isTyping = false;
+                        keyHandler.IfTypingTrue(isTyping);
+                        commandNum++;
                     }
-                    case 2: if (slotExists[commandNum]){
-                        keyCooldown = 8;
-                        SaveLoadFiles.deleteSave("slot3");
-                        refreshSlots();
-                        break;
+                }
+                else if(keyHandler.getEnterPressed() && isTyping == false){
+                    switch(commandNum){    
+                        case 1: 
+                            if(pickingSlot != true){
+                                int freeSlot = SaveUtil.findFree(); 
+                                if(freeSlot != -1){
+                                    SaveData data = new SaveData();
+                                    data.setPlayerName(playerName);
+                                    data.setPlayerParty(gp.getPlayer().getPlayerParty());
+                                    data.setPlayerX(gp.getPlayer().getX());
+                                    data.setPlayerY(gp.getPlayer().getY());
+
+                                    SaveLoadFiles.startSaving(data, "slot" + (freeSlot));
+                                    slotNumber = freeSlot;
+                                    
+                                    keyHandler.setEnterPressed(false);
+                                    gp.gameState = GameState.STARTERSTATE;
+                                } else {
+                                    System.out.println("No slots");
+                                }
+                            } else {
+                                SaveData data = new SaveData();
+                                data.setPlayerName(playerName);
+                                data.setPlayerParty(gp.getPlayer().getPlayerParty());
+                                data.setPlayerX(gp.getPlayer().getX());
+                                data.setPlayerY(gp.getPlayer().getY());
+
+                                SaveLoadFiles.startSaving(data, "slot" + slotNumber);
+                                
+                                keyHandler.setEnterPressed(false);
+                                gp.gameState = GameState.STARTERSTATE;
+                            }
+                            break;
+                        case 2: 
+                            isOnSave = false;
+                            commandNum = 0;
+                            keyCooldown = 8;
+                            pickingSlot = false;
+                            break;
                     }
-                    case 3: 
-                        isOnLoad = false;
+                } else if (keyHandler.getDownPressed() && isTyping == false){
+                    if (commandNum < 2){
+                        commandNum++;
                         keyCooldown = 8;
-                        commandNum = 0;
-                        break;
-                }
-            }else if (keyHandler.getDownPressed()){
-                if (commandNum < 3){
-                    commandNum++;
-                    keyCooldown = 8;
-                }
-            }else if (keyHandler.getUpPressed()){
-                if (commandNum > 0){
-                    commandNum--;
-                    keyCooldown = 8;
+                    }
+                } else if (keyHandler.getUpPressed() && isTyping == false){
+                    if (commandNum > 0){
+                        commandNum--;
+                        keyCooldown = 8;
+                    }
                 }
             }
-        }
+            
+            // LOADING MENU
+            else if((commandNum > 0 || commandNum < 4) && isOnLoad == true){
+                if(keyHandler.getEnterPressed()){
+                    switch(commandNum){
+                        case 0: 
+                            if(!slotExists[commandNum]){
+                                keyCooldown = 8;
+                                pickingSlot = true;
+                                slotNumber = 1;
+                                isOnLoad = false;
+                                isOnSave = true;
+                                commandNum = 1;
+                            } else {
+                                keyCooldown = 8;
+                                playerName = slotData[commandNum].getPlayerName();
+                                gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                                gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                                gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+                                for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                    p.initAfterLoad();
+                                }
+                                slotNumber = 1;
+                                gp.gameState = GameState.ROAMSTATE;
+                            }
+                            break;
+                        case 1:
+                            if(!slotExists[commandNum]){
+                                keyCooldown = 8;
+                                pickingSlot = true;
+                                slotNumber = 2;
+                                isOnLoad = false;
+                                isOnSave = true;
+                                commandNum = 1;
+                            } else {
+                                keyCooldown = 8;
+                                playerName = slotData[commandNum].getPlayerName();
+                                gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                                gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                                gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+                                for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                    p.initAfterLoad();
+                                }
+                                slotNumber = 2;
+                                gp.gameState = GameState.ROAMSTATE;
+                            }
+                            break;
+                        case 2:
+                            if(!slotExists[commandNum]){
+                                keyCooldown = 8;
+                                pickingSlot = true;
+                                slotNumber = 3;
+                                isOnLoad = false;
+                                isOnSave = true;
+                                commandNum = 1;
+                            } else {
+                                keyCooldown = 8;
+                                playerName = slotData[commandNum].getPlayerName();
+                                gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
+                                gp.getPlayer().setX(slotData[commandNum].getPlayerX());
+                                gp.getPlayer().setY(slotData[commandNum].getPlayerY());
+
+                                for (PokeRot p : gp.getPlayer().getPlayerParty()){
+                                    p.initAfterLoad();
+                                }
+                                slotNumber = 3;
+                                gp.gameState = GameState.ROAMSTATE;
+                            }
+                            break;
+                        case 3: 
+                            isOnLoad = false;
+                            keyCooldown = 8;
+                            commandNum = 0;
+                            break;
+                    }
+                } else if (keyHandler.getBackSpacePressed()){    
+                    switch(commandNum){
+                        case 0: 
+                            if (slotExists[commandNum]){
+                                keyCooldown = 8;
+                                SaveLoadFiles.deleteSave("slot1");
+                                refreshSlots();
+                            }
+                            break;
+                        case 1: 
+                            if (slotExists[commandNum]){
+                                keyCooldown = 8;
+                                SaveLoadFiles.deleteSave("slot2");
+                                refreshSlots();
+                            }
+                            break;
+                        case 2: 
+                            if (slotExists[commandNum]){
+                                keyCooldown = 8;
+                                SaveLoadFiles.deleteSave("slot3");
+                                refreshSlots();
+                            }
+                            break;
+                        case 3: 
+                            isOnLoad = false;
+                            keyCooldown = 8;
+                            commandNum = 0;
+                            break;
+                    }
+                } else if (keyHandler.getDownPressed()){
+                    if (commandNum < 3){
+                        commandNum++;
+                        keyCooldown = 8;
+                    }
+                } else if (keyHandler.getUpPressed()){
+                    if (commandNum > 0){
+                        commandNum--;
+                        keyCooldown = 8;
+                    }
+                }
+            }
         }
     }
 
     public void draw(Graphics2D g2) {
-
         g2.setColor(new Color(18, 50, 77));
         g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
-        //Button Sizes
         int width = 250;
         int height = 150;
         int xB = (gp.getScreenWidth() / 2) - (width / 2);
         int yBase = (gp.getScreenHeight() / 2) + 70;
 
-
         if (isOnLoad != true && isOnSave != true){
             g2.drawImage(Ui.get(6), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
        
-        //Button Sizes
             for(int i = 0; i < 3; i++) {
-                int yB = yBase + (i * 80);//spacing 80
-
+                int yB = yBase + (i * 80);
                 if (commandNum == i) {
                     g2.drawImage(Ui.get(i+3), xB, yB, width, height, null);
-                }else {
+                } else {
                     g2.drawImage(Ui.get(i), xB, yB, width, height, null);
                 } 
             }
-        }else if (isOnSave == true){
+        } else if (isOnSave == true){
             g2.drawImage(Ui.get(14), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
-
             g2.drawImage(Ui.get(8), gp.getScreenWidth() / 2 - 290, gp.getScreenHeight() / 2 - 64, width + 350, height + 20, null);
-
+            
             g2.setColor(Color.BLACK);
-            g2.setFont(new Font("Arial", Font.BOLD, 32));
-
-            g2.drawString(playerName, gp.getScreenWidth() / 2 - 180, gp.getScreenHeight() / 2 + 30);
+              g2.drawString(playerName, gp.getScreenWidth() / 2 - 180, gp.getScreenHeight() / 2 + 30);
 
             for(int i = 1; i <= 2; i++){
-                int yB = yBase + (i * 80);//spacing 80
-
+                int yB = yBase + (i * 80);
                 if (commandNum == i){
-
                     g2.drawImage(Ui.get(i + 11), xB, yB, width, height, null);
-                }else {
+                } else {
                     g2.drawImage(Ui.get(i + 9), xB, yB, width, height, null);
                 }
             }
-        }else if (isOnLoad == true){
+        } else if (isOnLoad == true){
             g2.drawImage(Ui.get(7), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
-
             for (int i = 0; i < 4; i++){
-                int yB = (yBase + (i * 90) - 250); //pag center lang
-
+                int yB = (yBase + (i * 90) - 250); 
                 if (commandNum == i){
                     if(commandNum == 3){
-                    
-                    g2.drawImage(Ui.get(13), xB, yB + 50, width, height, null);
-                    }else {
-                    g2.drawImage(Ui.get(9), xB - 150, yB, width + 300, height + 50, null);
+                        g2.drawImage(Ui.get(13), xB, yB + 50, width, height, null);
+                    } else {
+                        g2.drawImage(Ui.get(9), xB - 150, yB, width + 300, height + 50, null);
                     }
-                }else {
+                } else {
                     if (i == 3){
                         g2.drawImage(Ui.get(11), xB, yB + 50, width, height, null);
-                    }else{
-                    g2.drawImage(Ui.get(8), xB - 150, yB, width + 300, height + 50, null);
+                    } else {
+                        g2.drawImage(Ui.get(8), xB - 150, yB, width + 300, height + 50, null);
                     }
                 }
 
                 if(i < 3){
                     g2.setColor(Color.BLACK);
                     g2.setFont(new Font("Arial", Font.BOLD, 20));   
-
                     if(slotExists[i]){
                         g2.drawString(slotData[i].getPlayerName(), xB - 50, yB + 100);
-                    }else {
+                    } else {
                         g2.drawString("Create New Save", xB - 50, yB + 100);
                     }
                 }
             }
         }
-
-
     }
 
     public void loadUi(){
-        try {
-            for(int i = 1; i <= 15; i++){ //load everything in the UI
+        for(int i = 1; i <= 15; i++){ 
+            try {
                 BufferedImage uiPic = ImageIO.read(new File("Assets/Ui/" + i + ".png"));
                 Ui.add(uiPic);
+            } catch (IOException e) {
+                System.out.println("MISSING UI FILE: Assets/Ui/" + i + ".png");
+                Ui.add(null); // Add null to preserve the index order so Ui.get(6) doesn't crash!
             }
-        } catch (IOException e) {
         }
     }
 
@@ -3561,32 +3447,20 @@ public class TitlePanel {
         keyCooldown = 8;
         slotNumber = 1;
         refreshSlots();
-
     }
 
     public int getSlotNumber(){ return slotNumber; }
     public String getPlayerName(){ return playerName; }
 
-
     public void refreshSlots(){
-
         for(int i = 0; i < 3; i++){
             int slotNumber = i + 1;
-
             slotExists[i] = SaveLoadFiles.fileExists("slot" + slotNumber);
-
             if(slotExists[i]){
                 slotData[i] = SaveLoadFiles.loadGame("slot" + slotNumber);
             } else {
                 slotData[i] = null;
             }
         }
-    }
-
-
-
-   
-  
-
-    
+    }  
 }
