@@ -4,21 +4,18 @@ public class BattleSystem {
     private GamePanel gamePanel;
     private int optionSelected = 0; // START SELECTION AT TOP LEFT
     private int keyCooldown = 0; // GLOBAL COOLDOWN FROM SWITCHING KEYS
-    private int battleSubState = 0; 
+    private int battleSubState = 0; // THIS IS THE ONE BEING SWITCHED
     private String dialogText = ""; // THIS CHANGES ACCORDING TO FLOW
-    private Move playerMoveToUse;
+    private Move playerMoveToUse; 
     private Move enemyMoveToUse;
     private int expGainedThisBattle = 0; // TEMPORARILY STORE THIS VARIABLE ON EACH BATTLE
-    private boolean leveledUpThisRound = false;
+    private boolean leveledUpThisRound = false; // THIS VARIABLE IS USED FOR TRIGGERING EVENTS
     private ArrayList <PokeRot> activeEnemyParty;
-    private NPC currentNPCOpponent;
-
+    private NPC currentNPCOpponent; // IF THE ENEMY IS AN NPC, WE USE THIS INSTEAD OF THE WILD POKEROT
     private PokeRot activePlayer;
     private PokeRot activeEnemy;
 
-    public BattleSystem(GamePanel gamePanel) {
-        this.gamePanel = gamePanel;
-    }
+    public BattleSystem(GamePanel gamePanel) { this.gamePanel = gamePanel; }
 
     public String getCurrentMessage () { return this.dialogText; }
 

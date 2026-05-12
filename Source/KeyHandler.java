@@ -32,17 +32,17 @@ public class KeyHandler implements KeyListener {
 
         switch (code) {
             // --- DIRECTIONAL UI NAVIGATION SOUNDS (Marked true to block overworld walk sound buzzes) ---
-            case KeyEvent.VK_W -> { upPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_A -> { leftPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_S -> { downPressed = true; playMenuSound("Assets/Music/move.wav", true); }
-            case KeyEvent.VK_D -> { rightPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            case KeyEvent.VK_W -> { upPressed = true; playMenuSound("Assets/Music/buttSelect.wav", true); }
+            case KeyEvent.VK_A -> { leftPressed = true; playMenuSound("Assets/Music/buttSelect.wav", true); }
+            case KeyEvent.VK_S -> { downPressed = true; playMenuSound("Assets/Music/buttSelect.wav", true); }
+            case KeyEvent.VK_D -> { rightPressed = true; playMenuSound("Assets/Music/buttSelect.wav", true); }
             
             // --- GENERAL INTERACTION AND ACTION SOUNDS (Marked false to always play across screens) ---
-            case KeyEvent.VK_F -> { fPressed = true; playMenuSound("Assets/Music/interact.wav", false); }
-            case KeyEvent.VK_ENTER -> { enterPressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
-            case KeyEvent.VK_SPACE -> { spacePressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
-            case KeyEvent.VK_ESCAPE -> { escPressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
-            case KeyEvent.VK_BACK_SPACE -> { backSpacePressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
+            case KeyEvent.VK_F -> { fPressed = true; playMenuSound("Assets/Music/buttSelect.wav", false); }
+            case KeyEvent.VK_ENTER -> { enterPressed = true; playMenuSound("Assets/Music/buttSelect.wav", false); }
+            case KeyEvent.VK_SPACE -> { spacePressed = true; playMenuSound("Assets/Music/buttSelect.wav", false); }
+            case KeyEvent.VK_ESCAPE -> { escPressed = true; playMenuSound("Assets/Music/buttSelect.wav", false); }
+            case KeyEvent.VK_BACK_SPACE -> { backSpacePressed = true; playMenuSound("Assets/Music/buttSelect.wav", false); }
         }
     }
 
