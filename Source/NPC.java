@@ -38,11 +38,11 @@ public class NPC extends Entity{
         //LIST OF NPCs by int
             npcParty = new ArrayList<>();
             downSprites = new BufferedImage[5];
-            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Prof._mmY.png"));
-            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Trainer_Peej.png"));
-            downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Trainer_Allen.png"));
-            downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Rival_Kazuya.png"));
-            downSprites[4] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Champ_Therese.png"));
+            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Healer_Overworld.png"));
+            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/PokeGIVER.png"));
+            downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Prof._mmY.png"));
+            downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sir_Sam_NPC.png"));
+           // downSprites[4] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Champ_Therese.png"));
             
         } catch(Exception e) {e.printStackTrace();}        
     }
@@ -56,7 +56,7 @@ public class NPC extends Entity{
                 x - gamePanel.getTileSize() < gamePanel.getPlayer().getX() + gamePanel.getPlayer().getScreenX() &&
                 y + gamePanel.getTileSize() > gamePanel.getPlayer().getY() - gamePanel.getPlayer().getScreenY() &&
                 y - gamePanel.getTileSize() < gamePanel.getPlayer().getY() + gamePanel.getPlayer().getScreenY()) {
-                    g2.drawImage(downSprites[type], screenX, screenY, gamePanel.getTileSize(), gamePanel.getTileSize(), null);
+                    g2.drawImage(downSprites[type], screenX, screenY, (int)(gamePanel.getTileSize() * 1.3), (int)(gamePanel.getTileSize() * 1.3), null);
             }
         }
     }
@@ -72,4 +72,5 @@ public class NPC extends Entity{
     public ArrayList <PokeRot> getNPCParty () { return this.npcParty; }
     public String[] getPreBattleDialogue () { return this.preBattleDialogue; }
     public String[] getPostBattleDialogue () { return this.postBattleDialogue; }
+
 }

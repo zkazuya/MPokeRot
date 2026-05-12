@@ -79,8 +79,15 @@ public class TitlePanel {
                     keyHandler.IfTypingTrue(isTyping);
                      //toggles that the user will be typing and will softlock the user
                     if (keyHandler.isCharTyped() && keyCooldown == 0){
+
                         char c = keyHandler.getTypedChar();
                         keyCooldown = 5;
+
+                        if (c == '\b'){
+                            if(playerName.length() > 0){
+                                playerName = playerName.substring(0, playerName.length() - 1);
+                            }
+                        }
                         if (Character.isLetterOrDigit(c)){
                             if(playerName.length() < 12){
                                 playerName += c;

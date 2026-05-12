@@ -137,6 +137,7 @@ public class PokeRot implements Serializable{
     public void setExp (int exp) {  this.exp = exp; }
     public void setExpNeeded (int expNeeded) {  this.expNeeded = expNeeded; }
     public void setDrawnExp (int drawnExp) {  this.drawnExp = drawnExp; }
+    public PokeRot getPokeRot () { return this; }
     
     public void initAfterLoad(){
         this.drawnHP = this.currentHP;

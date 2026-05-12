@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
+    private boolean worldMusic = false;
 
     private int worldX;
     private int worldY;
@@ -26,13 +27,14 @@ public class GamePanel extends JPanel implements Runnable {
     KeyHandler keyHandler = new KeyHandler();
     TileManager tileManager = new TileManager(this);
     PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
-    private Player player = new Player(this, keyHandler);
+    Player player = new Player(this, keyHandler);
     BattleUI battleUI = new BattleUI(this);
     BattleSystem battleSystem = new BattleSystem(this);
     GameState gameState;
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
     Pause pauseClass = new Pause(this);
+    PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
     EncounterManager encounterManager = new EncounterManager(this, player);
     NPCManager npcManager = new NPCManager(this);
 
@@ -82,7 +84,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
-        } else if (gameState == GameState.PAUSESTATE) {
+        } else if (gameState == GameState.PAUSESTATE) {;
             pauseClass.update(keyHandler);
         } else if (gameState == GameState.TALKINGSTATE) {
             dialogue.update(keyHandler);
@@ -102,12 +104,16 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.BATTLESTATE) {
             battleUI.drawBattleScreen(graphics2D);
         } else if (gameState == GameState.PAUSESTATE) {
+            
             tileManager.draw(graphics2D);
             player.draw(graphics2D);
+            npcManager.draw(graphics2D);
             pauseClass.draw(graphics2D); 
         } else if (gameState == GameState.TALKINGSTATE) {
+            
             tileManager.draw(graphics2D);
             player.draw(graphics2D);
+            npcManager.draw(graphics2D);
             dialogue.draw(graphics2D);
         } else if (gameState == GameState.TITLESCREEN) {
             titlePanel.draw(graphics2D);
