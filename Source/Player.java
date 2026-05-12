@@ -9,7 +9,7 @@ public class Player extends Entity {
     KeyHandler keyHandler;
     private boolean isMoving = false;
     private int pixelCounter = 0; // THIS VARIABLE IS IMPORTANT TO MAKE SURE WE GO EXACTLY ONE TILE EACH AWSD MOVEMENT
-    private String direction = "down"; // DIRECTION THE PLAYER IS FACING
+    private String direction = "up"; // DIRECTION THE PLAYER IS FACING
     private ArrayList <PokeRot> playerParty = new ArrayList<>();
     private final int screenX;
     private final int screenY;
@@ -24,10 +24,6 @@ public class Player extends Entity {
         setSpeed(10); // MOVEMENT SPEED IS 4 CHANGEABLE
         setAnimationSpeed(9); // DETERMINES ANIMATION SPEED
         getPlayerImage(); // LOAD ALL PLAYER SPRITES TO THE ARRAY
-        PokeRot starterOne = gamePanel.pokeRotRegistry.getSpecificPokeRot("Tralalelo Tralala");
-        PokeRot secondPokeRot = gamePanel.pokeRotRegistry.getSpecificPokeRot("Udin Din Din Dun");
-        if (starterOne != null) playerParty.add(starterOne);
-        if (secondPokeRot != null) playerParty.add(secondPokeRot);
     }
 
     public void update() {

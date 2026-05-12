@@ -13,6 +13,7 @@ public class BattleUI {
     private BufferedImage battleBackground;
     private Font dynamicFont;
     private Font swapFont;
+    private Font HPFont;
     private Font moveFont;
     private BufferedImage playerRot;
     private BufferedImage enemyRot;
@@ -23,6 +24,8 @@ public class BattleUI {
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
         moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
         swapFont = new Font("Arial", Font.PLAIN, (int)(fontSize *0.55));
+        HPFont = new Font("Arial", Font.BOLD, (int)(fontSize * 0.75));
+        
         try { // LOAD BATTLE BACKGROUND  
             battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
         } catch (IOException ioE) {
@@ -217,6 +220,14 @@ public class BattleUI {
         graphics2D.setColor(Color.WHITE);
         graphics2D.setStroke(new BasicStroke(borderThickness));
         graphics2D.drawRect(barX, barY, barWidth, barHeight);
+
+        graphics2D.setFont(HPFont);
+        graphics2D.setColor(new Color(50, 50, 50));
+        String HPString = pokerot.getCurrentHP() + " / " + pokerot.getMaxHP();
+        
+        int HPTextX = barX + (tileSize / 8);
+        int HPTextY = barY + (barHeight / 2) + (tileSize / 16);
+        graphics2D.drawString(HPString, HPTextX, HPTextY);
 
         if (isPlayer) {
             int expBarY = barY + barHeight + (tileSize / 10);

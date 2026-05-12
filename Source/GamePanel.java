@@ -37,6 +37,7 @@ public class GamePanel extends JPanel implements Runnable {
     PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
     EncounterManager encounterManager = new EncounterManager(this, player);
     NPCManager npcManager = new NPCManager(this);
+    StarterSelection starterSelection = new StarterSelection(this);
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
@@ -90,6 +91,8 @@ public class GamePanel extends JPanel implements Runnable {
             dialogue.update(keyHandler);
         } else if (gameState == GameState.TITLESCREEN) {
             titlePanel.update(keyHandler);
+        } else if (gameState == GameState.STARTERSTATE) {
+            starterSelection.update(keyHandler);
         }
     }
 
@@ -117,6 +120,8 @@ public class GamePanel extends JPanel implements Runnable {
             dialogue.draw(graphics2D);
         } else if (gameState == GameState.TITLESCREEN) {
             titlePanel.draw(graphics2D);
+        } else if (gameState == GameState.STARTERSTATE) {
+            starterSelection.draw(graphics2D);
         }
         graphics2D.dispose(); // saves memory
     }

@@ -38,8 +38,8 @@ public class NPC extends Entity{
         //LIST OF NPCs by int
             npcParty = new ArrayList<>();
             downSprites = new BufferedImage[5];
-            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Healer_Overworld.png"));
-            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/PokeGIVER.png"));
+            downSprites[0] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/PokeGIVER.png"));
+            downSprites[1] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Healer_Overworld.png"));
             downSprites[2] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Prof._mmY.png"));
             downSprites[3] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Sir_Sam_NPC.png"));
            // downSprites[4] = ImageIO.read(getClass().getResourceAsStream("/Assets/NPCRoam/Champ_Therese.png"));

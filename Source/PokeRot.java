@@ -72,6 +72,19 @@ public class PokeRot implements Serializable{
         return null;
     }
 
+    public void jumpToLevel (int targetLevel) {
+        if (targetLevel <= this.level) return;
+        int levelsToGain = targetLevel - this.level;
+        for (int i = 1; i <= levelsToGain; i++) {
+            this.level++;
+            this.maxHP += 10;
+            this.currentHP += 10;
+            this.attack += 4;
+            this.expNeeded = (int) (expNeeded * 1.5);
+        }
+        this.drawnHP = this.currentHP;
+    }
+
     public void takeDamage(int damage) {
         this.currentHP -= damage;
         if (this.currentHP < 0)
@@ -84,7 +97,7 @@ public class PokeRot implements Serializable{
     }
 
     public int getBaseExpYield () {
-        return this.level * 35; // LEVEL 1 GIVES 35 XP, LEVEL 2 GIVES 70 XP ETC
+        return this.level * 60; // LEVEL 1 GIVES 60 XP, LEVEL 2 GIVES 120 XP ETC
     } 
 
     public void levelUp () {
@@ -92,8 +105,8 @@ public class PokeRot implements Serializable{
         this.exp -= this.expNeeded; // KEEP LEFTOVER XP
         this.expNeeded = (int) (this.expNeeded * 1.5); // NEXT LVL REQUIRES 50% MORE XP
         // STAT BOOST EACH LVL UP BELOW
-        this.maxHP += 5; // PERMANENT INCREASE MAX HP
-        this.attack += 2; // PERMANENT INCREASE ATK
+        this.maxHP += 10; // PERMANENT INCREASE MAX HP
+        this.attack += 4; // PERMANENT INCREASE ATK
     }
 
     public boolean gainExp (int amount) { // THIS METHOD HAS THREE PURPOSES, ONE IS GIVING EXP

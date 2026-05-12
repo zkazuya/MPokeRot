@@ -132,7 +132,8 @@ public class TitlePanel {
                             SaveLoadFiles.startSaving(data, "slot" + slotNumber);
                         }
 
-                            gp.gameState = GameState.ROAMSTATE;
+                            keyHandler.setEnterPressed(false);
+                            gp.gameState = GameState.STARTERSTATE;
                             break;
                         case 2: 
                             isOnSave = false;

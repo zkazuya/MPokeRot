@@ -4,5 +4,8 @@ public enum GameState {
     PAUSESTATE, // stop everything
     TITLESCREEN, // main menu, disable everything
     TALKINGSTATE, // behaviors for when interacting with NPC
-    ENTEREDSTATE,
+    LOADINGSTATE,
+    CUTSCENESTATE,
+    TRANSITIONSTATE,
+    STARTERSTATE
 }
