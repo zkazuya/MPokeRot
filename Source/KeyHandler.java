@@ -1,5 +1,5 @@
-import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
     private boolean upPressed, downPressed, leftPressed, rightPressed;
@@ -8,9 +8,18 @@ public class KeyHandler implements KeyListener {
     private boolean fPressed; // DIALOGUE INTERACTION KEY
     private boolean spacePressed; 
     private boolean shiftPressed; 
+    private boolean backSpacePressed;
+    private char typedChar;
+    private boolean charTyped;
+    private boolean ifTyping = false;
 
     @Override
-    public void keyTyped (KeyEvent input) {} // NOT USED BUT MUST BE IMPORTED
+    public void keyTyped (KeyEvent input) {
+        if (ifTyping){
+        typedChar = input.getKeyChar();
+        charTyped = true;
+        }
+    } // NOT USED BUT MUST BE IMPORTED
 
     @Override
     public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HOLD
@@ -25,6 +34,7 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ESCAPE -> escPressed = true;
             case KeyEvent.VK_SPACE -> spacePressed = true;
             case KeyEvent.VK_SHIFT -> shiftPressed = true;
+            case KeyEvent.VK_BACK_SPACE -> backSpacePressed = true;
         }
     }
 
@@ -41,6 +51,7 @@ public class KeyHandler implements KeyListener {
             case KeyEvent.VK_ESCAPE -> escPressed = false;
             case KeyEvent.VK_SPACE -> spacePressed = false;
             case KeyEvent.VK_SHIFT -> shiftPressed = false;
+            case KeyEvent.VK_BACK_SPACE -> backSpacePressed = false;
         }
     }
     
@@ -53,4 +64,20 @@ public class KeyHandler implements KeyListener {
     public boolean getFPressed () { return this.fPressed; }
     public boolean getSpacePressed () { return this.spacePressed; }
     public boolean getShiftPressed () { return this.shiftPressed; }
+    public boolean getBackSpacePressed () { return this.backSpacePressed; }
+    public void IfTypingTrue (boolean isTyping) {  ifTyping = isTyping; }
+    public boolean isCharTyped() { return charTyped; }
+    public char getTypedChar() { return typedChar; }
+    public void resetTypedChar() { charTyped = false; }
+
+    //setters pleek pleek
+    public void setUpPressed(boolean upPressed) { this.upPressed = upPressed; }
+    public void setDownPressed(boolean downPressed) { this.downPressed = downPressed; }
+    public void setLeftPressed(boolean leftPressed) { this.leftPressed = leftPressed; }
+    public void setRightPressed(boolean rightPressed) { this.rightPressed = rightPressed; }
+    public void setEnterPressed(boolean enterPressed) { this.enterPressed = enterPressed; }
+    public void setEscPressed(boolean escPressed) { this.escPressed = escPressed; }
+    public void setFPressed(boolean fPressed) { this.fPressed = fPressed; }
+    public void setSpacePressed(boolean spacePressed) { this.spacePressed = spacePressed; }
+    public void setShiftPressed(boolean shiftPressed) { this.shiftPressed = shiftPressed; }
 }

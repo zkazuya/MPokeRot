@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class EncounterManager {
     private GamePanel gamePanel;
     private int encounterCooldown = 0;
@@ -24,7 +26,9 @@ public class EncounterManager {
 
             PokeRot playerRot = player.getFirstAlivePokeRot();
             PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
-            gamePanel.battleSystem.startEncounter(playerRot, wildRot);
+            ArrayList <PokeRot> wildParty = new ArrayList<>();
+            wildParty.add(wildRot);
+            gamePanel.battleSystem.startEncounter(wildParty, null);
         }
     }
 }
