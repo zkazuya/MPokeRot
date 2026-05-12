@@ -40,9 +40,9 @@ public class GameIntro extends JPanel {
     private boolean spacePressed = false;
     private boolean shiftPressed = false;
 
-    GameFrame frame;
-    Clip gifLoop;
-    Clip titleLoop;
+    private GameFrame frame;
+    private Clip gifLoop;
+    private Clip titleLoop;
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
@@ -250,6 +250,8 @@ public class GameIntro extends JPanel {
         }
         return null;
     }
+
+    public Clip getTitleLoop() { return titleLoop; }
 
     
 }

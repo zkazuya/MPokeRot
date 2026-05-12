@@ -29,6 +29,7 @@ public class EncounterManager {
             ArrayList <PokeRot> wildParty = new ArrayList<>();
             wildParty.add(wildRot);
             gamePanel.battleSystem.startEncounter(wildParty, null);
+            SoundHelper.loopSound("Assets/Music/BeepBox-Song.wav");
         }
     }
 

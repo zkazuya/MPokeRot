@@ -29,15 +29,21 @@ public class Dialogue {
                 if (currentNPC != null) {
                     if (!currentNPC.isDefeated()) { // AND HE ISN'T DEFEATED YET
                         gp.battleSystem.startEncounter(currentNPC.getNPCParty(), currentNPC); // START THE BATTLE
+                        gp.startTransition();
                         gp.gameState = GameState.BATTLESTATE;
+                        SoundHelper.loopSound("Assets/Music/BeepBox-Song.wav");
+                       
                     } else {
                         // JUST GO BACK TO ROAMING STATE IF THEY'RE ALREADY DEFEATED
+                        
                         gp.gameState = GameState.ROAMSTATE;
+                        SoundHelper.loopSound("Assets/Music/Happy-ish.wav");
                     }
                     currentNPC = null; // CLEAR THE MEMORY
                 } else {
                     // IF CURRENT NPC IS NULL JUST ROAM
                     gp.gameState = GameState.ROAMSTATE;
+                    SoundHelper.loopSound("Assets/Music/Happy-ish.wav");
                 }
             }
             enterKeyHandled = true;

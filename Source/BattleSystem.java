@@ -29,6 +29,8 @@ public class BattleSystem {
         this.optionSelected = 0;
         this.dialogText = "";
         gamePanel.battleUI.loadFighterImages(this.activePlayer, this.activeEnemy);
+        SoundHelper.loopSound("Assets/Music/BeepBox-Song.wav");
+        
     }
 
     public void update() {

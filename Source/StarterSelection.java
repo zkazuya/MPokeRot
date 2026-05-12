@@ -68,6 +68,7 @@ public class StarterSelection {
                 gp.getPlayer().getPlayerParty().add(starters[option]);
                 
                 gp.gameState = GameState.ROAMSTATE;
+                
                 NPC targetGiver = null;
                 for (NPC targetNPC : gp.npcManager.npc) {
                     if (targetNPC != null && targetNPC.getName().equals("Nagpatakas an ayam")) {

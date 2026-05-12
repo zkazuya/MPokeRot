@@ -99,7 +99,7 @@ public class TitlePanel {
             else if(keyHandler.getEnterPressed() && isTyping == false){
                 switch(commandNum){    
                     case 1: 
-                    if(pickingSlot != true){
+                    if(pickingSlot != true ){
                         int freeSlot = SaveUtil.findFree(); //find free slots
                         if(freeSlot != -1){
                             SaveData data = new SaveData();
@@ -110,8 +110,13 @@ public class TitlePanel {
 
                             SaveLoadFiles.startSaving(data, "slot" + (freeSlot));
                             slotNumber = freeSlot;
+                            gp.gameState = GameState.STARTERSTATE;
+                            gp.frame.gameIntro.getTitleLoop().close();
+                            
+                            
+
                         }else{
-                            System.out.println("No slots");
+                            playerName = "Delete Files (Max)";
                         }
                     }else {
                         SaveData data = new SaveData();
@@ -121,10 +126,12 @@ public class TitlePanel {
                         data.setPlayerY(gp.getPlayer().getY());
 
                         SaveLoadFiles.startSaving(data, "slot" + slotNumber);
+                        gp.gameState = GameState.STARTERSTATE;
+                        gp.frame.gameIntro.getTitleLoop().close();
                     }
 
                         keyHandler.setEnterPressed(false);
-                        gp.gameState = GameState.STARTERSTATE;
+                        
                         break;
                     case 2: 
                         isOnSave = false;

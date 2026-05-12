@@ -176,7 +176,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void startTransition(){
-        SoundHelper.playSound("Assets/Music/FightStart.wav");
+        SoundHelper.playSound("Assets/Music/fight.wav");
         gameState = GameState.TRANSITIONSTATE;
 
         zoom = 1.0;
