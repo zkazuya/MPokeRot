@@ -2,6 +2,8 @@
 
 --- BattleSystem.java ---
 
+
+
 import java.util.ArrayList;
 
 public class BattleSystem {
@@ -30,6 +32,8 @@ public class BattleSystem {
         this.optionSelected = 0;
         this.dialogText = "";
         gamePanel.battleUI.loadFighterImages(this.activePlayer, this.activeEnemy);
+      //  SoundHelper.loopSound("Assets/Music/BeepBox-Song.wav");
+        
     }
 
     public void update() {
@@ -397,6 +401,8 @@ public class BattleSystem {
 
 --- BattleUI.java ---
 
+
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -406,6 +412,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
 
 public class BattleUI {
     private GamePanel gamePanel;
@@ -639,7 +646,9 @@ public class BattleUI {
 
 --- Dialogue.java ---
 
+
 import java.awt.*;
+
 
 public class Dialogue {
     private GamePanel gp;
@@ -668,7 +677,10 @@ public class Dialogue {
                 if (currentNPC != null) {
                     if (!currentNPC.isDefeated() && !currentNPC.getNPCParty().isEmpty()) { // AND HE ISN'T DEFEATED YET
                         gp.battleSystem.startEncounter(currentNPC.getNPCParty(), currentNPC); // START THE BATTLE
+                        gp.startTransition();
                         gp.gameState = GameState.BATTLESTATE;
+                      //  SoundHelper.loopSound("Assets/Music/BeepBox-Song.wav");
+                       
                     } else {
                         if (currentNPC.getName().equals("Nurse Yot")) {
                             for (PokeRot each : gp.getPlayer().getPlayerParty()) {
@@ -676,12 +688,16 @@ public class Dialogue {
                                 each.initAfterLoad();
                             }
                         }
+                        // JUST GO BACK TO ROAMING STATE IF THEY'RE ALREADY DEFEATED
+                        
                         gp.gameState = GameState.ROAMSTATE;
+                      //  SoundHelper.loopSound("Assets/Music/Happy-ish.wav");
                     }
                     currentNPC = null; // CLEAR THE MEMORY
                 } else {
                     // IF CURRENT NPC IS NULL JUST ROAM
                     gp.gameState = GameState.ROAMSTATE;
+                  //  SoundHelper.loopSound("Assets/Music/Happy-ish.wav");
                 }
             }
             enterKeyHandled = true;
@@ -708,6 +724,7 @@ public class Dialogue {
 
 
 --- EncounterManager.java ---
+
 
 import java.util.ArrayList;
 
@@ -736,17 +753,27 @@ public class EncounterManager {
         if (randomChance < 10) {
 
             PokeRot playerRot = player.getFirstAlivePokeRot();
+            if (playerRot == null) return;
             PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
+            int playerLevel = playerRot.getLevel();
+            int levelOffSet = (int) (Math.random() * 3) - 1;
+            int targetLevel = playerLevel + levelOffSet;
+            if (targetLevel < 1) targetLevel = 1;
+            wildRot.jumpToLevel(targetLevel);
             ArrayList <PokeRot> wildParty = new ArrayList<>();
             wildParty.add(wildRot);
             gamePanel.battleSystem.startEncounter(wildParty, null);
-            gamePanel.gameState = GameState.BATTLESTATE;
         }
     }
+
+    
+
+
 }
 
 
 --- Entity.java ---
+
 
 import java.awt.image.BufferedImage;
 
@@ -775,6 +802,8 @@ public class Entity {
 
 
 --- GameFrame.java ---
+
+
 
 import java.awt.CardLayout;
 import javax.swing.JFrame;
@@ -818,6 +847,8 @@ public class GameFrame extends JFrame {
 
 --- GameIntro.java ---
 
+
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -840,6 +871,8 @@ import javax.sound.sampled.FloatControl;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+
+
 public class GameIntro extends JPanel {
 
     private BufferedImage introFrame, gifFrame, currIntroFrame, currGifFrame;
@@ -855,9 +888,9 @@ public class GameIntro extends JPanel {
     private int introFrameSize = 560;
     private boolean spacePressed = false;
     private boolean shiftPressed = false;
-    GameFrame frame;
-    Clip gifLoop;
-    Clip titleLoop;
+    private GameFrame frame;
+    private Clip gifLoop;
+    private Clip titleLoop;
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
@@ -1011,27 +1044,31 @@ public class GameIntro extends JPanel {
     public Clip loadSound(String path){
         try {
             AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+
             Clip clip = AudioSystem.getClip();
             clip.open(audio);
+
             return clip;
+            
         }catch (Exception e){
             e.printStackTrace();
         }
         return null;
     }
+
+    
 }
 
 
 --- GamePanel.java ---
 
+
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -1047,27 +1084,29 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
-    private boolean worldMusic = false;
+    private double zoom = 1.0;
+    private boolean zooming;
+    private float fadeAlpha = 0f;
 
     private int worldX;
     private int worldY;
 
-    GameFrame frame;
-    Thread gameThread;
-    KeyHandler keyHandler = new KeyHandler(this);
-    TileManager tileManager = new TileManager(this);
-    PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
-    Player player = new Player(this, keyHandler);
-    BattleUI battleUI = new BattleUI(this);
-    BattleSystem battleSystem = new BattleSystem(this);
-    GameState gameState;
-    Dialogue dialogue = new Dialogue(this);
-    TitlePanel titlePanel = new TitlePanel(this);
-    Pause pauseClass = new Pause(this);
-    PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
-    EncounterManager encounterManager = new EncounterManager(this, player);
-    NPCManager npcManager = new NPCManager(this);
-    StarterSelection starterSelection = new StarterSelection(this);
+    public GameFrame frame;
+    public Thread gameThread;
+    public KeyHandler keyHandler = new KeyHandler(this);
+    public TileManager tileManager = new TileManager(this);
+    public PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
+    public Player player = new Player(this, keyHandler);
+    public BattleUI battleUI = new BattleUI(this);
+    public BattleSystem battleSystem = new BattleSystem(this);
+    public GameState gameState;
+    public Dialogue dialogue = new Dialogue(this);
+    public TitlePanel titlePanel = new TitlePanel(this);
+    public Pause pauseClass = new Pause(this);
+    public PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
+    public EncounterManager encounterManager = new EncounterManager(this, player);
+    public NPCManager npcManager = new NPCManager(this);
+    public StarterSelection starterSelection = new StarterSelection(this);
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
@@ -1121,6 +1160,23 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.update(keyHandler);
         } else if (gameState == GameState.STARTERSTATE) {
             starterSelection.update(keyHandler);
+        } else if (gameState == GameState.TRANSITIONSTATE){
+            if (zooming) {
+                zoom += 0.03;
+                 fadeAlpha += 0.02f;
+
+                 fadeAlpha = Math.max(0f, Math.min(1f, fadeAlpha)); //controls the transparancy
+                if (zoom >= 3.0){
+                    zoom = 3.0;
+
+                    gameState = GameState.BATTLESTATE;
+                    //SoundHelper.playSound("Asset/Music/FightStart.wav");
+
+                    zooming = false;
+
+                    fadeAlpha = 0f;
+                }
+            }
         }
     }
 
@@ -1150,6 +1206,20 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.draw(graphics2D);
         } else if (gameState == GameState.STARTERSTATE) {
             starterSelection.draw(graphics2D);
+        } else if (gameState == GameState.TRANSITIONSTATE){
+            graphics2D.scale(zoom, zoom);
+            //This is makes it so that the zoom will be at the center of the screen and not top left
+            double offSetX = (screenWidth - screenWidth * zoom) / 2;
+            double offSetY = (screenHeight - screenHeight * zoom) / 2;
+
+            graphics2D.translate(offSetX / zoom, offSetY / zoom);   
+            tileManager.draw(graphics2D);
+            npcManager.draw(graphics2D);
+            player.draw(graphics2D);
+
+            graphics2D.setColor(new Color(0, 0 , 0, (int)(fadeAlpha * 255)));
+            graphics2D.fillRect(0, 0, screenWidth, screenHeight);
+            graphics2D.setTransform(new AffineTransform());
         }
         graphics2D.dispose(); // saves memory
     }
@@ -1166,29 +1236,24 @@ public class GamePanel extends JPanel implements Runnable {
     public int getPlayerSize() { return this.playerSize; }
     public Player getPlayer() { return this.player; }
 
-    public Clip loadAudio(String path) {
-         try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
-
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-
-            return clip;
-            
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    
     public void restartGame(){
         player = new Player(this, keyHandler);
+    }
+
+    public void startTransition(){
+       // SoundHelper.playSound("Assets/Music/fight.wav");
+        gameState = GameState.TRANSITIONSTATE;
+
+        zoom = 1.0;
+        zooming = true;
     }
 
 }
 
 
 --- GameState.java ---
+
 
 public enum GameState {
     ROAMSTATE, // allows walking on the map
@@ -1204,6 +1269,7 @@ public enum GameState {
 
 
 --- KeyHandler.java ---
+
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -1284,7 +1350,7 @@ public class KeyHandler implements KeyListener {
         if (gamePanel == null) return;
         if (isDirectionalKey && gamePanel.gameState == GameState.ROAMSTATE) return; 
         // DIRECT EXECUTION ACROSS ANY BACKGORUND LAYOUT MENU LAYERS
-        SoundHelper.playSound(soundPath);
+       // SoundHelper.playSound(soundPath);
     }
 
     @Override
@@ -1333,6 +1399,7 @@ public class KeyHandler implements KeyListener {
 
 --- Main.java ---
 
+
 import javax.swing.SwingUtilities;
 
 public class Main {
@@ -1343,6 +1410,7 @@ public class Main {
 
 
 --- Move.java ---
+
 
 
 import java.io.Serializable;
@@ -1366,10 +1434,13 @@ public class Move implements Serializable{
 
 --- NPC.java ---
 
+
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
 
 public class NPC extends Entity {
     int type; // INDEX OF THE NPCS IN THE ARRAY OF NPC
@@ -1462,8 +1533,12 @@ public class NPC extends Entity {
 
 --- NPCManager.java ---
 
+
+
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+
+
 
 public class NPCManager {
     GamePanel gamePanel;
@@ -1543,7 +1618,7 @@ public class NPCManager {
                 new String[] { "Greetings, traveler.", "Many trainers pass through this route.",
                         "Few can defeat me though!" },
                 new String[] { "Impressive victory.", "You battle just like a true champion!" });
-        npc.get(1).getNPCParty().get(0).jumpToLevel(2);
+        //npc.get(1).getNPCParty().get(0).jumpToLevel(2);
         npc.get(11).setDialogues(
                 new String[] { "Bwahaha!", "My PokeRot and I are unbeatable!", "Prepare yourself!" },
                 new String[] { "What?! Impossible!", "I guess even legends can lose sometimes..." });
@@ -1561,6 +1636,8 @@ public class NPCManager {
 
 
 --- Pause.java ---
+
+
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -1695,11 +1772,14 @@ public class Pause{
 
 --- Player.java ---
 
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
+
 
 public class Player extends Entity {
     GamePanel gamePanel;
@@ -1909,6 +1989,7 @@ public class Player extends Entity {
 
 --- PokeRot.java ---
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -2072,7 +2153,9 @@ public class PokeRot implements Serializable{
 
 --- PokeRotRegistry.java ---
 
+
 import java.util.ArrayList;
+
 
 public class PokeRotRegistry {
     private ArrayList<PokeRot> pokeRotList;
@@ -2160,6 +2243,8 @@ public class PokeRotRegistry {
 
 --- PokeRotStats.java ---
 
+
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -2168,6 +2253,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
 
 public class PokeRotStats {
     private KeyHandler keyHandler;
@@ -2252,6 +2338,7 @@ public class PokeRotStats {
 --- SaveData.java ---
 
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -2280,7 +2367,11 @@ public class SaveData implements Serializable {
 
 --- SaveLoadFiles.java ---
 
+
+
 import java.io.*;
+
+
 
 public class SaveLoadFiles {
     public static void startSaving(SaveData savedData, String slotName){
@@ -2350,7 +2441,6 @@ public class SaveLoadFiles {
 
 --- SaveUtil.java ---
 
-
 public class SaveUtil {
     public static final int maxSlots = 3;
 
@@ -2369,34 +2459,47 @@ public class SaveUtil {
 
 --- SoundHelper.java ---
 
-import java.io.File;
+/*import java.io.File;
 import javax.sound.sampled.*;
 
 public class SoundHelper {
 
     public static void playSound(String path){
-        // WRAP AUDIO IN A BACKGROUND THREAD
+        // --- FIXED: WRAP AUDIO IN A BACKGROUND THREAD ---
         new Thread(() -> {
             try {
                 AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audio);
-                // AUTO CLEAN UP
+
+                // auto cleanup
                 clip.addLineListener(event -> {
                     if(event.getType() == LineEvent.Type.STOP){
                         clip.close();
                     }
                 });
+
                 clip.start();
+
             } catch(Exception e) {
-                // SILENTLY IGNORE MISSING FILES INSTEAD OF PRINTING
+                // Silently ignore missing files instead of printing massive red terminal errors
             }
         }).start();
     }
-}
+
+    // STOP CURRENT SOUND
+    public static void stopSound() {
+        if (currentClip != null) {
+            currentClip.stop();
+            currentClip.close();
+            currentClip = null;
+        }
+    }
+}*/
 
 
 --- StarterSelection.java ---
+
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -2406,6 +2509,8 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+
+
 
 public class StarterSelection {
     private GamePanel gp;
@@ -2468,6 +2573,7 @@ public class StarterSelection {
                 gp.getPlayer().getPlayerParty().add(starters[option]);
                 
                 gp.gameState = GameState.ROAMSTATE;
+                
                 NPC targetGiver = null;
                 for (NPC targetNPC : gp.npcManager.npc) {
                     if (targetNPC != null && targetNPC.getName().equals("Nagpatakas an ayam")) {
@@ -2592,6 +2698,7 @@ public class StarterSelection {
 
 --- Tile.java ---
 
+
 import java.awt.image.BufferedImage;
 
 
@@ -2673,6 +2780,7 @@ public class Tile {
 
 --- TileManager.java ---
 
+
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -2680,6 +2788,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.imageio.ImageIO;
+
+
 
 
 public class TileManager {
@@ -3101,6 +3211,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
 
 public class TitlePanel {
     private GamePanel gp;
