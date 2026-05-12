@@ -22,7 +22,7 @@ public class EncounterManager {
         if (encounterCooldown > 0) return; // IF COOLDOWN IS ACTIVE IGNORE THE GRASS (IN THIS CASE THIS METHOD)
         int randomChance = (int)(Math.random() * 100); // THIS VARIABLE MEANS SCALE TO 99%
         if (randomChance < 10) {
-            gamePanel.gameState = GameState.BATTLESTATE;
+            gamePanel.startTransition();
 
             PokeRot playerRot = player.getFirstAlivePokeRot();
             PokeRot wildRot = gamePanel.pokeRotRegistry.generateRandomPokeRot();
@@ -31,4 +31,8 @@ public class EncounterManager {
             gamePanel.battleSystem.startEncounter(wildParty, null);
         }
     }
+
+    
+
+
 }

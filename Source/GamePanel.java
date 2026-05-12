@@ -2,10 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -21,7 +18,9 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
-    private boolean worldMusic = false;
+    private double zoom = 1.0;
+    private boolean zooming;
+    private float fadeAlpha = 0f;
 
     private int worldX;
     private int worldY;
@@ -95,6 +94,23 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.update(keyHandler);
         } else if (gameState == GameState.STARTERSTATE) {
             starterSelection.update(keyHandler);
+        } else if (gameState == GameState.TRANSITIONSTATE){
+            if (zooming) {
+                zoom += 0.03;
+                 fadeAlpha += 0.02f;
+
+                 fadeAlpha = Math.max(0f, Math.min(1f, fadeAlpha)); //controls the transparancy
+                if (zoom >= 3.0){
+                    zoom = 3.0;
+
+                    gameState = GameState.BATTLESTATE;
+                    SoundHelper.playSound("Asset/Music/FightStart.wav");
+
+                    zooming = false;
+
+                    fadeAlpha = 0f;
+                }
+            }
         }
     }
 
@@ -124,6 +140,20 @@ public class GamePanel extends JPanel implements Runnable {
             titlePanel.draw(graphics2D);
         } else if (gameState == GameState.STARTERSTATE) {
             starterSelection.draw(graphics2D);
+        } else if (gameState == GameState.TRANSITIONSTATE){
+            graphics2D.scale(zoom, zoom);
+            //This is makes it so that the zoom will be at the center of the screen and not top left
+            double offSetX = (screenWidth - screenWidth * zoom) / 2;
+            double offSetY = (screenHeight - screenHeight * zoom) / 2;
+
+            graphics2D.translate(offSetX / zoom, offSetY / zoom);   
+            tileManager.draw(graphics2D);
+            npcManager.draw(graphics2D);
+            player.draw(graphics2D);
+
+            graphics2D.setColor(new Color(0, 0 , 0, (int)(fadeAlpha * 255)));
+            graphics2D.fillRect(0, 0, screenWidth, screenHeight);
+            graphics2D.setTransform(new AffineTransform());
         }
         graphics2D.dispose(); // saves memory
     }
@@ -140,23 +170,17 @@ public class GamePanel extends JPanel implements Runnable {
     public int getPlayerSize() { return this.playerSize; }
     public Player getPlayer() { return this.player; }
 
-    public Clip loadAudio(String path) {
-         try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
-
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-
-            return clip;
-            
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    
     public void restartGame(){
         player = new Player(this, keyHandler);
+    }
+
+    public void startTransition(){
+        SoundHelper.playSound("Assets/Music/FightStart.wav");
+        gameState = GameState.TRANSITIONSTATE;
+
+        zoom = 1.0;
+        zooming = true;
     }
 
 }
