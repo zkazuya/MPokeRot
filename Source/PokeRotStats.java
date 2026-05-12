@@ -13,7 +13,6 @@ public class PokeRotStats {
     private Pause paused;
     private GamePanel gp;
     private BattleUI battleUI;
-    private ArrayList <PokeRot> pokerotParty = new ArrayList<>();
     public PokeRotStats(GamePanel gp, Pause paused){
         this.gp=gp;
         this.paused=paused;
@@ -22,8 +21,7 @@ public class PokeRotStats {
     public void drawTemplate(Graphics2D g2, PokeRot pokerot, int x, int y) {
         int width = 200;
         int height = 200;
-        g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRoundRect(x, y, width, height, 25, 25);
+
         drawProfile(g2, pokerot, x, y, width, height);
    
         g2.setColor(Color.WHITE);
@@ -37,25 +35,25 @@ public class PokeRotStats {
         g2.setColor(Color.WHITE);  //name
         g2.drawString("Name: " + pokerot.getName(), textX, y + 30);
 
-        g2.drawString("HP", textX, y + 55);   //hp
-
-        // g2.setColor(Color.GRAY);
-        // g2.fillRoundRect(textX, y + 65, barWidth, barHeight, 5, 5);
+        g2.drawString("HP: "+pokerot.getCurrentHP(), textX, y + 55);   //hp
+        g2.setColor(Color.GRAY);//gray barz
+        g2.fillRoundRect(textX, y + 65, barWidth, barHeight, 5, 5);
 
         double hpWidth = ((double)pokerot.getCurrentHP()/pokerot.getMaxHP()) * barWidth;
         g2.setColor(Color.GREEN);
         g2.fillRoundRect(textX, y + 65, (int)hpWidth, barHeight, 5, 5);
 
         g2.setColor(Color.WHITE);
-        g2.drawString("EXP", textX, y + 95);
+        g2.drawString("EXP: "+pokerot.getExp(), textX, y + 95);
+        g2.setColor(Color.GRAY);
+        g2.fillRoundRect(textX, y + 105, barWidth, barHeight, 5, 5);
 
-        // Background of bar
-            // g2.setColor(Color.GRAY);
-            // g2.fillRoundRect(textX, y + 105, barWidth, barHeight, 5, 5);
-
-        double expWidth = ((double)pokerot.getExp() / pokerot.getExpNeeded()) * barWidth;
+        double expWidth = ((double)pokerot.getDrawnExp() / pokerot.getExpNeeded()) * barWidth;
         g2.setColor(Color.CYAN);
         g2.fillRoundRect(textX, y + 105, (int)expWidth, barHeight, 5, 5);
+
+        g2.setColor(Color.WHITE);
+        g2.drawString("Attack: "+pokerot.getAttack(), textX, y + 145);   //hp
     }
     public void update(KeyHandler keyHandler){
         if(keyHandler.getEnterPressed()){
@@ -72,12 +70,18 @@ public class PokeRotStats {
  
     }
     public void draw(Graphics2D g2){ //in a loop ,5 pokerots
-
-    for (int i = 0; i < pokerotParty.size(); i++) {
-        if (party.isEmpty()) return; //CATCGES IF EVER OKEROTS AREN'T YET REGISTERED
-        int dynamicY = 50 + (i * 220); 
-        drawTemplate(g2, pokerotParty.get(i), 30, dynamicY);
+        ArrayList<PokeRot> pokerotParty = gp.player.getPlayerParty();
+        if (pokerotParty.isEmpty()) return; //CATCGES IF EVER OKEROTS AREN'T YET REGISTERED
+        drawBG(g2);
+        int count = Math.min(pokerotParty.size(), 3); //takes all pokerots available, max 3
+        for (int i = 0; i < count; i++) {
+            int dynamicY = 50 + (i * 220); 
+            drawTemplate(g2, pokerotParty.get(i), 30, dynamicY);
+        }
     }
+    public void drawBG(Graphics2D g2){
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, gp.getWidth(), gp.getHeight());
     }
 
 }
