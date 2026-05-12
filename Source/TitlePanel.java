@@ -16,7 +16,7 @@ public class TitlePanel {
     private boolean[] slotExists = new boolean[3];
     private SaveData[] slotData = new SaveData[3];
     private boolean pickingSlot = false;
-    
+    private String buttonSound = "Assets/Music/buttSelect.wav";
     
  
 
@@ -38,6 +38,7 @@ public class TitlePanel {
         }else{
         if((commandNum<3 ||commandNum>=0) && isOnLoad == false && isOnSave == false){
             if (keyHandler.getEnterPressed()) {
+                SoundHelper.playSound(buttonSound);
                 switch(commandNum){
                     case 0:
                         //String[] intro = {"Welcome to UP!", "The CS building's servers just leaked! Pokerots are everywhere!, Stay wake and catch them all before the pokerots go viral!"};
@@ -61,10 +62,12 @@ public class TitlePanel {
                 }    
             }else if(keyHandler.getDownPressed()){
                 if(commandNum<2){
+                SoundHelper.playSound(buttonSound);
                 commandNum++;
                 keyCooldown = 8;
                 }//keyHandler.setDownPressed(false); //hehe
             }else if(keyHandler.getUpPressed()){
+                SoundHelper.playSound(buttonSound);
                 if(commandNum>0){
                 commandNum--;
                 keyCooldown = 8;
@@ -79,6 +82,8 @@ public class TitlePanel {
                     keyHandler.IfTypingTrue(isTyping);
                      //toggles that the user will be typing and will softlock the user
                     if (keyHandler.isCharTyped() && keyCooldown == 0){
+                        SoundHelper.playSound(buttonSound);
+                        
 
                         char c = keyHandler.getTypedChar();
                         keyCooldown = 5;
@@ -98,6 +103,7 @@ public class TitlePanel {
                         
                     }
                     if (keyHandler.getEnterPressed()){
+                        SoundHelper.playSound(buttonSound);
                         keyCooldown = 8;
                         isTyping = false;
                         keyHandler.IfTypingTrue(isTyping);
@@ -106,6 +112,7 @@ public class TitlePanel {
                     }
                 }
                 else if(keyHandler.getEnterPressed() && isTyping == false){
+                    SoundHelper.playSound(buttonSound);
                     switch(commandNum){    
                         case 1: 
                         if(pickingSlot != true){
@@ -143,11 +150,13 @@ public class TitlePanel {
                             break;
                     }
                 }else if (keyHandler.getDownPressed() && isTyping == false){
+                    SoundHelper.playSound(buttonSound);
                     if (commandNum < 2){
                         commandNum++;
                         keyCooldown = 8;
                     }
                 }else if (keyHandler.getUpPressed() && isTyping == false){
+                    SoundHelper.playSound(buttonSound);
                     if (commandNum > 0){
                         commandNum--;
                         keyCooldown = 8;
@@ -157,7 +166,9 @@ public class TitlePanel {
             }
             //Loading Menu
             else if((commandNum > 0 || commandNum < 4) && isOnLoad == true){
+            
                 if(keyHandler.getEnterPressed()){
+                    SoundHelper.playSound(buttonSound);
                     switch(commandNum){
                         case 0: 
                         if(!slotExists[commandNum]){
@@ -169,6 +180,7 @@ public class TitlePanel {
                             commandNum = 1;
                             System.out.println(slotNumber);
                         } else {
+                            
                             keyCooldown = 8;
                             playerName = slotData[commandNum].getPlayerName();
                             gp.getPlayer().setPlayerParty(slotData[commandNum].getPlayerParty());
@@ -236,13 +248,47 @@ public class TitlePanel {
                             commandNum = 0;
                             break;
                     }
-                }else if (keyHandler.getDownPressed()){
+                }else if (keyHandler.getBackSpacePressed()){
+                    SoundHelper.playSound(buttonSound);
+                        
+                    switch(commandNum){
+                        case 0: if (slotExists[commandNum]){
+                            keyCooldown = 8;
+                            SaveLoadFiles.deleteSave("slot1");
+                            refreshSlots();
+                            break;
+                        }
+                        case 1: if (slotExists[commandNum]){
+                            keyCooldown = 8;
+                            SaveLoadFiles.deleteSave("slot2");
+                            refreshSlots();
+                            break;
+                        }
+                        case 2: if (slotExists[commandNum]){
+                            keyCooldown = 8;
+                            SaveLoadFiles.deleteSave("slot3");
+                            refreshSlots();
+                            break;
+                        }
+                        case 3: 
+                            isOnLoad = false;
+                            keyCooldown = 8;
+                            commandNum = 0;
+                            break;
+                    }
+
+                
+                    
+                    }
+                else if (keyHandler.getDownPressed()){
+                    SoundHelper.playSound(buttonSound);
                     if (commandNum < 3){
                         
                         commandNum++;
                         keyCooldown = 8;
                     }
                 }else if (keyHandler.getUpPressed()){
+                    SoundHelper.playSound(buttonSound);
                     if (commandNum > 0){
                         commandNum--;
                         keyCooldown = 8;
@@ -347,7 +393,14 @@ public class TitlePanel {
         gp.gameState = GameState.TITLESCREEN;
         isOnSave = false;
         isOnLoad = false;
+        isTyping = false;
+        pickingSlot = false;
+        playerName = "";
         commandNum = 0;
+        keyCooldown = 8;
+        slotNumber = 1;
+        refreshSlots();
+
     }
 
     public int getSlotNumber(){ return slotNumber; }
@@ -368,6 +421,8 @@ public class TitlePanel {
             }
         }
     }
+
+
 
    
   

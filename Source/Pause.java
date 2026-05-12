@@ -107,8 +107,12 @@ public class Pause{
                     switch (choice) {
                         case 0: gp.gameState = GameState.ROAMSTATE; break;
                         case 1: showingStats = true; break;            
-                        case 2: SaveLoadFiles.saveRightNow(gp, gp.titlePanel.getSlotNumber()); break;
-                        case 3: gp.gameState = GameState.TITLESCREEN; break;
+                        case 2: 
+                        SaveLoadFiles.saveRightNow(gp, gp.titlePanel.getSlotNumber()); break;
+                        case 3:
+                             gp.restartGame();
+                             gp.titlePanel.setTitleState();
+                             gp.gameState = GameState.TITLESCREEN; break;
                     }
                 }
             }

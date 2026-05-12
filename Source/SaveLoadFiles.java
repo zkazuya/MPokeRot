@@ -52,6 +52,23 @@ public class SaveLoadFiles {
 
     }
 
+    public static void deleteSave(String slotName){
+
+        File file = new File("saves/" + slotName + ".sav");
+
+        if(fileExists(slotName)){
+
+            if(file.delete()){
+                System.out.println("tinapon ko na ang bola !");
+            }else {
+                System.out.println("hindi talaga na delete dol" + slotName);
+            }
+
+        }else {
+            System.out.println("Wala naman");
+        }
+    }
+
     public static boolean fileExists(String slotName){
 
         File file = new File("saves/" +slotName +".sav");

@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -39,6 +40,7 @@ public class GameIntro extends JPanel {
     KeyHandler keyHandler = new KeyHandler();
     GameFrame frame;
     Clip gifLoop;
+    Clip titleLoop;
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
@@ -49,6 +51,7 @@ public class GameIntro extends JPanel {
         Clip eyeSound = loadSound("Assets/Music/OpenEyeSound_(2).wav");
         Clip introSound = loadSound("Assets/Music/TitleScreen(no_melody).wav");
         Clip whoosh = loadSound("Assets/Music/woosh.wav");
+        
         
         if (eyeSound != null){
             eyeSound.start();
@@ -152,6 +155,14 @@ public class GameIntro extends JPanel {
             if (keyHandler.getSpacePressed()) {
                 if (gifLoop != null){
                     gifLoop.stop();
+                    gifLoop.close();
+                }
+                titleLoop = loadSound("Assets/Music/TitleScreenMenu.wav");
+                FloatControl gainControl = (FloatControl) titleLoop.getControl(FloatControl.Type.MASTER_GAIN);
+                gainControl.setValue(-15f);
+                if(titleLoop != null){
+                    
+                    titleLoop.loop(Clip.LOOP_CONTINUOUSLY);
                 }
                 frame.switchPanel("Game"); // if Space is pressed, then it will go to game
                 gifTimer.stop();
@@ -226,4 +237,6 @@ public class GameIntro extends JPanel {
         }
         return null;
     }
+
+    
 }

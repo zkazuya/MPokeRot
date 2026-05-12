@@ -2,6 +2,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements Runnable {
@@ -47,6 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
         this.setDoubleBuffered(true); // this method improves render performance
         gameState = GameState.TITLESCREEN; // by default game state is on ROAMSTATE
+        
         npcManager.setUpNPC();
     }
 
@@ -80,9 +85,6 @@ public class GamePanel extends JPanel implements Runnable {
             player.update(); // update player movement and draw
             encounterManager.update();
             pauseClass.update(keyHandler);
-            if(keyHandler.getEscPressed()){
-                titlePanel.setTitleState();
-            }
         } else if (gameState == GameState.BATTLESTATE) {
             battleSystem.update(); // enter battle system
         } else if (gameState == GameState.PAUSESTATE) {;
@@ -137,5 +139,24 @@ public class GamePanel extends JPanel implements Runnable {
     public int getMaxWorldRow () { return this.maxWorldRow; }
     public int getPlayerSize() { return this.playerSize; }
     public Player getPlayer() { return this.player; }
+
+    public Clip loadAudio(String path) {
+         try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+
+            return clip;
+            
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void restartGame(){
+        player = new Player(this, keyHandler);
+    }
 
 }
