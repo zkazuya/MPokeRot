@@ -12,6 +12,11 @@ public class KeyHandler implements KeyListener {
     private char typedChar;
     private boolean charTyped;
     private boolean ifTyping = false;
+    private GamePanel gamePanel;
+
+    public KeyHandler (GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+    }
 
     @Override
     public void keyTyped (KeyEvent input) {
@@ -22,20 +27,36 @@ public class KeyHandler implements KeyListener {
     } // NOT USED BUT MUST BE IMPORTED
 
     @Override
-    public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HOLD
-        int code = input.getKeyCode(); // TRANSLATE KEYS "AWSD" TO ASCII VALUE
+    public void keyPressed (KeyEvent input) { // THIS METHOD IS TRIGGERED WHEN A KEY IS HELD
+        int code = input.getKeyCode(); 
+
         switch (code) {
-            case KeyEvent.VK_W -> upPressed = true;
-            case KeyEvent.VK_A -> leftPressed = true;
-            case KeyEvent.VK_S -> downPressed = true;
-            case KeyEvent.VK_D -> rightPressed = true;
-            case KeyEvent.VK_F -> fPressed = true;
-            case KeyEvent.VK_ENTER -> enterPressed = true;
-            case KeyEvent.VK_ESCAPE -> escPressed = true;
-            case KeyEvent.VK_SPACE -> spacePressed = true;
-            case KeyEvent.VK_SHIFT -> shiftPressed = true;
-            case KeyEvent.VK_BACK_SPACE -> backSpacePressed = true;
+            // --- DIRECTIONAL UI NAVIGATION SOUNDS (Marked true to block overworld walk sound buzzes) ---
+            case KeyEvent.VK_W -> { upPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            case KeyEvent.VK_A -> { leftPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            case KeyEvent.VK_S -> { downPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            case KeyEvent.VK_D -> { rightPressed = true; playMenuSound("Assets/Music/move.wav", true); }
+            
+            // --- GENERAL INTERACTION AND ACTION SOUNDS (Marked false to always play across screens) ---
+            case KeyEvent.VK_F -> { fPressed = true; playMenuSound("Assets/Music/interact.wav", false); }
+            case KeyEvent.VK_ENTER -> { enterPressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
+            case KeyEvent.VK_SPACE -> { spacePressed = true; playMenuSound("Assets/Music/confirm.wav", false); }
+            case KeyEvent.VK_ESCAPE -> { escPressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
+            case KeyEvent.VK_BACK_SPACE -> { backSpacePressed = true; playMenuSound("Assets/Music/cancel.wav", false); }
         }
+    }
+
+    // New helper method to route crisp audio menu clicks safely without background noise loop overlap
+    private void playMenuSound(String soundPath, boolean isDirectionalKey) {
+        if (gamePanel == null) return;
+        
+        // Block directional movement indicators from playing clips during exploration ticks
+        if (isDirectionalKey && gamePanel.gameState == GameState.ROAMSTATE) {
+            return; 
+        }
+        
+        // Direct execution across any background layout menu layers
+        SoundHelper.playSound(soundPath);
     }
 
     @Override

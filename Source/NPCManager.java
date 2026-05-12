@@ -29,7 +29,7 @@ public class NPCManager {
         //npc.get(4).addPokeRot(gamePanel.pokeRotRegistry.getSpecificPokeRot("Brr Brr Patapim"));
 
         npc.get(0).setDialogues(
-            new String[]{"Ah, I see you've chosen your PokeRot!", "Let's test its strength right now!"}, 
+            new String[]{"Ah, I see you've chosen your PokeRot!", "Goodluck out there in the wild!"}, 
             new String[]{"Excellent!", "You have great potential. Good luck out there!"});
 
         npc.get(1).setDialogues(new String[]{"hello there", "yoou da real ART", "hey pookie"}, 

@@ -28,7 +28,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     GameFrame frame;
     Thread gameThread;
-    KeyHandler keyHandler = new KeyHandler();
+    KeyHandler keyHandler = new KeyHandler(this);
     TileManager tileManager = new TileManager(this);
     PokeRotRegistry pokeRotRegistry = new PokeRotRegistry();
     Player player = new Player(this, keyHandler);

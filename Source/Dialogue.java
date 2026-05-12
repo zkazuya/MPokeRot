@@ -63,7 +63,11 @@ public class Dialogue {
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
         g2.drawString(currentDialogue[dialogueIndex], x + 20, y + 40);
 
+        if (currentDialogue != null && dialogueIndex < currentDialogue.length) {
+            g2.drawString(currentDialogue[dialogueIndex], x + 20, y + 40);
+        }
+
         g2.setFont(new Font("Arial", Font.BOLD, 16));
-        g2.drawString("Press Enter>", x + 590, y + 85);
+        g2.drawString("Press Enter >", x + 560, y + 85);
     }
 }

@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -35,9 +37,9 @@ public class GameIntro extends JPanel {
     private int zeru = 0;
     private int gifFrameSize = 150;
     private int introFrameSize = 560;
+    private boolean spacePressed = false;
+    private boolean shiftPressed = false;
 
-
-    KeyHandler keyHandler = new KeyHandler();
     GameFrame frame;
     Clip gifLoop;
     Clip titleLoop;
@@ -46,7 +48,18 @@ public class GameIntro extends JPanel {
         this.frame = frame;
         setFocusable(true);
         setPreferredSize(new Dimension(screenWidth, screenHeight));
-        addKeyListener(keyHandler);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) spacePressed = true;
+                if (e.getKeyCode() == KeyEvent.VK_SHIFT) shiftPressed = true;
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) spacePressed = false;
+                if (e.getKeyCode() == KeyEvent.VK_SHIFT) shiftPressed = false;
+            }
+        });
 
         Clip eyeSound = loadSound("Assets/Music/OpenEyeSound_(2).wav");
         Clip introSound = loadSound("Assets/Music/TitleScreen(no_melody).wav");
@@ -72,7 +85,7 @@ public class GameIntro extends JPanel {
                 }
             }
             currIntroFrame = loadIntroFrames(currFrame);
-            if (currFrame >= introFrameSize || keyHandler.getShiftPressed()) { // if ever the current frame of the intro
+            if (currFrame >= introFrameSize || shiftPressed) { // if ever the current frame of the intro
                                                                             // animation equals to the amount maximum
                                                                             // frames, it will stop and then switch to
                 if (introSound != null){
@@ -152,7 +165,7 @@ public class GameIntro extends JPanel {
                                   // reset back to 0 to make a loop
                 
             }
-            if (keyHandler.getSpacePressed()) {
+            if (spacePressed) {
                 if (gifLoop != null){
                     gifLoop.stop();
                     gifLoop.close();

@@ -89,9 +89,14 @@ public class Player extends Entity {
             if (targetColumn >= 0 && targetColumn < gamePanel.getMaxWorldColumn() &&
                     targetRow >= 0 && targetRow < gamePanel.getMaxWorldRow()) {
 
-                // TILE COLLISION CHECK
                 int targetTileID = gamePanel.tileManager.getTileNumber(targetColumn, targetRow);
-                boolean tileCollision = gamePanel.tileManager.getTile(targetTileID).getCollision();
+                Tile targetTile = gamePanel.tileManager.getTile(targetTileID);
+                boolean tileCollision = false; // Default to false
+                
+                // Only ask for collision if the tile actually exists!
+                if (targetTile != null) {
+                    tileCollision = targetTile.getCollision();
+                }
 
                 // NPC COLLISION CHECK
                 boolean npcCollisionCheck = false;
