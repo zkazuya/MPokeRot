@@ -110,10 +110,10 @@ public class Pause{
             
     }
     public void draw(Graphics2D g2){
-        drawPauseLabel(g2);
         if(showingStats){
             pokerotStats.draw(g2);
         }else{
+            drawPauseLabel(g2);
             drawOptions(g2);
         }
     }

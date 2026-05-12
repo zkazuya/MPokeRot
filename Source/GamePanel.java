@@ -31,6 +31,7 @@ public class GamePanel extends JPanel implements Runnable {
     Dialogue dialogue = new Dialogue(this);
     TitlePanel titlePanel = new TitlePanel(this);
     Pause pauseClass = new Pause(this);
+    PokeRotStats pokerotStats = new PokeRotStats(this, pauseClass);
     EncounterManager encounterManager = new EncounterManager(this, player);
     NPC[] npc = new NPC[5];
 
