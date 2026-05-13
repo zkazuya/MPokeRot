@@ -7,9 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.imageio.ImageIO;
 
-
-
-
 public class TileManager {
     private GamePanel gamePanel;
     private Tile[] tile; // THE TILES INSTANTIATED IN TILE IS STORED IN AN ARRAY

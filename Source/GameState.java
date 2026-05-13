@@ -6,7 +6,6 @@ public enum GameState {
     TITLESCREEN, // main menu, disable everything
     TALKINGSTATE, // behaviors for when interacting with NPC
     LOADINGSTATE,
-    CUTSCENESTATE,
     TRANSITIONSTATE,
     STARTERSTATE
 }
