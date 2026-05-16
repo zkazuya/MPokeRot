@@ -229,7 +229,7 @@ public void loadMap(String filePath) {
     } catch (Exception e) {
         System.out.println("Error loading map: " + e.getMessage());
         e.printStackTrace();
-    }s
+    }
 }
 
 

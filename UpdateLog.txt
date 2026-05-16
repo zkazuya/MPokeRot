@@ -129,6 +129,7 @@ java -cp "ClassFolders;Assets;." Main
 
 <5/16/2026 (Therese)>
     -Added the THIS keyword on gameframe constructor so it directly calls the frame
+    -Fixed null pointer exception, added try-catches in the process
     -Fixed paths, changed FileInputStream to getResourceAsStream
     -Renamed assets for better path-getting
     -Removed window decorators
