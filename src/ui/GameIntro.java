@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
@@ -162,28 +163,42 @@ public class GameIntro extends JPanel {
         gifTimer.start();
     }
 
-    public BufferedImage loadIntroFrames(int i){
+
+    public BufferedImage loadIntroFrames(int i) {
+        String path;
+        if (i < 10) path = "Assets/IntroFrames/00" + i + ".png";
+        else if (i < 100) path = "Assets/IntroFrames/0" + i + ".png";
+        else path = "Assets/IntroFrames/" + i + ".png";
+
         try {
-            if (i < 10) return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/00" + i + ".png")));
-            else if (i < 100 && i > 9) return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/0" + i + ".png")));
-            else return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/" + i + ".png")));   
-        } catch (IOException e) { }
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                return ImageIO.read(is);
+            } else {
+                System.out.println("MISSING INTRO FRAME: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    public BufferedImage loadGifFrames(int i){
+    public BufferedImage loadGifFrames(int i) {
+        String path;
+        if (i < 10) path = "Assets/IntroFrames/GifFrames/00" + i + ".png";
+        else if (i < 100) path = "Assets/IntroFrames/GifFrames/0" + i + ".png";
+        else path = "Assets/IntroFrames/GifFrames/" + i + ".png";
+
         try {
-             if (i < 10) {
-                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/00" + i + ".png")));
-                    
-                } else if (i < 100 && i > 9) {
-                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/0" + i + ".png")));
-                    
-                } else {
-                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/" + i + ".png")));
-                    
-                }
-        } catch (IOException e) { }
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                return ImageIO.read(is);
+            } else {
+                System.out.println("MISSING GIF FRAME: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -191,16 +206,19 @@ public class GameIntro extends JPanel {
         intro = true;
     }
 
-    public Clip loadSound(String path){
+    public Clip loadSound(String path) {
         try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(getClass().getResourceAsStream((path)));
+            java.net.URL url = getClass().getClassLoader().getResource(path);
 
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-
-            return clip;
-            
-        }catch (Exception e){
+            if (url != null) {
+                AudioInputStream audio = AudioSystem.getAudioInputStream(url);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audio);
+                return clip;
+            } else {
+                System.out.println("MISSING SOUND ASSET: " + path);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

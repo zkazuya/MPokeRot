@@ -9,7 +9,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
+import java.io.InputStream;
+import java.io.IOException;
 import main.GamePanel;
 import battle.BattleSystem;
 import pokerot.PokeRot;
@@ -25,14 +26,21 @@ public class BattleUI {
 
     public BattleUI (GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
+        int fontSize = gamePanel.getTileSize() / 4; 
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
         moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
         HPFont = new Font("Arial", Font.BOLD, (int)(fontSize * 0.75));
-        try { // LOAD BATTLE BACKGROUND  
-            battleBackground = ImageIO.read(getClass().getResourceAsStream("Assets/Battle/battle_bg.png"));
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
+        try {
+            String path = "Assets/Battle/battle_bg.png"; 
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            
+            if (is != null) {
+                this.battleBackground = ImageIO.read(is); 
+            } else {
+                System.out.println("CRITICAL BATTLE ASSET MISSING: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -41,6 +49,12 @@ public class BattleUI {
         int boxHeight = tileSize * 3; // BOX HEIGHT IS 3 TILES TALL
         int boxY = gamePanel.getScreenHeight() - boxHeight; // BOX'S Y IS THE SPACE LEFTOVER FROM BOXHEIGHT
         // DRAW BATTLE BACKGROUND ACCORDING TO CONFIGURATIONS ABOVE
+            if (battleBackground != null) { //PREVENTS CRASH IF SOMETHING IS MISSING
+                graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
+            } else {
+                graphics2D.setColor(Color.BLACK);
+                graphics2D.fillRect(0, 0, gamePanel.getScreenWidth(), boxY);
+            }
         graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
     
         int pokerotSize = tileSize * 4; // SIZE OF POKEROT IS 4 TILES
@@ -241,7 +255,6 @@ public class BattleUI {
                 } else {
                     System.out.println("MISSING PLAYER IMAGE: Assets/PokeRotBack/" + playerFileName);
                 }
-
                 InputStream enemyStream = getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + enemyFileName);
                 if (enemyStream != null) {
                     enemyRot = ImageIO.read(enemyStream);

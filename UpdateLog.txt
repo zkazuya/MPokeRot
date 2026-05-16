@@ -127,5 +127,13 @@ java -cp "ClassFolders;Assets;." Main
     -Added dynamic enemy and player image updates upon switching
     -Added pokerots getting levels and their stats increasing dynamically
 
+<5/16/2026 (Therese)>
+    -Added the THIS keyword on gameframe constructor so it directly calls the frame
+    -Fixed paths, changed FileInputStream to getResourceAsStream
+    -Renamed assets for better path-getting
+    -Removed window decorators
+    -Run using this: java -cp "ClassFolders;." main.Main
+
+
 
 // follow the format REMOVE THIS IF SMT IS ADDED

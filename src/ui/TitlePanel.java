@@ -6,6 +6,7 @@ import io.SaveUtil;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -337,15 +338,20 @@ public class TitlePanel {
     }
 
     public void loadUi(){
-        for(int i = 1; i <= 15; i++){ 
-            try {
-                BufferedImage uiPic = ImageIO.read(getClass().getResourceAsStream(("Assets/Ui/" + i + ".png")));
-                Ui.add(uiPic);
-            } catch (IOException e) {
-                System.out.println("MISSING UI FILE: Assets/Ui/" + i + ".png");
-                Ui.add(null); // Add null to preserve the index order so Ui.get(6) doesn't crash!
+        for (int i = 1; i <= 15; i++) {
+                try {
+                    String path = String.format("Assets/Ui/%02d.png", i);    //2-digit integer is %02d
+                    InputStream is = getClass().getClassLoader().getResourceAsStream(path);           
+                    if (is != null) {
+                        Ui.add(ImageIO.read(is));
+                    } else {
+                        System.out.println("MISSING ANIMATION FRAME: " + path);
+                        Ui.add(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)); //will be adding something to fill in empty/unfound asset
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
     }
 
     public void setTitleState(){

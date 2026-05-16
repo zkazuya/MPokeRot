@@ -13,20 +13,21 @@ public class GameFrame extends JFrame {
     GameIntro gameIntro;
     CardLayout switcher;
 
-    public GameFrame() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-        setTitle("PokeRot");
+    public GameFrame() {// this. to directly tell taht the code is pertaining to our frame
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false);
+        this.setUndecorated(true);
+        this.setTitle("PokeRot");
         gamePanel = new GamePanel(this);
         gameIntro = new GameIntro(this);
         switcher = new CardLayout();
         switcherPanel = new JPanel(switcher);
         switcherPanel.add(gameIntro, "Intro");
         switcherPanel.add(gamePanel, "Game");
-        add(switcherPanel);
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
+        this.add(switcherPanel);
+        this.pack();
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
         gamePanel.startGameThread();
     }
 

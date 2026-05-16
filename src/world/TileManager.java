@@ -70,13 +70,13 @@ public class TileManager {
                 loadTile(18, "Assets/Tiles/Revised_Road_Tile_1.png", false);
                 
                 // FENCES
-                loadTile(19, "Assets/Tiles/Pokewalls_1.png", true);
-                loadTile(20, "Assets/Tiles/Pokewalls_3.png", true);
-                loadTile(21, "Assets/Tiles/Pokewalls_4.png", true);
-                loadTile(22, "Assets/Tiles/Pokewalls_6.png", true);
+                loadTile(19, "Assets/Tiles/pokewalls_1.png", true);
+                loadTile(20, "Assets/Tiles/pokewalls_3.png", true);
+                loadTile(21, "Assets/Tiles/pokewalls_4.png", true);
+                loadTile(22, "Assets/Tiles/pokewalls_6.png", true);
                 
                 // BLANK / OCCUPIED
-                loadTile(23, "Assets/Tiles/Blank.png", true);
+                loadTile(23, "Assets/Tiles/blank.png", true);
                 tile[23].setRenderable(false);
 
                 // BUILDINGS
@@ -94,7 +94,7 @@ public class TileManager {
 
                 loadTile(27, "Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png", true);
                 tile[27].setWidth(gamePanel.getTileSize() * 7);
-                tile[27].setHeight(gamePanel.getTileSize() * 12);
+                tile[27].setHeight(gamePanel.getTileSize() * 12);     
 
                 loadTile(28, "Assets/Tiles/Buildings/Final_Building(Long)#3.png", true);
                 tile[28].setWidth(gamePanel.getTileSize() * 7);
@@ -102,7 +102,7 @@ public class TileManager {
 
                 loadTile(29, "Assets/Tiles/Buildings/Final_Building_#2.png", true);
                 tile[29].setWidth(gamePanel.getTileSize() * 7);
-                tile[29].setHeight(gamePanel.getTileSize() * 5);
+                tile[29].setHeight(gamePanel.getTileSize() * 5);           
 
                 loadTile(30, "Assets/Tiles/Buildings/Final_Classroom_0.png", true);
                 tile[30].setWidth(gamePanel.getTileSize() * 8);
@@ -137,10 +137,10 @@ public class TileManager {
                 tile[37].setHeight(gamePanel.getTileSize() * 6);
 
                 // INTERSECTIONS
-                loadTile(38, "Assets/Tiles/Other_Corner_Tiles_0.png", false);
-                loadTile(39, "Assets/Tiles/Other_Corner_Tiles_1.png", false);
-                loadTile(40, "Assets/Tiles/Other_Corner_Tiles_2.png", false);
-                loadTile(41, "Assets/Tiles/Other_Corner_Tiles_3.png", false);
+                loadTile(38, "Assets/Tiles/other_corner_tiles_0.png", false);
+                loadTile(39, "Assets/Tiles/other_corner_tiles_1.png", false);
+                loadTile(40, "Assets/Tiles/other_corner_tiles_2.png", false);
+                loadTile(41, "Assets/Tiles/other_corner_tiles_3.png", false);
                 loadTile(42, "Assets/Tiles/Tall_Grass_0.png", false); // Fixed path typo
 
             } catch (IOException ioE) {
@@ -148,86 +148,89 @@ public class TileManager {
             }
         }
 
-
-    public void loadMap(String filePath) {
-        try {
-            InputStream inputStream = getClass().getResourceAsStream((filePath));
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            int column = 0;
-            int row = 0;
-            while (column < gamePanel.getMaxWorldColumn() && row < gamePanel.getMaxWorldRow()) {
-                String line = bufferedReader.readLine();
-                if (line == null)
-                    break;
-                String[] numbers = line.trim().split("\\s+");
-
-
-                while (column < gamePanel.getMaxWorldColumn() && column < numbers.length) {
-                    int currentNumber = Integer.parseInt(numbers[column]);
-                    int tileIndex = currentNumber;
-                    switch (currentNumber) {
-                        case 62 -> tileIndex = 35; // BIG TREE
-                        case 80 -> tileIndex = 23; // BLANK BUILDING TILE EDIT KO LA 23 IT HIYA
-                        case 70 -> tileIndex = 23; // BLANK BUILDING TILE
-                        case 61 -> tileIndex = 36; // SMALL TREE
-                        case 6 -> tileIndex = 2; // GRASS
-                        case 9 -> tileIndex = 3; // GRASS WITH FLOWER
-                        case 11 -> tileIndex = 2; // GRASS WITH ROCK
-                        case 13 -> tileIndex = 2; // GRASS WITH FLOWER
-                        case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
-                        case 55 -> tileIndex = 18; // NORMAL PATH
-                        case 41 -> tileIndex = 6; // UP R
-                        case 42 -> tileIndex = 10; // LOW R
-                        case 43 -> tileIndex = 11; // UP L
-                        case 44 -> tileIndex = 7; // LOW L
-                        case 30 -> tileIndex = 4; // VERTICAL LEFT S ROAD
-                        case 31 -> tileIndex = 5; // VERTICAL RIGHT S ROAD
-                        case 4 -> tileIndex = 8; // HORIZONTAL LOWER S ROAD
-                        case 5 -> tileIndex = 9; // HORIZONTAL UPPER S ROAD
-                        // ROAD-INTERSECTION-CORNER
-                        case 21 -> tileIndex = 40;
-                        case 22 -> tileIndex = 38;
-                        case 23 -> tileIndex = 41;
-                        case 24 -> tileIndex = 39;
-                        // FENCES
-                        case 56 -> tileIndex = 19; // RIGHT S POLE
-                        case 57 -> tileIndex = 22; // LEFT S POLE
-                        case 7 -> tileIndex = 22; // FENCE NEAR BOTANICAL
-                        case 58 -> tileIndex = 21; // VERTICAL F LEFT
-                        case 59 -> tileIndex = 20; // VERTICAL F RIGHT
-                        // ROAD TILES
-                        case 50 -> tileIndex = 13;
-                        case 14 -> tileIndex = 16;
-                        case 49 -> tileIndex = 15;
-                        case 3 -> tileIndex = 14;
-                        case 17 -> tileIndex = 17;
-                        // BUILDINGS
-                        case 90 -> tileIndex = 32; // ROOM WITH 67
-                        case 92 -> tileIndex = 31; // ROOM OTHER
-                        case 93 -> tileIndex = 33; // OBLE
-                        case 96 -> tileIndex = 26; // BASKETBALL COURT
-                        case 97 -> tileIndex = 29; // RED BUILDING SMALL
-                        case 98 -> tileIndex = 28; // RED BUILDING BIG
-                        case 99 -> tileIndex = 27; // RED BUILDING 67
-                        case 91 -> tileIndex = 25; // AS BUILDING LEFT D
-                        case 94 -> tileIndex = 24; // AS BUILDING RIGHT D
-                        case 95 -> tileIndex = 37; // AS BUILDING RIGHT D AC
-                        case 0 -> tileIndex = 42;
-                        default -> tileIndex = currentNumber;
-                    }
-                    mapTileNumber[column][row] = tileIndex;
-                    column++;
-                }
-                if (column == gamePanel.getMaxWorldColumn() || column == numbers.length) {
-                    column = 0;
-                    row++;
-                }
-            }
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+public void loadMap(String filePath) {
+    try {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream == null) {
+            System.out.println("CRITICAL ERROR: Map file not found at " + filePath);
+            return;
         }
-    }
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        int column = 0;
+        int row = 0;
+
+        while (column < gamePanel.getMaxWorldColumn() && row < gamePanel.getMaxWorldRow()) {
+            String line = bufferedReader.readLine();
+            
+            if (line == null) {
+                break;
+            }
+
+            String[] numbers = line.trim().split("\\s+");
+
+            while (column < gamePanel.getMaxWorldColumn() && column < numbers.length) {
+                int currentNumber = Integer.parseInt(numbers[column]);
+                int tileIndex;
+
+                switch (currentNumber) {
+                    case 62 -> tileIndex = 35; // BIG TREE
+                    case 80, 70 -> tileIndex = 23; // BLANK BUILDING TILE
+                    case 61 -> tileIndex = 36; // SMALL TREE
+                    case 6, 11, 13 -> tileIndex = 2; // GRASS VARIANTS
+                    case 9 -> tileIndex = 3; // GRASS WITH FLOWER
+                    case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
+                    case 55 -> tileIndex = 18; // NORMAL PATH
+                    case 41 -> tileIndex = 6;  // UP R
+                    case 42 -> tileIndex = 10; // LOW R
+                    case 43 -> tileIndex = 11; // UP L
+                    case 44 -> tileIndex = 7;  // LOW L
+                    case 30 -> tileIndex = 4;  // VERTICAL LEFT S ROAD
+                    case 31 -> tileIndex = 5;  // VERTICAL RIGHT S ROAD
+                    case 4 -> tileIndex = 8;   // HORIZONTAL LOWER S ROAD
+                    case 5 -> tileIndex = 9;   // HORIZONTAL UPPER S ROAD
+                    case 21 -> tileIndex = 40;
+                    case 22 -> tileIndex = 38;
+                    case 23 -> tileIndex = 41;
+                    case 24 -> tileIndex = 39;
+                    case 56 -> tileIndex = 19; // RIGHT S POLE
+                    case 57, 7 -> tileIndex = 22; // LEFT S POLES
+                    case 58 -> tileIndex = 21; // VERTICAL F LEFT
+                    case 59 -> tileIndex = 20; // VERTICAL F RIGHT
+                    case 50 -> tileIndex = 13;
+                    case 14 -> tileIndex = 16;
+                    case 49 -> tileIndex = 15;
+                    case 3 -> tileIndex = 14;
+                    case 17 -> tileIndex = 17;
+                    case 90 -> tileIndex = 32; // ROOM WITH 67
+                    case 92 -> tileIndex = 31; // ROOM OTHER
+                    case 93 -> tileIndex = 33; // OBLE
+                    case 96 -> tileIndex = 26; // BASKETBALL COURT
+                    case 97 -> tileIndex = 29; // RED BUILDING SMALL
+                    case 98 -> tileIndex = 28; // RED BUILDING BIG
+                    case 99 -> tileIndex = 27; // RED BUILDING 67
+                    case 91 -> tileIndex = 25; // AS BUILDING LEFT D
+                    case 94 -> tileIndex = 24; // AS BUILDING RIGHT D
+                    case 95 -> tileIndex = 37; // AS BUILDING RIGHT D AC
+                    case 0 -> tileIndex = 42;
+                    default -> tileIndex = currentNumber;
+                }
+
+                mapTileNumber[column][row] = tileIndex;
+                column++;
+            }
+
+            if (column == gamePanel.getMaxWorldColumn() || column == numbers.length) {
+                column = 0;
+                row++;
+            }
+        }
+        bufferedReader.close();
+    } catch (Exception e) {
+        System.out.println("Error loading map: " + e.getMessage());
+        e.printStackTrace();
+    }s
+}
 
 
     public void draw(Graphics2D graphics2D) {
