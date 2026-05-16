@@ -30,7 +30,7 @@ public class BattleUI {
         moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
         HPFont = new Font("Arial", Font.BOLD, (int)(fontSize * 0.75));
         try { // LOAD BATTLE BACKGROUND  
-            battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
+            battleBackground = ImageIO.read(getClass().getResourceAsStream("Assets/Battle/battle_bg.png"));
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
@@ -231,14 +231,27 @@ public class BattleUI {
 
     // THIS METHOD IS RESPONSIBLE FOR CHANGING THE UI POKEROT TO WHOMEVER IS FIGHTING, IT CHANGES
     public void loadFighterImages (PokeRot player, PokeRot enemy) {
-        try {
-            String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
-            String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
-            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRotBack/" + playerFileName));
-            enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
+            try {
+                String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
+                String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
+
+                InputStream playerStream = getClass().getClassLoader().getResourceAsStream("Assets/PokeRotBack/" + playerFileName);
+                if (playerStream != null) {
+                    playerRot = ImageIO.read(playerStream);
+                } else {
+                    System.out.println("MISSING PLAYER IMAGE: Assets/PokeRotBack/" + playerFileName);
+                }
+
+                InputStream enemyStream = getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + enemyFileName);
+                if (enemyStream != null) {
+                    enemyRot = ImageIO.read(enemyStream);
+                } else {
+                    System.out.println("MISSING ENEMY IMAGE: Assets/PokeRots/" + enemyFileName);
+                }
+                
+            } catch (IOException ioE) {
+                ioE.printStackTrace();
+            }
         }
-    }
 
 }

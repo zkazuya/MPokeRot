@@ -164,9 +164,9 @@ public class GameIntro extends JPanel {
 
     public BufferedImage loadIntroFrames(int i){
         try {
-            if (i < 10) return ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
-            else if (i < 100 && i > 9) return ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
-            else return ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));   
+            if (i < 10) return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/00" + i + ".png")));
+            else if (i < 100 && i > 9) return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/0" + i + ".png")));
+            else return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/" + i + ".png")));   
         } catch (IOException e) { }
         return null;
     }
@@ -174,13 +174,13 @@ public class GameIntro extends JPanel {
     public BufferedImage loadGifFrames(int i){
         try {
              if (i < 10) {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/00" + i + ".png"));
+                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/00" + i + ".png")));
                     
                 } else if (i < 100 && i > 9) {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/0" + i + ".png"));
+                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/0" + i + ".png")));
                     
                 } else {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
+                    return ImageIO.read(getClass().getResourceAsStream(("Assets/IntroFrames/GifFrames/" + i + ".png")));
                     
                 }
         } catch (IOException e) { }
@@ -193,7 +193,7 @@ public class GameIntro extends JPanel {
 
     public Clip loadSound(String path){
         try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+            AudioInputStream audio = AudioSystem.getAudioInputStream(getClass().getResourceAsStream((path)));
 
             Clip clip = AudioSystem.getClip();
             clip.open(audio);

@@ -339,7 +339,7 @@ public class TitlePanel {
     public void loadUi(){
         for(int i = 1; i <= 15; i++){ 
             try {
-                BufferedImage uiPic = ImageIO.read(new File("Assets/Ui/" + i + ".png"));
+                BufferedImage uiPic = ImageIO.read(getClass().getResourceAsStream(("Assets/Ui/" + i + ".png")));
                 Ui.add(uiPic);
             } catch (IOException e) {
                 System.out.println("MISSING UI FILE: Assets/Ui/" + i + ".png");

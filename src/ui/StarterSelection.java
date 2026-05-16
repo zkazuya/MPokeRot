@@ -192,7 +192,7 @@ public class StarterSelection {
         try {
             String name = pokerot.getName();
             String pokerotFileName = name.replace(" ", "_") + ".png";
-            BufferedImage pokeImage = ImageIO.read(new FileInputStream("Assets/PokeRots/" + pokerotFileName));
+            BufferedImage pokeImage = ImageIO.read(getClass().getResourceAsStream("Assets/PokeRots/" + pokerotFileName));
             g2.drawImage(pokeImage, x, y, w, h, null);
         } catch (IOException ioE) {
             g2.setColor(Color.DARK_GRAY);

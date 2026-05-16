@@ -24,213 +24,134 @@ public class TileManager {
         loadMap("Assets/Maps/FinalMap - Map save updated final.txt");
     }
 
+    private void loadTile(int index, String path, boolean collision) throws IOException {
+            tile[index] = new Tile();
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                tile[index].setImage(ImageIO.read(is));
+                tile[index].setCollision(collision);
+                tile[index].setRenderable(true);
+            } else {
+                System.out.println("MISSING ASSET: " + path);
+            }
+        }
+
 
     public void getTileImage() {
-        try {
-            // grass
-            tile[0] = new Tile();
-            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_00.png"))); // base-grass
-            tile[1] = new Tile();
-            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_03.png"))); // grass-with-tae
-            tile[2] = new Tile();
-            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_09.png"))); // grass-with-rock
-            tile[3] = new Tile();
-            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_14.png")));// grass-with-flower
-            tile[3].setRenderable(false);
-            // corner road tiles
-            tile[4] = new Tile();
-            tile[4].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_0.png"))); // vert-LS-road
-            tile[5] = new Tile();
-            tile[5].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_1.png"))); // vert-RS-road
-            tile[6] = new Tile();
-            tile[6].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_2.png"))); // upper-r-road
-            tile[7] = new Tile();
-            tile[7].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_3.png"))); // lower-l-road
-            tile[8] = new Tile();
-            tile[8].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_4.png")));// horizon-lower-side-road
-            tile[9] = new Tile();
-            tile[9].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_5.png")));// horizon-upper-side-road
-            tile[10] = new Tile();
-            tile[10].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_6.png"))); // lower-r-road
-            tile[11] = new Tile();
-            tile[11].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_7.png"))); // upper-l-road
-            // tall grass
-            tile[12] = new Tile();
-            tile[12].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Tall_Grass_0.png"))); // TALL-GRASS
-            // highway tiles
-            tile[13] = new Tile();
-            tile[13].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_00.png"))); // base-road
-            tile[14] = new Tile();
-            tile[14].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_03.png"))); // -hori-ped-line
-            tile[15] = new Tile();
-            tile[15].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_06.png"))); // vert-ped-line
-            tile[16] = new Tile();
-            tile[16].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_16.png"))); // hori-dash-line
-            tile[17] = new Tile();
-            tile[17].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_17.png"))); // vert-dash-line
-            // path/road
-            tile[18] = new Tile();
-            tile[18].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Revised_Road_Tile_1.png"))); // road-block-in-campus
-            // FENCES
-            tile[19] = new Tile();
-            tile[19].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_1.png"))); // wall-from-ls-campus-pole-to-right
-            tile[19].setCollision(true);
-            tile[20] = new Tile();
-            tile[20].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_3.png"))); // vert-fence-to-right
-            tile[20].setCollision(true);
-            tile[21] = new Tile();
-            tile[21].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_4.png"))); // vert-fence-to-left
-            tile[21].setCollision(true);
-            tile[22] = new Tile();
-            tile[22].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_6.png"))); // wall-from-rs-campus-pole-to-left
-            tile[22].setCollision(true);
-            // FOR BLANK // OCCUPIED TILES PART OF BUILDINGS AND TULTI TILE IMAGES
-            tile[23] = new Tile();
-            tile[23].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Blank.png"))); // tile-for-multi-tiled-images
-            tile[23].setCollision(true);
-            tile[23].setRenderable(false);
-            // ======================================
-            // BUILDINGS MULTI TILESSS
-            // ======================================
-            tile[24] = new Tile();
-            tile[24].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_1.png"))); // AS-bldg-right-door
-            tile[24].setCollision(true);
-            tile[24].setRenderable(true);
-            tile[24].setWidth(gamePanel.getTileSize() * 15);
-            tile[24].setHeight(gamePanel.getTileSize() * 6);
+            try {
+                // grass
+                loadTile(0, "Assets/Tiles/Grass_Tiles_00.png", false);
+                loadTile(1, "Assets/Tiles/Grass_Tiles_03.png", false);
+                loadTile(2, "Assets/Tiles/Grass_Tiles_09.png", false);
+                loadTile(3, "Assets/Tiles/Grass_Tiles_14.png", false);
+                tile[3].setRenderable(false);
+                
+                // corner road tiles
+                loadTile(4, "Assets/Tiles/Corner_Tiles_0.png", false);
+                loadTile(5, "Assets/Tiles/Corner_Tiles_1.png", false);
+                loadTile(6, "Assets/Tiles/Corner_Tiles_2.png", false);
+                loadTile(7, "Assets/Tiles/Corner_Tiles_3.png", false);
+                loadTile(8, "Assets/Tiles/Corner_Tiles_4.png", false);
+                loadTile(9, "Assets/Tiles/Corner_Tiles_5.png", false);
+                loadTile(10, "Assets/Tiles/Corner_Tiles_6.png", false);
+                loadTile(11, "Assets/Tiles/Corner_Tiles_7.png", false);
+                
+                // tall grass
+                loadTile(12, "Assets/Tiles/Tall_Grass_0.png", false);
+                
+                // highway tiles
+                loadTile(13, "Assets/Tiles/Highway_Tile_00.png", false);
+                loadTile(14, "Assets/Tiles/Highway_Tile_03.png", false);
+                loadTile(15, "Assets/Tiles/Highway_Tile_06.png", false);
+                loadTile(16, "Assets/Tiles/Highway_Tile_16.png", false);
+                loadTile(17, "Assets/Tiles/Highway_Tile_17.png", false);
+                
+                // path/road
+                loadTile(18, "Assets/Tiles/Revised_Road_Tile_1.png", false);
+                
+                // FENCES
+                loadTile(19, "Assets/Tiles/Pokewalls_1.png", true);
+                loadTile(20, "Assets/Tiles/Pokewalls_3.png", true);
+                loadTile(21, "Assets/Tiles/Pokewalls_4.png", true);
+                loadTile(22, "Assets/Tiles/Pokewalls_6.png", true);
+                
+                // BLANK / OCCUPIED
+                loadTile(23, "Assets/Tiles/Blank.png", true);
+                tile[23].setRenderable(false);
 
+                // BUILDINGS
+                loadTile(24, "Assets/Tiles/Buildings/AS_Building_1.png", true);
+                tile[24].setWidth(gamePanel.getTileSize() * 15);
+                tile[24].setHeight(gamePanel.getTileSize() * 6);
 
-            tile[25] = new Tile();
-            tile[25].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_2.png"))); // AS-bldg-left-door
-            tile[25].setCollision(true);
-            tile[25].setRenderable(true);
-            tile[25].setWidth(gamePanel.getTileSize() * 15);
-            tile[25].setHeight(gamePanel.getTileSize() * 6);
+                loadTile(25, "Assets/Tiles/Buildings/AS_Building_2.png", true);
+                tile[25].setWidth(gamePanel.getTileSize() * 15);
+                tile[25].setHeight(gamePanel.getTileSize() * 6);
 
+                loadTile(26, "Assets/Tiles/Buildings/Basketball_Court.png", false);
+                tile[26].setWidth(gamePanel.getTileSize() * 20);
+                tile[26].setHeight(gamePanel.getTileSize() * 10);
 
-            tile[26] = new Tile();
-            tile[26].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Basketball_Court.png"))); // bball-court
-            tile[26].setRenderable(true);
-            tile[26].setWidth(gamePanel.getTileSize() * 20);
-            tile[26].setHeight(gamePanel.getTileSize() * 10);
+                loadTile(27, "Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png", true);
+                tile[27].setWidth(gamePanel.getTileSize() * 7);
+                tile[27].setHeight(gamePanel.getTileSize() * 12);
 
+                loadTile(28, "Assets/Tiles/Buildings/Final_Building(Long)#3.png", true);
+                tile[28].setWidth(gamePanel.getTileSize() * 7);
+                tile[28].setHeight(gamePanel.getTileSize() * 12);
 
-            tile[27] = new Tile();
-            tile[27].setImage(
-                    ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png"))); // big-bldg-67
-            tile[27].setCollision(true);
-            tile[27].setRenderable(true);
-            tile[27].setWidth(gamePanel.getTileSize() * 7); // edit
-            tile[27].setHeight(gamePanel.getTileSize() * 12);
+                loadTile(29, "Assets/Tiles/Buildings/Final_Building_#2.png", true);
+                tile[29].setWidth(gamePanel.getTileSize() * 7);
+                tile[29].setHeight(gamePanel.getTileSize() * 5);
 
+                loadTile(30, "Assets/Tiles/Buildings/Final_Classroom_0.png", true);
+                tile[30].setWidth(gamePanel.getTileSize() * 8);
+                tile[30].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[28] = new Tile();
-            tile[28].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long)#3.png"))); // big-bldg-normal
-            tile[28].setCollision(true);
-            tile[28].setRenderable(true);
-            tile[28].setWidth(gamePanel.getTileSize() * 7);
-            tile[28].setHeight(gamePanel.getTileSize() * 12); // edited
+                loadTile(31, "Assets/Tiles/Buildings/Final_Classroom_1.png", true);
+                tile[31].setWidth(gamePanel.getTileSize() * 8);
+                tile[31].setHeight(gamePanel.getTileSize() * 4);
 
+                loadTile(32, "Assets/Tiles/Buildings/Final_Classroom_2.png", true);
+                tile[32].setWidth(gamePanel.getTileSize() * 8);
+                tile[32].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[29] = new Tile();
-            tile[29].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building_#2.png"))); // red-bldg-normal
-            tile[29].setCollision(true);
-            tile[29].setRenderable(true);
-            tile[29].setWidth(gamePanel.getTileSize() * 7);
-            tile[29].setHeight(gamePanel.getTileSize() * 5); // edited
+                loadTile(33, "Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png", true);
+                tile[33].setWidth(gamePanel.getTileSize() * 3);
+                tile[33].setHeight(gamePanel.getTileSize() * 6);
 
+                loadTile(34, "Assets/Tiles/Buildings/Final_Classroom_2.png", true);
+                tile[34].setWidth(gamePanel.getTileSize() * 8);
+                tile[34].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[30] = new Tile();
-            tile[30].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_0.png"))); // class-room-3-window
-            tile[30].setCollision(true);
-            tile[30].setRenderable(true);
-            tile[30].setWidth(gamePanel.getTileSize() * 8);
-            tile[30].setHeight(gamePanel.getTileSize() * 4); // d
+                loadTile(35, "Assets/Tiles/Buildings/Pokerot_Tree(Big).png", true);
+                tile[35].setWidth(gamePanel.getTileSize() * 3);
+                tile[35].setHeight(gamePanel.getTileSize() * 5);
 
+                loadTile(36, "Assets/Tiles/Buildings/Pokerot_Tree1.png", true);
+                tile[36].setWidth(gamePanel.getTileSize() * 2);
+                tile[36].setHeight(gamePanel.getTileSize() * 3);
 
-            tile[31] = new Tile();
-            tile[31].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_1.png"))); // class-room-2-window
-            tile[31].setCollision(true);
-            tile[31].setRenderable(true);
-            tile[31].setWidth(gamePanel.getTileSize() * 8);
-            tile[31].setHeight(gamePanel.getTileSize() * 4); // d
+                loadTile(37, "Assets/Tiles/Buildings/SL_Building_Final.png", true);
+                tile[37].setWidth(gamePanel.getTileSize() * 15);
+                tile[37].setHeight(gamePanel.getTileSize() * 6);
 
+                // INTERSECTIONS
+                loadTile(38, "Assets/Tiles/Other_Corner_Tiles_0.png", false);
+                loadTile(39, "Assets/Tiles/Other_Corner_Tiles_1.png", false);
+                loadTile(40, "Assets/Tiles/Other_Corner_Tiles_2.png", false);
+                loadTile(41, "Assets/Tiles/Other_Corner_Tiles_3.png", false);
+                loadTile(42, "Assets/Tiles/Tall_Grass_0.png", false); // Fixed path typo
 
-            tile[32] = new Tile();
-            tile[32].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
-            tile[32].setCollision(true);
-            tile[32].setRenderable(true);
-            tile[32].setWidth(gamePanel.getTileSize() * 8);
-            tile[32].setHeight(gamePanel.getTileSize() * 4); // d
-
-
-            tile[33] = new Tile();
-            tile[33].setImage(
-                    ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png"))); // oble-statue
-            tile[33].setCollision(true);
-            tile[33].setRenderable(true);
-            tile[33].setWidth(gamePanel.getTileSize() * 3);
-            tile[33].setHeight(gamePanel.getTileSize() * 6); // d
-
-
-            tile[34] = new Tile();
-            tile[34].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
-            tile[34].setCollision(true);
-            tile[34].setRenderable(true);
-            tile[34].setWidth(gamePanel.getTileSize() * 8);
-            tile[34].setHeight(gamePanel.getTileSize() * 4); // d
-
-
-            tile[35] = new Tile();
-            tile[35].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree(Big).png"))); // tree-big-3x5
-            tile[35].setCollision(true);
-            tile[35].setRenderable(true);
-            tile[35].setWidth(gamePanel.getTileSize() * 3);
-            tile[35].setHeight(gamePanel.getTileSize() * 5); // d
-
-
-            tile[36] = new Tile();
-            tile[36].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree1.png"))); // tree-small-2x3
-            tile[36].setCollision(true);
-            tile[36].setRenderable(true);
-            tile[36].setWidth(gamePanel.getTileSize() * 2);
-            tile[36].setHeight(gamePanel.getTileSize() * 3); // d
-
-
-            tile[37] = new Tile();
-            tile[37].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/SL_Building_Final.png"))); // AS-bldg-w/aircon
-            tile[37].setCollision(true);
-            tile[37].setRenderable(true);
-            tile[37].setWidth(gamePanel.getTileSize() * 15);
-            tile[37].setHeight(gamePanel.getTileSize() * 6); // d
-
-
-            tile[38] = new Tile();
-            tile[38].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_0.png"))); // ROAD-INTERSECT-LOW-L
-            tile[39] = new Tile();
-            tile[39].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_1.png"))); // ROAD-INTERSECT-LOW-R
-            tile[40] = new Tile();
-            tile[40].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_2.png"))); // ROAD-INTERSECT-UP-L
-            tile[41] = new Tile();
-            tile[41].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_3.png"))); // ROAD-INTERSECT-UP-R
-            tile[42] = new Tile();
-            tile[42].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\TallGrass_01.png"))); // NEGA GRASS
-
-
-            // tile[43] = new Tile();
-            // tile[43].setImage(ImageIO.read(new
-            // FileInputStream("Assets/Tiles/Grass_Tiles_00.png")));
-            // tile[43].setCollision(true);
-            // tile[43].setRenderable(true);
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
+            } catch (IOException ioE) {
+                ioE.printStackTrace();
+            }
         }
-    }
 
 
     public void loadMap(String filePath) {
         try {
-            InputStream inputStream = new FileInputStream(filePath);
+            InputStream inputStream = getClass().getResourceAsStream((filePath));
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             int column = 0;
             int row = 0;
@@ -416,6 +337,5 @@ public class TileManager {
     public Tile getTile(int index) {
         return this.tile[index];
     }
-
 
 }
