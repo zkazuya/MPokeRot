@@ -207,6 +207,10 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void restartGame(){
         player = new Player(this, keyHandler);
+        encounterManager = new EncounterManager(this, player);
+        starterSelection = new StarterSelection(this);
+        npcManager = new NPCManager(this);
+        npcManager.setUpNPC();
     }
 
     public void startTransition(){
