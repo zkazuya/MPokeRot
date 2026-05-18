@@ -140,6 +140,6 @@ java -cp "ClassFolders;Assets;." Main
     -Made the whole game full screen and it adapts to the device screen now
     -Fixed when dying or blackout state pokerot is restored to full hp
     -Fixed plunger not working
-    
+    -Fixed when creating new save pokerot is damaged, now its full hp
 
 // follow the format REMOVE THIS IF SMT IS ADDED
