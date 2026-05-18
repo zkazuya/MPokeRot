@@ -1,5 +1,7 @@
 package pokerot;
 
+import battle.BattleUI;
+import entity.Player;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -8,11 +10,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import system.KeyHandler;
 import main.GamePanel;
-import entity.Player;
-import battle.BattleUI;
+import system.KeyHandler;
 import ui.Pause;
 
 public class PokeRotStats {
@@ -89,7 +88,7 @@ public class PokeRotStats {
     }
     public void drawBG(Graphics2D g2){
         g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRect(0, 0, gp.getWidth(), gp.getHeight());
+        g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
     }
 
 }

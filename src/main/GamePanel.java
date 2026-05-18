@@ -143,8 +143,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent (Graphics graphics) {
         super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
         Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.fillRect(0, 0, getWidth(), getHeight());
         graphics2D.translate(offSetX, offSetY);
         graphics2D.scale(scale, scale);
+
+        graphics2D.clipRect(0, 0, screenWidth, screenHeight);
+
         AffineTransform baseTransform = graphics2D.getTransform();
         
         if (gameState == GameState.ROAMSTATE) {
