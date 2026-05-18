@@ -1,12 +1,16 @@
 package ui;
 
-import java.awt.*;
 
-import main.GamePanel;
+
 import entity.NPC;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import main.GamePanel;
 import main.GameState;
-import system.KeyHandler;
 import pokerot.PokeRot;
+import system.KeyHandler;
 
 public class Dialogue {
     private GamePanel gp;

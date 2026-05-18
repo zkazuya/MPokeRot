@@ -3,11 +3,12 @@ package ui;
 import io.SaveData;
 import io.SaveLoadFiles;
 import io.SaveUtil;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.GamePanel;
@@ -21,6 +22,8 @@ public class TitlePanel {
     private boolean isOnSave = false;
     private boolean isOnLoad = false;
     private boolean isTyping = false;
+    private boolean isOnCredits = false;
+    private boolean isOnHelp = false;
     private String playerName = "";
     private int slotNumber;
     private boolean[] slotExists = new boolean[3];
@@ -39,7 +42,7 @@ public class TitlePanel {
         if (keyCooldown > 0){
             keyCooldown--;
         } else {
-            if((commandNum<3 ||commandNum>=0) && isOnLoad == false && isOnSave == false){
+            if((commandNum<5 ||commandNum>=0) && isOnLoad == false && isOnSave == false && isOnCredits == false && isOnHelp == false){
                 if (keyHandler.getEnterPressed()) {
                     switch(commandNum){
                         case 0:
@@ -56,6 +59,18 @@ public class TitlePanel {
                         case 2:
                             System.exit(0); 
                             break;
+                        case 3:
+                            System.out.println("Credits!");
+                            isOnCredits = true;
+                            commandNum = 0;
+                            keyCooldown = 8;
+                            break;
+                        case 4:
+                            System.out.println("Help!");
+                            isOnHelp = true;
+                            commandNum = 0;
+                            keyCooldown = 8;
+                            break;
                     }   
                 } else if(keyHandler.getDownPressed()){
                     if(commandNum<2){
@@ -67,6 +82,20 @@ public class TitlePanel {
                         commandNum--;
                         keyCooldown = 8;
                     }
+                } else if(keyHandler.getLeftPressed()){
+                    if (commandNum == 4){
+                        commandNum = 0;
+                        keyCooldown = 8;
+                    }
+                    commandNum = 3;
+                    keyCooldown = 8;
+                } else if(keyHandler.getRightPressed()){
+                    if (commandNum == 3){
+                        commandNum = 0;
+                        keyCooldown = 8;
+                    }
+                    commandNum = 4;
+                    keyCooldown = 8;
                 }
             }
 
@@ -268,6 +297,30 @@ public class TitlePanel {
                         keyCooldown = 8;
                     }
                 }
+            } else if (isOnCredits == true){
+                if (keyHandler.getEscPressed()){
+                    isOnCredits = false;
+                    keyCooldown = 8;
+                    commandNum = 0;
+                }else if (keyHandler.getRightPressed()){
+                    commandNum = 1;
+                    keyCooldown = 8;
+                }else if (keyHandler.getLeftPressed()){
+                    commandNum = 0;
+                    keyCooldown = 8;
+                }
+            } else if (isOnHelp == true){
+                if (keyHandler.getEscPressed()){
+                    isOnHelp = false;
+                    keyCooldown = 8;
+                    commandNum = 0;
+                }else if (keyHandler.getRightPressed()){
+                    commandNum = 1;
+                    keyCooldown = 8;
+                }else if (keyHandler.getLeftPressed()){
+                    commandNum = 0;
+                    keyCooldown = 8;
+                }
             }
         }
     }
@@ -280,17 +333,30 @@ public class TitlePanel {
         int xB = (gp.getScreenWidth() / 2) - (width / 2);
         int yBase = (gp.getScreenHeight() / 2) + 70;
 
-        if (isOnLoad != true && isOnSave != true){
+        if (isOnLoad != true && isOnSave != true && isOnCredits != true && isOnHelp != true){
             g2.drawImage(Ui.get(6), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
        
-            for(int i = 0; i < 3; i++) {
+            for(int i = 0; i < 5; i++) {
                 int yB = yBase + (i * 80);
-                if (commandNum == i) {
-                    g2.drawImage(Ui.get(i+3), xB, yB, width, height, null);
-                } else {
-                    g2.drawImage(Ui.get(i), xB, yB, width, height, null);
-                } 
+                
+                if (i < 3){
+                    if (commandNum == i) {
+                        g2.drawImage(Ui.get(i+3), xB, yB, width, height, null);
+                    } else {
+                        g2.drawImage(Ui.get(i), xB, yB, width, height, null);
+                    }    
+                }
             }
+                if (commandNum == 3){
+                    g2.drawImage(Ui.get(17), xB - 300, yBase + 160, width, height, null);
+                }else{
+                    g2.drawImage(Ui.get(15), xB - 300, yBase + 160, width, height, null);
+                }
+                if (commandNum == 4){
+                    g2.drawImage(Ui.get(18), xB + 300, yBase + 160, width, height, null);
+                }else{
+                    g2.drawImage(Ui.get(16), xB + 300, yBase + 160, width, height, null);
+                }
         } else if (isOnSave == true){
             g2.drawImage(Ui.get(14), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
             g2.drawImage(Ui.get(8), gp.getScreenWidth() / 2 - 290, gp.getScreenHeight() / 2 - 64, width + 350, height + 20, null);
@@ -334,18 +400,30 @@ public class TitlePanel {
                     }
                 }
             }
+        } else if (isOnCredits == true){
+            if (commandNum == 1){
+            g2.drawImage(Ui.get(20), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
+            }else{
+            g2.drawImage(Ui.get(19), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
+            }
+        } else if (isOnHelp == true){
+            if (commandNum == 1){
+            g2.drawImage(Ui.get(22), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
+            }else{
+            g2.drawImage(Ui.get(21), 0, 0, gp.getScreenWidth(), gp.getScreenHeight(), null);
+            }
         }
     }
 
     public void loadUi(){
-        for (int i = 1; i <= 15; i++) {
+        for (int i = 1; i <= 23; i++) {
                 try {
                     String path = String.format("Assets/Ui/%02d.png", i);    //2-digit integer is %02d
                     InputStream is = getClass().getClassLoader().getResourceAsStream(path);           
                     if (is != null) {
                         Ui.add(ImageIO.read(is));
                     } else {
-                        System.out.println("MISSING ANIMATION FRAME: " + path);
+                        System.out.println("MISSING UI FRAME: " + path);
                         Ui.add(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)); //will be adding something to fill in empty/unfound asset
                     }
                 } catch (IOException e) {
