@@ -135,6 +135,11 @@ java -cp "ClassFolders;Assets;." Main
     -Removed window decorators
     -Run using this: java -cp "ClassFolders;." main.Main
 
-
+<5/18/2026 (Carl)>
+    -Removed all the magic numbers in the codebase all is dynamic now
+    -Made the whole game full screen and it adapts to the device screen now
+    -Fixed when dying or blackout state pokerot is restored to full hp
+    -Fixed plunger not working
+    
 
 // follow the format REMOVE THIS IF SMT IS ADDED

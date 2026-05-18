@@ -5,10 +5,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import system.KeyHandler;
-import pokerot.PokeRot;
 import main.GamePanel;
+import pokerot.PokeRot;
+import system.KeyHandler;
 import world.Tile;
 
 public class Player extends Entity {
@@ -202,8 +201,12 @@ public class Player extends Entity {
     public void triggerBlackout () { // THIS METHOD IS TRIGGERED IN BATTLE SYSTEM WHEN ALL OUR POKEROT DIES
         this.setX(gamePanel.getTileSize() * 8); // THE PLAYER SPAWNS BACK TO 0, 0 (X, Y) RESPECTIVELY
         this.setY(gamePanel.getTileSize() * 10); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
-        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
-        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
+        
+        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // RESET LEVEL 1 THE VERY FIRST STARTER POKEROT
+        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // REMOVE EVERY POKEROT EXCEPT FIRST POKEROT
+                
+
+
         String[] blackoutMessage = {"All your PokeRot have fainted!", "You scurried back to safety in panic."};
         gamePanel.dialogue.startDialogue(blackoutMessage, null);
     }

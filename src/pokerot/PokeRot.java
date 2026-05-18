@@ -42,6 +42,8 @@ public class PokeRot implements Serializable{
         this.drawnHP = other.maxHP;
         this.exp = other.exp;
         this.expNeeded = other.expNeeded;
+        this.baseMaxHP = other.baseMaxHP;
+        this.baseAttack = other.baseAttack;
     }
 
     public void update () {

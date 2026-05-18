@@ -1,14 +1,11 @@
 package battle;
 
-import java.util.ArrayList;
-
-import main.GamePanel;
-import pokerot.PokeRot;
 import entity.NPC;
-import pokerot.Move;
-import battle.BattleUI;
-import battle.EncounterManager;
+import java.util.ArrayList;
+import main.GamePanel;
 import main.GameState;
+import pokerot.Move;
+import pokerot.PokeRot;
 
 public class BattleSystem {
     private GamePanel gamePanel;
@@ -341,7 +338,7 @@ public class BattleSystem {
                     battleSubState = 5; // GO TO POKEROT TAKING DAMAGE CUZ AFTER HEALING IT'S ENEMY'S TURN
                     optionSelected = 0;
                 }
-            } else if (optionSelected == 1) { // PLUNGER SELECTED
+            } else if (optionSelected == 2) { // PLUNGER SELECTED
                 if (currentNPCOpponent != null) { // IF ENEMY IS AN NPC
                     dialogText = "You cannot catch another trainer's PokeRot!";
                     battleSubState = 12; // STAY IN BAG MENU
