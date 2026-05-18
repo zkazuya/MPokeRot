@@ -1,22 +1,18 @@
 package ui;
 
+import entity.NPC;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
-
 import main.GamePanel;
-import pokerot.PokeRot;
-import entity.NPC;
-import ui.Dialogue;
 import main.GameState;
-import entity.Player;
+import pokerot.PokeRot;
 import system.KeyHandler;
-import ui.TitlePanel;
 
 public class StarterSelection {
     private GamePanel gp;
@@ -192,7 +188,8 @@ public class StarterSelection {
         try {
             String name = pokerot.getName();
             String pokerotFileName = name.replace(" ", "_") + ".png";
-            BufferedImage pokeImage = ImageIO.read(getClass().getResourceAsStream("Assets/PokeRots/" + pokerotFileName));
+            InputStream is = getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + pokerotFileName);
+            BufferedImage pokeImage = ImageIO.read(is);
             g2.drawImage(pokeImage, x, y, w, h, null);
         } catch (IOException ioE) {
             g2.setColor(Color.DARK_GRAY);
