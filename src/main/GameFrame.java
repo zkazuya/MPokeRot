@@ -18,6 +18,7 @@ public class GameFrame extends JFrame {
         this.setResizable(false);
         this.setUndecorated(true);
         this.setTitle("PokeRot");
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         gamePanel = new GamePanel(this);
         gameIntro = new GameIntro(this);
         switcher = new CardLayout();

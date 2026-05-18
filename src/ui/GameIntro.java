@@ -8,13 +8,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -25,6 +25,9 @@ import javax.swing.Timer;
 import main.GameFrame;
 
 public class GameIntro extends JPanel {
+    private Dimension deviceScreen;
+    private int logicalWidth = 1024;
+    private int logicalHeight = 768;
 
     private BufferedImage introFrame, gifFrame, currIntroFrame, currGifFrame;
     private Timer timer, gifTimer;
@@ -45,8 +48,9 @@ public class GameIntro extends JPanel {
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
+        deviceScreen = Toolkit.getDefaultToolkit().getScreenSize();
         setFocusable(true);
-        setPreferredSize(new Dimension(screenWidth, screenHeight));
+        setPreferredSize(deviceScreen);
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -105,16 +109,23 @@ public class GameIntro extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        double scale = Math.min((double) getWidth() / logicalWidth, (double) getHeight() / logicalHeight);
+        int offSetX = (int) ((getWidth() - (logicalWidth * scale)) / 2);
+        int offSetY = (int) ((getHeight() - (logicalHeight * scale)) / 2);
+        g2d.translate(offSetX, offSetY);
+        g2d.scale(scale, scale);
         if (currIntroFrame != null && intro == true) {
-            g2d.drawImage(currIntroFrame, zeru, zeru, getWidth(), getHeight(), null);
+            g2d.drawImage(currIntroFrame, zeru, zeru, logicalWidth, logicalHeight, null);
         } else if (currGifFrame != null && intro == false) {
-            g2d.drawImage(currGifFrame, zeru, zeru, getWidth(), getHeight(), null);
+            g2d.drawImage(currGifFrame, zeru, zeru, logicalWidth, logicalHeight, null);
             if (showText) {
                 Font font = new Font("Arial", Font.BOLD, 48);
                 g2d.setFont(font);
                 String title = "Press SPACE to start!";
-                int x = ((screenWidth / 2 - g2d.getFontMetrics().stringWidth(title) / 2) + 250);
-                int y = screenHeight / 2 + 350;
+                int x = (logicalWidth / 2) - (g2d.getFontMetrics().stringWidth(title) / 2);
+                int y = (logicalHeight / 2) + 350;
                 // CREATING OUTLINE FOR TEXT
                 FontMetrics fm = g2d.getFontMetrics(); // GETS THE MEASURES OF THE FONTS
                 // TRANSFORMS THE TEXT THAT YOU HAVE, INTO SHAPE SO THAT YOU CAN ADD AN OUTLINE TO IT

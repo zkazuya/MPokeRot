@@ -421,7 +421,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
+import java.io.InputStream;
+import java.io.IOException;
 import main.GamePanel;
 import battle.BattleSystem;
 import pokerot.PokeRot;
@@ -437,14 +438,21 @@ public class BattleUI {
 
     public BattleUI (GamePanel gamePanel) {
         this.gamePanel = gamePanel;
-        int fontSize = gamePanel.getTileSize() / 4; // FONT SIZE IS DYNAMIC
+        int fontSize = gamePanel.getTileSize() / 4; 
         dynamicFont = new Font("Arial", Font.PLAIN, fontSize);
         moveFont = new Font("Arial", Font.PLAIN, (int)(fontSize * 0.75));
         HPFont = new Font("Arial", Font.BOLD, (int)(fontSize * 0.75));
-        try { // LOAD BATTLE BACKGROUND  
-            battleBackground = ImageIO.read(new FileInputStream("Assets/Battle/battle_bg.png"));
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
+        try {
+            String path = "Assets/Battle/battle_bg.png"; 
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            
+            if (is != null) {
+                this.battleBackground = ImageIO.read(is); 
+            } else {
+                System.out.println("CRITICAL BATTLE ASSET MISSING: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -453,6 +461,12 @@ public class BattleUI {
         int boxHeight = tileSize * 3; // BOX HEIGHT IS 3 TILES TALL
         int boxY = gamePanel.getScreenHeight() - boxHeight; // BOX'S Y IS THE SPACE LEFTOVER FROM BOXHEIGHT
         // DRAW BATTLE BACKGROUND ACCORDING TO CONFIGURATIONS ABOVE
+            if (battleBackground != null) { //PREVENTS CRASH IF SOMETHING IS MISSING
+                graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
+            } else {
+                graphics2D.setColor(Color.BLACK);
+                graphics2D.fillRect(0, 0, gamePanel.getScreenWidth(), boxY);
+            }
         graphics2D.drawImage(battleBackground, 0, 0, gamePanel.getScreenWidth(), boxY, null);
     
         int pokerotSize = tileSize * 4; // SIZE OF POKEROT IS 4 TILES
@@ -643,15 +657,27 @@ public class BattleUI {
 
     // THIS METHOD IS RESPONSIBLE FOR CHANGING THE UI POKEROT TO WHOMEVER IS FIGHTING, IT CHANGES
     public void loadFighterImages (PokeRot player, PokeRot enemy) {
-        try {
-            String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
-            String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
-            playerRot = ImageIO.read(new FileInputStream("Assets/PokeRotBack/" + playerFileName));
-            enemyRot = ImageIO.read(new FileInputStream("Assets/PokeRots/" + enemyFileName));
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
+            try {
+                String playerFileName = player.getName().replace(" ", "_") + "_Back.png";
+                String enemyFileName = enemy.getName().replace(" ", "_") + ".png";
+
+                InputStream playerStream = getClass().getClassLoader().getResourceAsStream("Assets/PokeRotBack/" + playerFileName);
+                if (playerStream != null) {
+                    playerRot = ImageIO.read(playerStream);
+                } else {
+                    System.out.println("MISSING PLAYER IMAGE: Assets/PokeRotBack/" + playerFileName);
+                }
+                InputStream enemyStream = getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + enemyFileName);
+                if (enemyStream != null) {
+                    enemyRot = ImageIO.read(enemyStream);
+                } else {
+                    System.out.println("MISSING ENEMY IMAGE: Assets/PokeRots/" + enemyFileName);
+                }
+                
+            } catch (IOException ioE) {
+                ioE.printStackTrace();
+            }
         }
-    }
 
 }
 
@@ -1305,20 +1331,22 @@ public class GameFrame extends JFrame {
     GameIntro gameIntro;
     CardLayout switcher;
 
-    public GameFrame() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-        setTitle("PokeRot");
+    public GameFrame() {// this. to directly tell taht the code is pertaining to our frame
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false);
+        this.setUndecorated(true);
+        this.setTitle("PokeRot");
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         gamePanel = new GamePanel(this);
         gameIntro = new GameIntro(this);
         switcher = new CardLayout();
         switcherPanel = new JPanel(switcher);
         switcherPanel.add(gameIntro, "Intro");
         switcherPanel.add(gamePanel, "Game");
-        add(switcherPanel);
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
+        this.add(switcherPanel);
+        this.pack();
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
         gamePanel.startGameThread();
     }
 
@@ -1337,22 +1365,26 @@ public class GameFrame extends JFrame {
 
 package main;
 
+import battle.BattleSystem;
+import battle.BattleUI;
+import battle.EncounterManager;
+import entity.NPCManager;
+import entity.Player;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
-
-import system.KeyHandler;
 import pokerot.PokeRotRegistry;
-import battle.BattleSystem;
-import entity.NPCManager;
-import world.TileManager;
+import pokerot.PokeRotStats;
+import system.KeyHandler;
+import ui.Dialogue;
 import ui.Pause;
-import entity.Player;
-import battle.BattleUI;
 import ui.StarterSelection;
+import ui.TitlePanel;
+import world.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
     private final int originalTileSize = 32; // each tile is 32x32 pixels without scale
@@ -1367,6 +1399,11 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
+
+    private Dimension deviceScreen;
+    private double scale;
+    private int offSetX;
+    private int offSetY;
     private double zoom = 1.0;
     private boolean zooming;
     private float fadeAlpha = 0f;
@@ -1393,7 +1430,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // sets the size to fit screen
+        deviceScreen = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setPreferredSize(new Dimension(deviceScreen)); // sets the size to fit screen
+        scale = Math.min((double) deviceScreen.width / screenWidth, (double) deviceScreen.height / screenHeight);
+        offSetX = (int) ((deviceScreen.width - (screenWidth * scale)) / 2);
+        offSetY = (int) ((deviceScreen.height - (screenHeight * scale)) / 2);
+
         this.setBackground(Color.BLACK); // whole canvas is black by default
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
@@ -1466,6 +1508,9 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent (Graphics graphics) {
         super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
         Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
+        graphics2D.translate(offSetX, offSetY);
+        graphics2D.scale(scale, scale);
+        AffineTransform baseTransform = graphics2D.getTransform();
         
         if (gameState == GameState.ROAMSTATE) {
             tileManager.draw(graphics2D);
@@ -1492,17 +1537,17 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.TRANSITIONSTATE){
             graphics2D.scale(zoom, zoom);
             //This is makes it so that the zoom will be at the center of the screen and not top left
-            double offSetX = (screenWidth - screenWidth * zoom) / 2;
-            double offSetY = (screenHeight - screenHeight * zoom) / 2;
+            double zoomOffX = (screenWidth - screenWidth * zoom) / 2;
+            double zoomOffY = (screenHeight - screenHeight * zoom) / 2;
 
-            graphics2D.translate(offSetX / zoom, offSetY / zoom);   
+            graphics2D.translate(zoomOffX / zoom, zoomOffY / zoom);   
             tileManager.draw(graphics2D);
             npcManager.draw(graphics2D);
             player.draw(graphics2D);
 
             graphics2D.setColor(new Color(0, 0 , 0, (int)(fadeAlpha * 255)));
             graphics2D.fillRect(0, 0, screenWidth, screenHeight);
-            graphics2D.setTransform(new AffineTransform());
+            graphics2D.setTransform(baseTransform);
         }
         graphics2D.dispose(); // saves memory
     }
@@ -2216,12 +2261,13 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -2229,10 +2275,12 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
-
+import main.GameFrame;
 
 public class GameIntro extends JPanel {
+    private Dimension deviceScreen;
+    private int logicalWidth = 1024;
+    private int logicalHeight = 768;
 
     private BufferedImage introFrame, gifFrame, currIntroFrame, currGifFrame;
     private Timer timer, gifTimer;
@@ -2253,8 +2301,9 @@ public class GameIntro extends JPanel {
 
     public GameIntro(GameFrame frame) {
         this.frame = frame;
+        deviceScreen = Toolkit.getDefaultToolkit().getScreenSize();
         setFocusable(true);
-        setPreferredSize(new Dimension(screenWidth, screenHeight));
+        setPreferredSize(deviceScreen);
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -2313,16 +2362,23 @@ public class GameIntro extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        double scale = Math.min((double) getWidth() / logicalWidth, (double) getHeight() / logicalHeight);
+        int offSetX = (int) ((getWidth() - (logicalWidth * scale)) / 2);
+        int offSetY = (int) ((getHeight() - (logicalHeight * scale)) / 2);
+        g2d.translate(offSetX, offSetY);
+        g2d.scale(scale, scale);
         if (currIntroFrame != null && intro == true) {
-            g2d.drawImage(currIntroFrame, zeru, zeru, getWidth(), getHeight(), null);
+            g2d.drawImage(currIntroFrame, zeru, zeru, logicalWidth, logicalHeight, null);
         } else if (currGifFrame != null && intro == false) {
-            g2d.drawImage(currGifFrame, zeru, zeru, getWidth(), getHeight(), null);
+            g2d.drawImage(currGifFrame, zeru, zeru, logicalWidth, logicalHeight, null);
             if (showText) {
                 Font font = new Font("Arial", Font.BOLD, 48);
                 g2d.setFont(font);
                 String title = "Press SPACE to start!";
-                int x = ((screenWidth / 2 - g2d.getFontMetrics().stringWidth(title) / 2) + 250);
-                int y = screenHeight / 2 + 350;
+                int x = (logicalWidth / 2) - (g2d.getFontMetrics().stringWidth(title) / 2);
+                int y = (logicalHeight / 2) + 350;
                 // CREATING OUTLINE FOR TEXT
                 FontMetrics fm = g2d.getFontMetrics(); // GETS THE MEASURES OF THE FONTS
                 // TRANSFORMS THE TEXT THAT YOU HAVE, INTO SHAPE SO THAT YOU CAN ADD AN OUTLINE TO IT
@@ -2371,28 +2427,42 @@ public class GameIntro extends JPanel {
         gifTimer.start();
     }
 
-    public BufferedImage loadIntroFrames(int i){
+
+    public BufferedImage loadIntroFrames(int i) {
+        String path;
+        if (i < 10) path = "Assets/IntroFrames/00" + i + ".png";
+        else if (i < 100) path = "Assets/IntroFrames/0" + i + ".png";
+        else path = "Assets/IntroFrames/" + i + ".png";
+
         try {
-            if (i < 10) return ImageIO.read(new File("Assets/IntroFrames/00" + i + ".png"));
-            else if (i < 100 && i > 9) return ImageIO.read(new File("Assets/IntroFrames/0" + i + ".png"));
-            else return ImageIO.read(new File("Assets/IntroFrames/" + i + ".png"));   
-        } catch (IOException e) { }
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                return ImageIO.read(is);
+            } else {
+                System.out.println("MISSING INTRO FRAME: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    public BufferedImage loadGifFrames(int i){
+    public BufferedImage loadGifFrames(int i) {
+        String path;
+        if (i < 10) path = "Assets/IntroFrames/GifFrames/00" + i + ".png";
+        else if (i < 100) path = "Assets/IntroFrames/GifFrames/0" + i + ".png";
+        else path = "Assets/IntroFrames/GifFrames/" + i + ".png";
+
         try {
-             if (i < 10) {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/00" + i + ".png"));
-                    
-                } else if (i < 100 && i > 9) {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/0" + i + ".png"));
-                    
-                } else {
-                    return ImageIO.read(new File("Assets/IntroFrames/GifFrames/" + i + ".png"));
-                    
-                }
-        } catch (IOException e) { }
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                return ImageIO.read(is);
+            } else {
+                System.out.println("MISSING GIF FRAME: " + path);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -2400,16 +2470,19 @@ public class GameIntro extends JPanel {
         intro = true;
     }
 
-    public Clip loadSound(String path){
+    public Clip loadSound(String path) {
         try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(new File(path));
+            java.net.URL url = getClass().getClassLoader().getResource(path);
 
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-
-            return clip;
-            
-        }catch (Exception e){
+            if (url != null) {
+                AudioInputStream audio = AudioSystem.getAudioInputStream(url);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audio);
+                return clip;
+            } else {
+                System.out.println("MISSING SOUND ASSET: " + path);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -2423,15 +2496,16 @@ public class GameIntro extends JPanel {
 
 package ui;
 
+import io.SaveLoadFiles;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-
 import main.GamePanel;
 import main.GameState;
-import ui.Dialogue;
+import pokerot.PokeRotStats;
+import system.KeyHandler;
 
 public class Pause{
     private GamePanel gp;
@@ -2450,7 +2524,7 @@ public class Pause{
 
     public Pause(GamePanel gp){
         this.gp=gp;
-        y=gp.getHeight()/2;
+        y=gp.getScreenHeight()/2;
         this.pokerotStats = new PokeRotStats(gp, this);
     }
     private void drawPauseLabel(Graphics2D g2) {
@@ -2478,7 +2552,7 @@ public class Pause{
         int btnHeight = 40;
         int spacing = 50;
         int startX = 20; 
-        int startY = gp.getHeight() / 2 - 50; 
+        int startY = gp.getScreenHeight() / 2 - 50; 
 
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
         FontMetrics fm = g2.getFontMetrics();
@@ -2562,23 +2636,19 @@ public class Pause{
 
 package ui;
 
+import entity.NPC;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
-
 import main.GamePanel;
-import pokerot.PokeRot;
-import entity.NPC;
-import ui.Dialogue;
 import main.GameState;
-import entity.Player;
+import pokerot.PokeRot;
 import system.KeyHandler;
-import ui.TitlePanel;
 
 public class StarterSelection {
     private GamePanel gp;
@@ -2754,7 +2824,8 @@ public class StarterSelection {
         try {
             String name = pokerot.getName();
             String pokerotFileName = name.replace(" ", "_") + ".png";
-            BufferedImage pokeImage = ImageIO.read(new FileInputStream("Assets/PokeRots/" + pokerotFileName));
+            InputStream is = getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + pokerotFileName);
+            BufferedImage pokeImage = ImageIO.read(is);
             g2.drawImage(pokeImage, x, y, w, h, null);
         } catch (IOException ioE) {
             g2.setColor(Color.DARK_GRAY);
@@ -2768,15 +2839,18 @@ public class StarterSelection {
 
 package ui;
 
+import io.SaveData;
+import io.SaveLoadFiles;
+import io.SaveUtil;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
 import main.GamePanel;
-import io.SaveData;
+import main.GameState;
 import pokerot.PokeRot;
 import system.KeyHandler;
 
@@ -3103,15 +3177,20 @@ public class TitlePanel {
     }
 
     public void loadUi(){
-        for(int i = 1; i <= 15; i++){ 
-            try {
-                BufferedImage uiPic = ImageIO.read(new File("Assets/Ui/" + i + ".png"));
-                Ui.add(uiPic);
-            } catch (IOException e) {
-                System.out.println("MISSING UI FILE: Assets/Ui/" + i + ".png");
-                Ui.add(null); // Add null to preserve the index order so Ui.get(6) doesn't crash!
+        for (int i = 1; i <= 15; i++) {
+                try {
+                    String path = String.format("Assets/Ui/%02d.png", i);    //2-digit integer is %02d
+                    InputStream is = getClass().getClassLoader().getResourceAsStream(path);           
+                    if (is != null) {
+                        Ui.add(ImageIO.read(is));
+                    } else {
+                        System.out.println("MISSING ANIMATION FRAME: " + path);
+                        Ui.add(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)); //will be adding something to fill in empty/unfound asset
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
     }
 
     public void setTitleState(){
@@ -3255,289 +3334,213 @@ public class TileManager {
         loadMap("Assets/Maps/FinalMap - Map save updated final.txt");
     }
 
+    private void loadTile(int index, String path, boolean collision) throws IOException {
+            tile[index] = new Tile();
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is != null) {
+                tile[index].setImage(ImageIO.read(is));
+                tile[index].setCollision(collision);
+                tile[index].setRenderable(true);
+            } else {
+                System.out.println("MISSING ASSET: " + path);
+            }
+        }
+
 
     public void getTileImage() {
-        try {
-            // grass
-            tile[0] = new Tile();
-            tile[0].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_00.png"))); // base-grass
-            tile[1] = new Tile();
-            tile[1].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_03.png"))); // grass-with-tae
-            tile[2] = new Tile();
-            tile[2].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_09.png"))); // grass-with-rock
-            tile[3] = new Tile();
-            tile[3].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Grass_Tiles_14.png")));// grass-with-flower
-            tile[3].setRenderable(false);
-            // corner road tiles
-            tile[4] = new Tile();
-            tile[4].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_0.png"))); // vert-LS-road
-            tile[5] = new Tile();
-            tile[5].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_1.png"))); // vert-RS-road
-            tile[6] = new Tile();
-            tile[6].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_2.png"))); // upper-r-road
-            tile[7] = new Tile();
-            tile[7].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_3.png"))); // lower-l-road
-            tile[8] = new Tile();
-            tile[8].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_4.png")));// horizon-lower-side-road
-            tile[9] = new Tile();
-            tile[9].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_5.png")));// horizon-upper-side-road
-            tile[10] = new Tile();
-            tile[10].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_6.png"))); // lower-r-road
-            tile[11] = new Tile();
-            tile[11].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Corner_Tiles_7.png"))); // upper-l-road
-            // tall grass
-            tile[12] = new Tile();
-            tile[12].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Tall_Grass_0.png"))); // TALL-GRASS
-            // highway tiles
-            tile[13] = new Tile();
-            tile[13].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_00.png"))); // base-road
-            tile[14] = new Tile();
-            tile[14].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_03.png"))); // -hori-ped-line
-            tile[15] = new Tile();
-            tile[15].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_06.png"))); // vert-ped-line
-            tile[16] = new Tile();
-            tile[16].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_16.png"))); // hori-dash-line
-            tile[17] = new Tile();
-            tile[17].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Highway_Tile_17.png"))); // vert-dash-line
-            // path/road
-            tile[18] = new Tile();
-            tile[18].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Revised_Road_Tile_1.png"))); // road-block-in-campus
-            // FENCES
-            tile[19] = new Tile();
-            tile[19].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_1.png"))); // wall-from-ls-campus-pole-to-right
-            tile[19].setCollision(true);
-            tile[20] = new Tile();
-            tile[20].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_3.png"))); // vert-fence-to-right
-            tile[20].setCollision(true);
-            tile[21] = new Tile();
-            tile[21].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_4.png"))); // vert-fence-to-left
-            tile[21].setCollision(true);
-            tile[22] = new Tile();
-            tile[22].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Pokewalls_6.png"))); // wall-from-rs-campus-pole-to-left
-            tile[22].setCollision(true);
-            // FOR BLANK // OCCUPIED TILES PART OF BUILDINGS AND TULTI TILE IMAGES
-            tile[23] = new Tile();
-            tile[23].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Blank.png"))); // tile-for-multi-tiled-images
-            tile[23].setCollision(true);
-            tile[23].setRenderable(false);
-            // ======================================
-            // BUILDINGS MULTI TILESSS
-            // ======================================
-            tile[24] = new Tile();
-            tile[24].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_1.png"))); // AS-bldg-right-door
-            tile[24].setCollision(true);
-            tile[24].setRenderable(true);
-            tile[24].setWidth(gamePanel.getTileSize() * 15);
-            tile[24].setHeight(gamePanel.getTileSize() * 6);
+            try {
+                // grass
+                loadTile(0, "Assets/Tiles/Grass_Tiles_00.png", false);
+                loadTile(1, "Assets/Tiles/Grass_Tiles_03.png", false);
+                loadTile(2, "Assets/Tiles/Grass_Tiles_09.png", false);
+                loadTile(3, "Assets/Tiles/Grass_Tiles_14.png", false);
+                tile[3].setRenderable(false);
+                
+                // corner road tiles
+                loadTile(4, "Assets/Tiles/Corner_Tiles_0.png", false);
+                loadTile(5, "Assets/Tiles/Corner_Tiles_1.png", false);
+                loadTile(6, "Assets/Tiles/Corner_Tiles_2.png", false);
+                loadTile(7, "Assets/Tiles/Corner_Tiles_3.png", false);
+                loadTile(8, "Assets/Tiles/Corner_Tiles_4.png", false);
+                loadTile(9, "Assets/Tiles/Corner_Tiles_5.png", false);
+                loadTile(10, "Assets/Tiles/Corner_Tiles_6.png", false);
+                loadTile(11, "Assets/Tiles/Corner_Tiles_7.png", false);
+                
+                // tall grass
+                loadTile(12, "Assets/Tiles/Tall_Grass_0.png", false);
+                
+                // highway tiles
+                loadTile(13, "Assets/Tiles/Highway_Tile_00.png", false);
+                loadTile(14, "Assets/Tiles/Highway_Tile_03.png", false);
+                loadTile(15, "Assets/Tiles/Highway_Tile_06.png", false);
+                loadTile(16, "Assets/Tiles/Highway_Tile_16.png", false);
+                loadTile(17, "Assets/Tiles/Highway_Tile_17.png", false);
+                
+                // path/road
+                loadTile(18, "Assets/Tiles/Revised_Road_Tile_1.png", false);
+                
+                // FENCES
+                loadTile(19, "Assets/Tiles/pokewalls_1.png", true);
+                loadTile(20, "Assets/Tiles/pokewalls_3.png", true);
+                loadTile(21, "Assets/Tiles/pokewalls_4.png", true);
+                loadTile(22, "Assets/Tiles/pokewalls_6.png", true);
+                
+                // BLANK / OCCUPIED
+                loadTile(23, "Assets/Tiles/blank.png", true);
+                tile[23].setRenderable(false);
 
+                // BUILDINGS
+                loadTile(24, "Assets/Tiles/Buildings/AS_Building_1.png", true);
+                tile[24].setWidth(gamePanel.getTileSize() * 15);
+                tile[24].setHeight(gamePanel.getTileSize() * 6);
 
-            tile[25] = new Tile();
-            tile[25].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/AS_Building_2.png"))); // AS-bldg-left-door
-            tile[25].setCollision(true);
-            tile[25].setRenderable(true);
-            tile[25].setWidth(gamePanel.getTileSize() * 15);
-            tile[25].setHeight(gamePanel.getTileSize() * 6);
+                loadTile(25, "Assets/Tiles/Buildings/AS_Building_2.png", true);
+                tile[25].setWidth(gamePanel.getTileSize() * 15);
+                tile[25].setHeight(gamePanel.getTileSize() * 6);
 
+                loadTile(26, "Assets/Tiles/Buildings/Basketball_Court.png", false);
+                tile[26].setWidth(gamePanel.getTileSize() * 20);
+                tile[26].setHeight(gamePanel.getTileSize() * 10);
 
-            tile[26] = new Tile();
-            tile[26].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Basketball_Court.png"))); // bball-court
-            tile[26].setRenderable(true);
-            tile[26].setWidth(gamePanel.getTileSize() * 20);
-            tile[26].setHeight(gamePanel.getTileSize() * 10);
+                loadTile(27, "Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png", true);
+                tile[27].setWidth(gamePanel.getTileSize() * 7);
+                tile[27].setHeight(gamePanel.getTileSize() * 12);     
 
+                loadTile(28, "Assets/Tiles/Buildings/Final_Building(Long)#3.png", true);
+                tile[28].setWidth(gamePanel.getTileSize() * 7);
+                tile[28].setHeight(gamePanel.getTileSize() * 12);
 
-            tile[27] = new Tile();
-            tile[27].setImage(
-                    ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long_No_Door_67)#4.png"))); // big-bldg-67
-            tile[27].setCollision(true);
-            tile[27].setRenderable(true);
-            tile[27].setWidth(gamePanel.getTileSize() * 7); // edit
-            tile[27].setHeight(gamePanel.getTileSize() * 12);
+                loadTile(29, "Assets/Tiles/Buildings/Final_Building_#2.png", true);
+                tile[29].setWidth(gamePanel.getTileSize() * 7);
+                tile[29].setHeight(gamePanel.getTileSize() * 5);           
 
+                loadTile(30, "Assets/Tiles/Buildings/Final_Classroom_0.png", true);
+                tile[30].setWidth(gamePanel.getTileSize() * 8);
+                tile[30].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[28] = new Tile();
-            tile[28].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building(Long)#3.png"))); // big-bldg-normal
-            tile[28].setCollision(true);
-            tile[28].setRenderable(true);
-            tile[28].setWidth(gamePanel.getTileSize() * 7);
-            tile[28].setHeight(gamePanel.getTileSize() * 12); // edited
+                loadTile(31, "Assets/Tiles/Buildings/Final_Classroom_1.png", true);
+                tile[31].setWidth(gamePanel.getTileSize() * 8);
+                tile[31].setHeight(gamePanel.getTileSize() * 4);
 
+                loadTile(32, "Assets/Tiles/Buildings/Final_Classroom_2.png", true);
+                tile[32].setWidth(gamePanel.getTileSize() * 8);
+                tile[32].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[29] = new Tile();
-            tile[29].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Building_#2.png"))); // red-bldg-normal
-            tile[29].setCollision(true);
-            tile[29].setRenderable(true);
-            tile[29].setWidth(gamePanel.getTileSize() * 7);
-            tile[29].setHeight(gamePanel.getTileSize() * 5); // edited
+                loadTile(33, "Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png", true);
+                tile[33].setWidth(gamePanel.getTileSize() * 3);
+                tile[33].setHeight(gamePanel.getTileSize() * 6);
 
+                loadTile(34, "Assets/Tiles/Buildings/Final_Classroom_2.png", true);
+                tile[34].setWidth(gamePanel.getTileSize() * 8);
+                tile[34].setHeight(gamePanel.getTileSize() * 4);
 
-            tile[30] = new Tile();
-            tile[30].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_0.png"))); // class-room-3-window
-            tile[30].setCollision(true);
-            tile[30].setRenderable(true);
-            tile[30].setWidth(gamePanel.getTileSize() * 8);
-            tile[30].setHeight(gamePanel.getTileSize() * 4); // d
+                loadTile(35, "Assets/Tiles/Buildings/Pokerot_Tree(Big).png", true);
+                tile[35].setWidth(gamePanel.getTileSize() * 3);
+                tile[35].setHeight(gamePanel.getTileSize() * 5);
 
+                loadTile(36, "Assets/Tiles/Buildings/Pokerot_Tree1.png", true);
+                tile[36].setWidth(gamePanel.getTileSize() * 2);
+                tile[36].setHeight(gamePanel.getTileSize() * 3);
 
-            tile[31] = new Tile();
-            tile[31].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_1.png"))); // class-room-2-window
-            tile[31].setCollision(true);
-            tile[31].setRenderable(true);
-            tile[31].setWidth(gamePanel.getTileSize() * 8);
-            tile[31].setHeight(gamePanel.getTileSize() * 4); // d
+                loadTile(37, "Assets/Tiles/Buildings/SL_Building_Final.png", true);
+                tile[37].setWidth(gamePanel.getTileSize() * 15);
+                tile[37].setHeight(gamePanel.getTileSize() * 6);
 
+                // INTERSECTIONS
+                loadTile(38, "Assets/Tiles/other_corner_tiles_0.png", false);
+                loadTile(39, "Assets/Tiles/other_corner_tiles_1.png", false);
+                loadTile(40, "Assets/Tiles/other_corner_tiles_2.png", false);
+                loadTile(41, "Assets/Tiles/other_corner_tiles_3.png", false);
+                loadTile(42, "Assets/Tiles/Tall_Grass_0.png", false); // Fixed path typo
 
-            tile[32] = new Tile();
-            tile[32].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
-            tile[32].setCollision(true);
-            tile[32].setRenderable(true);
-            tile[32].setWidth(gamePanel.getTileSize() * 8);
-            tile[32].setHeight(gamePanel.getTileSize() * 4); // d
-
-
-            tile[33] = new Tile();
-            tile[33].setImage(
-                    ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Oble_With_Stand_Full_Final.png"))); // oble-statue
-            tile[33].setCollision(true);
-            tile[33].setRenderable(true);
-            tile[33].setWidth(gamePanel.getTileSize() * 3);
-            tile[33].setHeight(gamePanel.getTileSize() * 6); // d
-
-
-            tile[34] = new Tile();
-            tile[34].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Final_Classroom_2.png"))); // class-room-67
-            tile[34].setCollision(true);
-            tile[34].setRenderable(true);
-            tile[34].setWidth(gamePanel.getTileSize() * 8);
-            tile[34].setHeight(gamePanel.getTileSize() * 4); // d
-
-
-            tile[35] = new Tile();
-            tile[35].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree(Big).png"))); // tree-big-3x5
-            tile[35].setCollision(true);
-            tile[35].setRenderable(true);
-            tile[35].setWidth(gamePanel.getTileSize() * 3);
-            tile[35].setHeight(gamePanel.getTileSize() * 5); // d
-
-
-            tile[36] = new Tile();
-            tile[36].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/Pokerot_Tree1.png"))); // tree-small-2x3
-            tile[36].setCollision(true);
-            tile[36].setRenderable(true);
-            tile[36].setWidth(gamePanel.getTileSize() * 2);
-            tile[36].setHeight(gamePanel.getTileSize() * 3); // d
-
-
-            tile[37] = new Tile();
-            tile[37].setImage(ImageIO.read(new FileInputStream("Assets/Tiles/Buildings/SL_Building_Final.png"))); // AS-bldg-w/aircon
-            tile[37].setCollision(true);
-            tile[37].setRenderable(true);
-            tile[37].setWidth(gamePanel.getTileSize() * 15);
-            tile[37].setHeight(gamePanel.getTileSize() * 6); // d
-
-
-            tile[38] = new Tile();
-            tile[38].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_0.png"))); // ROAD-INTERSECT-LOW-L
-            tile[39] = new Tile();
-            tile[39].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_1.png"))); // ROAD-INTERSECT-LOW-R
-            tile[40] = new Tile();
-            tile[40].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_2.png"))); // ROAD-INTERSECT-UP-L
-            tile[41] = new Tile();
-            tile[41].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\Other_Corner_Tiles_3.png"))); // ROAD-INTERSECT-UP-R
-            tile[42] = new Tile();
-            tile[42].setImage(ImageIO.read(new FileInputStream("Assets\\Tiles\\TallGrass_01.png"))); // NEGA GRASS
-
-
-            // tile[43] = new Tile();
-            // tile[43].setImage(ImageIO.read(new
-            // FileInputStream("Assets/Tiles/Grass_Tiles_00.png")));
-            // tile[43].setCollision(true);
-            // tile[43].setRenderable(true);
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
-        }
-    }
-
-
-    public void loadMap(String filePath) {
-        try {
-            InputStream inputStream = new FileInputStream(filePath);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            int column = 0;
-            int row = 0;
-            while (column < gamePanel.getMaxWorldColumn() && row < gamePanel.getMaxWorldRow()) {
-                String line = bufferedReader.readLine();
-                if (line == null)
-                    break;
-                String[] numbers = line.trim().split("\\s+");
-
-
-                while (column < gamePanel.getMaxWorldColumn() && column < numbers.length) {
-                    int currentNumber = Integer.parseInt(numbers[column]);
-                    int tileIndex = currentNumber;
-                    switch (currentNumber) {
-                        case 62 -> tileIndex = 35; // BIG TREE
-                        case 80 -> tileIndex = 23; // BLANK BUILDING TILE EDIT KO LA 23 IT HIYA
-                        case 70 -> tileIndex = 23; // BLANK BUILDING TILE
-                        case 61 -> tileIndex = 36; // SMALL TREE
-                        case 6 -> tileIndex = 2; // GRASS
-                        case 9 -> tileIndex = 3; // GRASS WITH FLOWER
-                        case 11 -> tileIndex = 2; // GRASS WITH ROCK
-                        case 13 -> tileIndex = 2; // GRASS WITH FLOWER
-                        case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
-                        case 55 -> tileIndex = 18; // NORMAL PATH
-                        case 41 -> tileIndex = 6; // UP R
-                        case 42 -> tileIndex = 10; // LOW R
-                        case 43 -> tileIndex = 11; // UP L
-                        case 44 -> tileIndex = 7; // LOW L
-                        case 30 -> tileIndex = 4; // VERTICAL LEFT S ROAD
-                        case 31 -> tileIndex = 5; // VERTICAL RIGHT S ROAD
-                        case 4 -> tileIndex = 8; // HORIZONTAL LOWER S ROAD
-                        case 5 -> tileIndex = 9; // HORIZONTAL UPPER S ROAD
-                        // ROAD-INTERSECTION-CORNER
-                        case 21 -> tileIndex = 40;
-                        case 22 -> tileIndex = 38;
-                        case 23 -> tileIndex = 41;
-                        case 24 -> tileIndex = 39;
-                        // FENCES
-                        case 56 -> tileIndex = 19; // RIGHT S POLE
-                        case 57 -> tileIndex = 22; // LEFT S POLE
-                        case 7 -> tileIndex = 22; // FENCE NEAR BOTANICAL
-                        case 58 -> tileIndex = 21; // VERTICAL F LEFT
-                        case 59 -> tileIndex = 20; // VERTICAL F RIGHT
-                        // ROAD TILES
-                        case 50 -> tileIndex = 13;
-                        case 14 -> tileIndex = 16;
-                        case 49 -> tileIndex = 15;
-                        case 3 -> tileIndex = 14;
-                        case 17 -> tileIndex = 17;
-                        // BUILDINGS
-                        case 90 -> tileIndex = 32; // ROOM WITH 67
-                        case 92 -> tileIndex = 31; // ROOM OTHER
-                        case 93 -> tileIndex = 33; // OBLE
-                        case 96 -> tileIndex = 26; // BASKETBALL COURT
-                        case 97 -> tileIndex = 29; // RED BUILDING SMALL
-                        case 98 -> tileIndex = 28; // RED BUILDING BIG
-                        case 99 -> tileIndex = 27; // RED BUILDING 67
-                        case 91 -> tileIndex = 25; // AS BUILDING LEFT D
-                        case 94 -> tileIndex = 24; // AS BUILDING RIGHT D
-                        case 95 -> tileIndex = 37; // AS BUILDING RIGHT D AC
-                        case 0 -> tileIndex = 42;
-                        default -> tileIndex = currentNumber;
-                    }
-                    mapTileNumber[column][row] = tileIndex;
-                    column++;
-                }
-                if (column == gamePanel.getMaxWorldColumn() || column == numbers.length) {
-                    column = 0;
-                    row++;
-                }
+            } catch (IOException ioE) {
+                ioE.printStackTrace();
             }
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+public void loadMap(String filePath) {
+    try {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream == null) {
+            System.out.println("CRITICAL ERROR: Map file not found at " + filePath);
+            return;
+        }
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        int column = 0;
+        int row = 0;
+
+        while (column < gamePanel.getMaxWorldColumn() && row < gamePanel.getMaxWorldRow()) {
+            String line = bufferedReader.readLine();
+            
+            if (line == null) {
+                break;
+            }
+
+            String[] numbers = line.trim().split("\\s+");
+
+            while (column < gamePanel.getMaxWorldColumn() && column < numbers.length) {
+                int currentNumber = Integer.parseInt(numbers[column]);
+                int tileIndex;
+
+                switch (currentNumber) {
+                    case 62 -> tileIndex = 35; // BIG TREE
+                    case 80, 70 -> tileIndex = 23; // BLANK BUILDING TILE
+                    case 61 -> tileIndex = 36; // SMALL TREE
+                    case 6, 11, 13 -> tileIndex = 2; // GRASS VARIANTS
+                    case 9 -> tileIndex = 3; // GRASS WITH FLOWER
+                    case 67 -> tileIndex = 1; // GRASS NGA MAYADA TOBOL
+                    case 55 -> tileIndex = 18; // NORMAL PATH
+                    case 41 -> tileIndex = 6;  // UP R
+                    case 42 -> tileIndex = 10; // LOW R
+                    case 43 -> tileIndex = 11; // UP L
+                    case 44 -> tileIndex = 7;  // LOW L
+                    case 30 -> tileIndex = 4;  // VERTICAL LEFT S ROAD
+                    case 31 -> tileIndex = 5;  // VERTICAL RIGHT S ROAD
+                    case 4 -> tileIndex = 8;   // HORIZONTAL LOWER S ROAD
+                    case 5 -> tileIndex = 9;   // HORIZONTAL UPPER S ROAD
+                    case 21 -> tileIndex = 40;
+                    case 22 -> tileIndex = 38;
+                    case 23 -> tileIndex = 41;
+                    case 24 -> tileIndex = 39;
+                    case 56 -> tileIndex = 19; // RIGHT S POLE
+                    case 57, 7 -> tileIndex = 22; // LEFT S POLES
+                    case 58 -> tileIndex = 21; // VERTICAL F LEFT
+                    case 59 -> tileIndex = 20; // VERTICAL F RIGHT
+                    case 50 -> tileIndex = 13;
+                    case 14 -> tileIndex = 16;
+                    case 49 -> tileIndex = 15;
+                    case 3 -> tileIndex = 14;
+                    case 17 -> tileIndex = 17;
+                    case 90 -> tileIndex = 32; // ROOM WITH 67
+                    case 92 -> tileIndex = 31; // ROOM OTHER
+                    case 93 -> tileIndex = 33; // OBLE
+                    case 96 -> tileIndex = 26; // BASKETBALL COURT
+                    case 97 -> tileIndex = 29; // RED BUILDING SMALL
+                    case 98 -> tileIndex = 28; // RED BUILDING BIG
+                    case 99 -> tileIndex = 27; // RED BUILDING 67
+                    case 91 -> tileIndex = 25; // AS BUILDING LEFT D
+                    case 94 -> tileIndex = 24; // AS BUILDING RIGHT D
+                    case 95 -> tileIndex = 37; // AS BUILDING RIGHT D AC
+                    case 0 -> tileIndex = 42;
+                    default -> tileIndex = currentNumber;
+                }
+
+                mapTileNumber[column][row] = tileIndex;
+                column++;
+            }
+
+            if (column == gamePanel.getMaxWorldColumn() || column == numbers.length) {
+                column = 0;
+                row++;
+            }
+        }
+        bufferedReader.close();
+    } catch (Exception e) {
+        System.out.println("Error loading map: " + e.getMessage());
+        e.printStackTrace();
     }
+}
 
 
     public void draw(Graphics2D graphics2D) {
@@ -3647,6 +3650,5 @@ public class TileManager {
     public Tile getTile(int index) {
         return this.tile[index];
     }
-
 
 }

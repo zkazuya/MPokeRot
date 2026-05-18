@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
 import pokerot.PokeRotRegistry;
@@ -33,6 +34,11 @@ public class GamePanel extends JPanel implements Runnable {
     private final int maxWorldColumn = 150; // TOTAL COLUMNS WIDE THE MAP
     private final int maxWorldRow = 100; // TOTAL ROW WIDE THE MAP
     private final int FPS = 60;
+
+    private Dimension deviceScreen;
+    private double scale;
+    private int offSetX;
+    private int offSetY;
     private double zoom = 1.0;
     private boolean zooming;
     private float fadeAlpha = 0f;
@@ -59,7 +65,12 @@ public class GamePanel extends JPanel implements Runnable {
 
     public GamePanel (GameFrame frame) {
         this.frame = frame;
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight)); // sets the size to fit screen
+        deviceScreen = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setPreferredSize(new Dimension(deviceScreen)); // sets the size to fit screen
+        scale = Math.min((double) deviceScreen.width / screenWidth, (double) deviceScreen.height / screenHeight);
+        offSetX = (int) ((deviceScreen.width - (screenWidth * scale)) / 2);
+        offSetY = (int) ((deviceScreen.height - (screenHeight * scale)) / 2);
+
         this.setBackground(Color.BLACK); // whole canvas is black by default
         this.addKeyListener(keyHandler); // call .addKeyListener() method pass our keyHandler
         this.setFocusable(true); // this tells the program to "focus" on receiving key presses
@@ -132,6 +143,9 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent (Graphics graphics) {
         super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
         Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
+        graphics2D.translate(offSetX, offSetY);
+        graphics2D.scale(scale, scale);
+        AffineTransform baseTransform = graphics2D.getTransform();
         
         if (gameState == GameState.ROAMSTATE) {
             tileManager.draw(graphics2D);
@@ -158,17 +172,17 @@ public class GamePanel extends JPanel implements Runnable {
         } else if (gameState == GameState.TRANSITIONSTATE){
             graphics2D.scale(zoom, zoom);
             //This is makes it so that the zoom will be at the center of the screen and not top left
-            double offSetX = (screenWidth - screenWidth * zoom) / 2;
-            double offSetY = (screenHeight - screenHeight * zoom) / 2;
+            double zoomOffX = (screenWidth - screenWidth * zoom) / 2;
+            double zoomOffY = (screenHeight - screenHeight * zoom) / 2;
 
-            graphics2D.translate(offSetX / zoom, offSetY / zoom);   
+            graphics2D.translate(zoomOffX / zoom, zoomOffY / zoom);   
             tileManager.draw(graphics2D);
             npcManager.draw(graphics2D);
             player.draw(graphics2D);
 
             graphics2D.setColor(new Color(0, 0 , 0, (int)(fadeAlpha * 255)));
             graphics2D.fillRect(0, 0, screenWidth, screenHeight);
-            graphics2D.setTransform(new AffineTransform());
+            graphics2D.setTransform(baseTransform);
         }
         graphics2D.dispose(); // saves memory
     }

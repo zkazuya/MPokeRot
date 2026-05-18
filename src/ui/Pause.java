@@ -28,7 +28,7 @@ public class Pause{
 
     public Pause(GamePanel gp){
         this.gp=gp;
-        y=gp.getHeight()/2;
+        y=gp.getScreenHeight()/2;
         this.pokerotStats = new PokeRotStats(gp, this);
     }
     private void drawPauseLabel(Graphics2D g2) {
@@ -56,7 +56,7 @@ public class Pause{
         int btnHeight = 40;
         int spacing = 50;
         int startX = 20; 
-        int startY = gp.getHeight() / 2 - 50; 
+        int startY = gp.getScreenHeight() / 2 - 50; 
 
         g2.setFont(new Font("Arial", Font.PLAIN, 14));
         FontMetrics fm = g2.getFontMetrics();
