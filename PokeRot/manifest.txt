@@ -1,1 +1,2 @@
-Main Class: Main
+Main-Class: Main
+Class-Path: .
