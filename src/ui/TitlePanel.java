@@ -5,9 +5,8 @@ import io.SaveLoadFiles;
 import io.SaveUtil;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import main.GamePanel;
@@ -345,7 +344,7 @@ public class TitlePanel {
                     if (is != null) {
                         Ui.add(ImageIO.read(is));
                     } else {
-                        System.out.println("MISSING ANIMATION FRAME: " + path);
+                        System.out.println("MISSING UI PIC: " + path);
                         Ui.add(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)); //will be adding something to fill in empty/unfound asset
                     }
                 } catch (IOException e) {
