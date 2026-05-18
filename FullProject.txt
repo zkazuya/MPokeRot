@@ -4,15 +4,12 @@
 
 package battle;
 
-import java.util.ArrayList;
-
-import main.GamePanel;
-import pokerot.PokeRot;
 import entity.NPC;
-import pokerot.Move;
-import battle.BattleUI;
-import battle.EncounterManager;
+import java.util.ArrayList;
+import main.GamePanel;
 import main.GameState;
+import pokerot.Move;
+import pokerot.PokeRot;
 
 public class BattleSystem {
     private GamePanel gamePanel;
@@ -345,7 +342,7 @@ public class BattleSystem {
                     battleSubState = 5; // GO TO POKEROT TAKING DAMAGE CUZ AFTER HEALING IT'S ENEMY'S TURN
                     optionSelected = 0;
                 }
-            } else if (optionSelected == 1) { // PLUNGER SELECTED
+            } else if (optionSelected == 2) { // PLUNGER SELECTED
                 if (currentNPCOpponent != null) { // IF ENEMY IS AN NPC
                     dialogText = "You cannot catch another trainer's PokeRot!";
                     battleSubState = 12; // STAY IN BAG MENU
@@ -978,10 +975,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import system.KeyHandler;
-import pokerot.PokeRot;
 import main.GamePanel;
+import pokerot.PokeRot;
+import system.KeyHandler;
 import world.Tile;
 
 public class Player extends Entity {
@@ -1175,8 +1171,12 @@ public class Player extends Entity {
     public void triggerBlackout () { // THIS METHOD IS TRIGGERED IN BATTLE SYSTEM WHEN ALL OUR POKEROT DIES
         this.setX(gamePanel.getTileSize() * 8); // THE PLAYER SPAWNS BACK TO 0, 0 (X, Y) RESPECTIVELY
         this.setY(gamePanel.getTileSize() * 10); // THE FIRST POKEROT IS THE ONLY ONE LEFTOVER AND IS RESET TO LVL 1 AND STATS ACCORDINGLY
-        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // THE REST OF THE POKEROT IS THROWN
-        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // IN THE GARBAGE COLLECTION
+        
+        if (!playerParty.isEmpty()) playerParty.get(0).resetToLevelOne(); // RESET LEVEL 1 THE VERY FIRST STARTER POKEROT
+        while (playerParty.size() > 1) playerParty.remove(playerParty.size() - 1); // REMOVE EVERY POKEROT EXCEPT FIRST POKEROT
+                
+
+
         String[] blackoutMessage = {"All your PokeRot have fainted!", "You scurried back to safety in panic."};
         gamePanel.dialogue.startDialogue(blackoutMessage, null);
     }
@@ -1508,8 +1508,13 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent (Graphics graphics) {
         super.paintComponent(graphics); // call Graphics' class .paintComponent() method pass graphics
         Graphics2D graphics2D = (Graphics2D) graphics; // make a pointer of type Graphics2D from graphics but casted
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.fillRect(0, 0, getWidth(), getHeight());
         graphics2D.translate(offSetX, offSetY);
         graphics2D.scale(scale, scale);
+
+        graphics2D.clipRect(0, 0, screenWidth, screenHeight);
+
         AffineTransform baseTransform = graphics2D.getTransform();
         
         if (gameState == GameState.ROAMSTATE) {
@@ -1567,6 +1572,10 @@ public class GamePanel extends JPanel implements Runnable {
     
     public void restartGame(){
         player = new Player(this, keyHandler);
+        encounterManager = new EncounterManager(this, player);
+        starterSelection = new StarterSelection(this);
+        npcManager = new NPCManager(this);
+        npcManager.setUpNPC();
     }
 
     public void startTransition(){
@@ -1680,6 +1689,8 @@ public class PokeRot implements Serializable{
         this.drawnHP = other.maxHP;
         this.exp = other.exp;
         this.expNeeded = other.expNeeded;
+        this.baseMaxHP = other.baseMaxHP;
+        this.baseAttack = other.baseAttack;
     }
 
     public void update () {
@@ -1895,6 +1906,8 @@ public class PokeRotRegistry {
 
 package pokerot;
 
+import battle.BattleUI;
+import entity.Player;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -1903,11 +1916,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-
-import system.KeyHandler;
 import main.GamePanel;
-import entity.Player;
-import battle.BattleUI;
+import system.KeyHandler;
 import ui.Pause;
 
 public class PokeRotStats {
@@ -1984,7 +1994,7 @@ public class PokeRotStats {
     }
     public void drawBG(Graphics2D g2){
         g2.setColor(new Color(0, 0, 0, 150));
-        g2.fillRect(0, 0, gp.getWidth(), gp.getHeight());
+        g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
     }
 
 }
