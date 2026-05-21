@@ -10,6 +10,25 @@ import java.io.ObjectOutputStream;
 import main.GamePanel;
 
 public class SaveLoadFiles {
+
+    public static File getSaveDirectory(){
+
+        String appDataPath = System.getenv("APPDATA");
+
+        File saveDir = new File(appDataPath + File.separator + "PokeRot");
+
+        if (!saveDir.exists()){
+            saveDir.mkdirs();
+        }
+
+        return saveDir;
+    }
+
+    public static File getFile(String slotName){
+        return new File(getSaveDirectory(), slotName + ".sav");
+    }
+
+
     public static void startSaving(SaveData savedData, String slotName){
         new Thread(() -> {
             saveGame(savedData, slotName);
@@ -17,13 +36,14 @@ public class SaveLoadFiles {
     }
 
     public static void saveGame(SaveData savedData, String slotName){
+        
         try {
-            File folder = new File("saves");
-            if (!folder.exists()){
-                folder.mkdir();
-            }
-            FileOutputStream fos = new FileOutputStream("saves/" + slotName + ".sav");
+            
+            File saveFile = getFile(slotName);
+
+            FileOutputStream fos = new FileOutputStream(saveFile);
             ObjectOutputStream os = new ObjectOutputStream(fos);
+
             os.writeObject(savedData);
             os.close();
             System.out.println("Saved Game");
@@ -34,8 +54,12 @@ public class SaveLoadFiles {
 
     public static SaveData loadGame(String slotName){
         try{
-            FileInputStream fis = new FileInputStream("saves/" + slotName + ".sav");
+
+            File loadingFile = getFile(slotName);
+
+            FileInputStream fis = new FileInputStream(loadingFile);
             ObjectInputStream ois = new ObjectInputStream(fis);
+
             SaveData data = (SaveData) ois.readObject();
             ois.close();
             System.out.println("Game Loaded!");
@@ -47,9 +71,11 @@ public class SaveLoadFiles {
     }
 
     public static void deleteSave(String slotName){
-        File file = new File("saves/" + slotName + ".sav");
-        if(fileExists(slotName)){
-            if(file.delete()){
+
+        File deleteFile = getFile(slotName);
+
+        if(deleteFile.exists()){
+            if(deleteFile.delete()){
                 System.out.println("tinapon ko na ang bola !");
             }else {
                 System.out.println("hindi talaga na delete dol" + slotName);
@@ -60,7 +86,7 @@ public class SaveLoadFiles {
     }
 
     public static boolean fileExists(String slotName){
-        File file = new File("saves/" +slotName +".sav");
+        File file = getFile(slotName);
         return file.exists();
     }
 
