@@ -1,4 +1,4 @@
-# Team Basta MP CMSC 12
+# Team Basta MP CMSC 12 (GitHub Version)
 
 CMSC 12 Machine Problem Game
 ## Game Description
