@@ -6,7 +6,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -67,14 +66,19 @@ public class PokeRotStats {
             keyHandler.setEnterPressed(false);
         }
     }
-    public void drawProfile(Graphics2D g2, PokeRot pokerot,  int x, int y, int w, int h){ //FROM BATTLEUI LOADFIGHTERIMAGES METHOD
-        try{
+    public void drawProfile(Graphics2D g2, PokeRot pokerot, int x, int y, int w, int h){
+    try{
         String name = pokerot.getName();
         String pokerotFileName = name.replace(" ", "_") + ".png";
-        BufferedImage pokeImage = ImageIO.read(new FileInputStream("Assets/PokeRots/" + pokerotFileName));
+
+        BufferedImage pokeImage = ImageIO.read(
+            getClass().getClassLoader().getResourceAsStream("Assets/PokeRots/" + pokerotFileName)
+        );
+
         g2.drawImage(pokeImage, x + 5, y + 5, w - 10, h - 10, null);
-        }catch (IOException ioE){ioE.printStackTrace();}
- 
+    } catch (IOException ioE){
+        ioE.printStackTrace();
+        }
     }
     public void draw(Graphics2D g2){ //in a loop ,5 pokerots
         ArrayList<PokeRot> pokerotParty = gp.player.getPlayerParty();

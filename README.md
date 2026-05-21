@@ -31,25 +31,29 @@ javac -d bin (Get-ChildItem -Recurse src/*.java | Select-Object -ExpandProperty 
 
 Third Step(Running in the Terminal):
 ```powershell
-CMD: java -cp "bin;." Main
+java -cp "bin;../Installer/Jar/." Main
 ```
 Fourth Step(Creating Jar):
 Create `manifest.txt` first, the contents are:
 ```
 Main-Class: Main
-Class-Path: .
 
 ```
 You must include the blank line at the end.
 
 After creating the `manifest.txt`, You can now put this line in the terminal
 ```powershell
-jar cfm PokeRot.jar manifest.txt -C bin .
+jar cfm PokeRot.jar manifest.txt -C bin . -C ../Installer/Jar .
 ```
 Which will create the jar file.
 
 You can run that jar file by doing:
 ```powershell
 java -jar PokeRot.jar
+```
+
+If the Jar file is inside the Installer folder, you must first go back to the previous directory using the command:
+```
+java -jar ../Installer/Jar/PokeRot.jar
 ```
 

@@ -64,7 +64,7 @@ public class GameIntro extends JPanel {
             }
         });
         Clip eyeSound = loadSound("Assets/Music/OpenEyeSound_(2).wav");
-        Clip introSound = loadSound("Assets/Music/TitleScreen(no_melody).wav");
+        Clip introSound = loadSound("Assets/Music/Titlescreen(no_melody).wav");
         Clip whoosh = loadSound("Assets/Music/woosh.wav");
         
         if (eyeSound != null) eyeSound.start();
