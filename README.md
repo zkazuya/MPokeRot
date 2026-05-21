@@ -31,7 +31,7 @@ javac -d bin (Get-ChildItem -Recurse src/*.java | Select-Object -ExpandProperty 
 
 Third Step(Running in the Terminal):
 ```powershell
-CMD: java -cp "bin;." Main
+java -cp "bin;." Main
 ```
 Fourth Step(Creating Jar):
 Create `manifest.txt` first, the contents are:
