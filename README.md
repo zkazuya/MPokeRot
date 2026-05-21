@@ -6,6 +6,9 @@ PokeRot is a game where you can fight, catch, and battle other people with their
 that are composed of completely random things and making them humanoid at times, and then giving them Italian names. PokeRot is game that is combined from the classic Pokemon games, and the new
 and viral Italian Brainrots.
 
+## Small Instruction
+You can delete your save files by hovering over a slot and pressing "Backspace" on your keyboard at the Load Menu Screen
+
 ## Folder Structure
 -  `src/battle` - Handles PokeRot battling system 
 - `src/entity` - player, and npc's that can be battled or interactable.
