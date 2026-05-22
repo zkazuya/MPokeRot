@@ -9,6 +9,19 @@ and viral Italian Brainrots.
 ## Small Instruction
 You can delete your save files by hovering over a slot and pressing "Backspace" on your keyboard at the Load Menu Screen
 
+## Controls
+`Moving`
+W - go Up 
+A - go Left
+S - go Down
+D - go Right
+These buttons are also what you use to navigate through the buttons
+
+`Selecting`
+F - to interact with npc's
+Enter - to select the button that was hovered
+Esc - to pause the game and to also go back an option during battle
+
 ## Folder Structure
 -  `src/battle` - Handles PokeRot battling system 
 - `src/entity` - player, and npc's that can be battled or interactable.
@@ -34,7 +47,7 @@ javac -d bin (Get-ChildItem -Recurse src/*.java | Select-Object -ExpandProperty 
 
 Third Step(Running in the Terminal):
 ```powershell
-java -cp "bin;../Installer/Jar/." Main
+java -cp "bin;" Main
 ```
 Fourth Step(Creating Jar):
 Create `manifest.txt` first, the contents are:
@@ -46,7 +59,7 @@ You must include the blank line at the end.
 
 After creating the `manifest.txt`, You can now put this line in the terminal
 ```powershell
-jar cfm PokeRot.jar manifest.txt -C bin . -C ../Installer/Jar .
+jar cfm PokeRot.jar manifest.txt -C bin . -C . .
 ```
 Which will create the jar file.
 
