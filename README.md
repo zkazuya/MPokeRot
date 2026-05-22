@@ -11,16 +11,17 @@ You can delete your save files by hovering over a slot and pressing "Backspace" 
 
 ## Controls
 `Moving`
-W - go Up 
-A - go Left
-S - go Down
-D - go Right
+`W` - go Up 
+`A` - go Left
+`S` - go Down
+`D` - go Right
+
 These buttons are also what you use to navigate through the buttons
 
 `Selecting`
-F - to interact with npc's
-Enter - to select the button that was hovered
-Esc - to pause the game and to also go back an option during battle
+`F` - to interact with npc's
+`Enter` - to select the button that was hovered
+`Esc` - to pause the game and to also go back an option during battle
 
 ## Folder Structure
 -  `src/battle` - Handles PokeRot battling system 
